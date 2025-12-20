@@ -12,27 +12,23 @@
         body { background-color: #f0f2f5; font-family: 'Sarabun', sans-serif; padding-bottom: 50px; }
         .container { max-width: 600px; margin: 0 auto; }
         
-        /* การ์ดสถิติ */
         .stat-card {
             background: white; border-radius: 15px; padding: 15px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center;
         }
         .stat-value { font-size: 1.5rem; font-weight: bold; }
         
-        /* รายการหวย */
         .ticket-item {
             background: white; border-radius: 12px; margin-bottom: 10px; padding: 15px;
             border-left: 6px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             transition: all 0.2s;
         }
         
-        /* สถานะต่างๆ */
         .ticket-item.status-free { border-left-color: #ced4da; }
         .ticket-item.status-pending { border-left-color: #ffc107; background-color: #fffbf0; }
         .ticket-item.status-paid { border-left-color: #198754; background-color: #f0f9f4; }
 
         .lotto-num { font-size: 1.6rem; font-weight: 800; color: #333; letter-spacing: 2px; }
-        .badge-status { float: right; }
     </style>
 </head>
 <body>
@@ -73,12 +69,10 @@
 <script>
     // 1. ข้อมูลหวย 40 ชุด สกัดจากรูปภาพ (เรียงลำดับซ้ายไปขวา บนลงล่าง)
     const rawData = [
-        // แถวซ้าย
         "334309", "794712", "109713", "731015", "413020", 
         "154530", "622531", "491731", "796536", "883137", 
         "293137", "362538", "757938", "052940", "232545", 
         "104246", "651047", "959548", "123549", "995350",
-        // แถวขวา
         "083251", "730254", "570654", "640255", "592056", 
         "435257", "852557", "068760", "489061", "302363", 
         "404466", "201367", "261368", "837570", "851173", 
@@ -91,7 +85,7 @@
         const saved = localStorage.getItem('myLottoShop');
         if (saved) {
             tickets = JSON.parse(saved);
-            // ตรวจสอบว่าจำนวนเลขตรงกันไหม ถ้าไม่ตรงให้รีเซ็ต (กรณีเปลี่ยนงวด)
+            // ตรวจสอบว่าจำนวนเลขตรงกับฐานข้อมูลใหม่ไหม
             if (tickets.length !== rawData.length) {
                 resetTickets();
             }
@@ -104,7 +98,7 @@
     function resetTickets() {
         tickets = rawData.map(num => ({
             number: num,
-            price: 120, // ปรับราคาเป็น 120 ตามป้าย 2 ใบ 12 ล้าน (ชุดละ 120) หรือตามต้องการ
+            price: 100, // ปรับราคาเป็น 100 บาทตามต้องการ
             customer: "",
             isPaid: false
         }));
@@ -127,18 +121,8 @@
 
             if (!t.number.includes(search)) return;
 
-            let statusClass = 'status-free';
-            let statusBadge = '<span class="badge bg-secondary">ว่าง</span>';
-            
-            if (t.customer) {
-                if (t.isPaid) {
-                    statusClass = 'status-paid';
-                    statusBadge = '<span class="badge bg-success">จ่ายแล้ว</span>';
-                } else {
-                    statusClass = 'status-pending';
-                    statusBadge = '<span class="badge bg-warning text-dark">รอโอน</span>';
-                }
-            }
+            let statusClass = t.customer ? (t.isPaid ? 'status-paid' : 'status-pending') : 'status-free';
+            let statusBadge = t.customer ? (t.isPaid ? '<span class="badge bg-success">จ่ายแล้ว</span>' : '<span class="badge bg-warning text-dark">รอโอน</span>') : '<span class="badge bg-secondary">ว่าง</span>';
 
             const html = `
                 <div class="ticket-item ${statusClass}">
