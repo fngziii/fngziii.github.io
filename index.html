@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบเช็คหวย - งวด 16 ธ.ค. 68</title>
+    <title>ระบบเช็คหวย - งวด 2 ม.ค. 69</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
@@ -39,8 +39,8 @@
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="fw-bold m-0"><i class="fas fa-money-bill-wave text-success"></i>แผงหวยคุณโน๊ต งวด 16 ธ.ค. 68</h4>
-        <button onclick="clearData()" class="btn btn-sm btn-light text-danger">ล้างข้อมูล</button>
+        <h4 class="fw-bold m-0"><i class="fas fa-money-bill-wave text-success"></i> แผงหวย (งวด 2 ม.ค. 69)</h4>
+        <button onclick="clearData()" class="btn btn-sm btn-light text-danger">ล้างข้อมูลใหม่</button>
     </div>
 
     <div class="row g-2 mb-3">
@@ -71,34 +71,46 @@
 </div>
 
 <script>
-    // 1. ข้อมูลหวย 40 ชุด จากรูปภาพ
+    // 1. ข้อมูลหวย 40 ชุด สกัดจากรูปภาพ (เรียงลำดับซ้ายไปขวา บนลงล่าง)
     const rawData = [
-        "619404","715609","902323","447630","089036","199640","851042","496443","381845","736346",
-        "909147","554548","084151","967252","578353","612653","100554","265655","000757","013660",
-        "133961","272663","401664","033465","582067","463668","368774","370075","285776","599780",
-        "139081","711982","979686","409089","783090","910390","778191","371692","322493","284899"
+        // แถวซ้าย
+        "334309", "794712", "109713", "731015", "413020", 
+        "154530", "622531", "491731", "796536", "883137", 
+        "293137", "362538", "757938", "052940", "232545", 
+        "104246", "651047", "959548", "123549", "995350",
+        // แถวขวา
+        "083251", "730254", "570654", "640255", "592056", 
+        "435257", "852557", "068760", "489061", "302363", 
+        "404466", "201367", "261368", "837570", "851173", 
+        "650674", "785975", "995483", "226390", "652690"
     ];
 
     let tickets = [];
 
-    // 2. โหลดข้อมูลเมื่อเปิดเว็บ
     function init() {
         const saved = localStorage.getItem('myLottoShop');
         if (saved) {
             tickets = JSON.parse(saved);
+            // ตรวจสอบว่าจำนวนเลขตรงกันไหม ถ้าไม่ตรงให้รีเซ็ต (กรณีเปลี่ยนงวด)
+            if (tickets.length !== rawData.length) {
+                resetTickets();
+            }
         } else {
-            // ถ้าเปิดครั้งแรก สร้างข้อมูลใหม่
-            tickets = rawData.map(num => ({
-                number: num,
-                price: 200, // ราคาต่อชุด (แก้ได้ตรงนี้)
-                customer: "",
-                isPaid: false
-            }));
+            resetTickets();
         }
         renderList();
     }
 
-    // 3. ฟังก์ชั่นแสดงผล
+    function resetTickets() {
+        tickets = rawData.map(num => ({
+            number: num,
+            price: 120, // ปรับราคาเป็น 120 ตามป้าย 2 ใบ 12 ล้าน (ชุดละ 120) หรือตามต้องการ
+            customer: "",
+            isPaid: false
+        }));
+        save();
+    }
+
     function renderList() {
         const search = document.getElementById('searchInput').value;
         const listDiv = document.getElementById('lottoList');
@@ -107,17 +119,14 @@
         let sold = 0, money = 0, pending = 0;
 
         tickets.forEach((t, index) => {
-            // คำนวณยอด
             if (t.customer) {
                 sold++;
                 if (t.isPaid) money += t.price;
                 else pending += t.price;
             }
 
-            // กรองค้นหา
             if (!t.number.includes(search)) return;
 
-            // กำหนดสีและสถานะ
             let statusClass = 'status-free';
             let statusBadge = '<span class="badge bg-secondary">ว่าง</span>';
             
@@ -131,7 +140,6 @@
                 }
             }
 
-            // สร้าง HTML
             const html = `
                 <div class="ticket-item ${statusClass}">
                     <div class="d-flex justify-content-between mb-2">
@@ -158,47 +166,40 @@
             listDiv.innerHTML += html;
         });
 
-        // อัพเดทตัวเลขยอดรวม
         document.getElementById('soldCount').innerText = sold + "/40";
         document.getElementById('moneyCount').innerText = money.toLocaleString();
         
         const alertPending = document.getElementById('alertPending');
         if (pending > 0) {
             alertPending.classList.remove('d-none');
-            document.getElementById('pendingCount').innerText = pending.toLocaleString();
+            document.getElementById('pendingCount').innerText = pending.toLocaleString() + " บาท";
         } else {
             alertPending.classList.add('d-none');
         }
     }
 
-    // 4. บันทึกชื่อลูกค้า
     function updateCustomer(index, name) {
         tickets[index].customer = name;
-        if (!name) tickets[index].isPaid = false; // ลบชื่อ = ลบสถานะจ่าย
+        if (!name) tickets[index].isPaid = false;
         save();
     }
 
-    // 5. กดปุ่มรับเงิน
     function togglePaid(index) {
         tickets[index].isPaid = !tickets[index].isPaid;
         save();
     }
 
-    // 6. บันทึกลงเครื่อง
     function save() {
         localStorage.setItem('myLottoShop', JSON.stringify(tickets));
-        renderList(); // วาดหน้าจอใหม่
+        renderList();
     }
 
-    // 7. ล้างข้อมูลทั้งหมด
     function clearData() {
-        if(confirm("ล้างข้อมูลการขายทั้งหมด?")) {
-            localStorage.removeItem('myLottoShop');
-            init();
+        if(confirm("ต้องการล้างข้อมูลลูกค้าทั้งหมดเพื่อเริ่มงวดใหม่ใช่หรือไม่?")) {
+            resetTickets();
         }
     }
 
-    // เริ่มทำงาน
     init();
 </script>
 
