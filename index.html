@@ -1,191 +1,238 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบเช็คหวย - งวด 2 ม.ค. 69</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
-    
-    <style>
-        body { background-color: #f0f2f5; font-family: 'Sarabun', sans-serif; padding-bottom: 50px; }
-        .container { max-width: 600px; margin: 0 auto; }
-        
-        .stat-card {
-            background: white; border-radius: 15px; padding: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center;
-        }
-        .stat-value { font-size: 1.5rem; font-weight: bold; }
-        
-        .ticket-item {
-            background: white; border-radius: 12px; margin-bottom: 10px; padding: 15px;
-            border-left: 6px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            transition: all 0.2s;
-        }
-        
-        .ticket-item.status-free { border-left-color: #ced4da; }
-        .ticket-item.status-pending { border-left-color: #ffc107; background-color: #fffbf0; }
-        .ticket-item.status-paid { border-left-color: #198754; background-color: #f0f9f4; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบเช็คหวย - งวด 2 ม.ค. 69</title>
 
-        .lotto-num { font-size: 1.6rem; font-weight: 800; color: #333; letter-spacing: 2px; }
-    </style>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body { background:#f0f2f5; font-family:'Sarabun',sans-serif; padding-bottom:80px; }
+.container { max-width:600px; }
+.stat-card { background:#fff;border-radius:15px;padding:15px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.stat-value { font-size:1.5rem;font-weight:bold; }
+.ticket-item { background:#fff;border-radius:12px;padding:15px;margin-bottom:10px;border-left:6px solid #dee2e6;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.status-free { border-left-color:#adb5bd; }
+.status-pending { border-left-color:#ffc107;background:#fffbf0; }
+.status-paid { border-left-color:#198754;background:#f0f9f4; }
+.lotto-num { font-size:1.6rem;font-weight:800;letter-spacing:2px; }
+pre { white-space:pre-wrap; }
+</style>
 </head>
+
 <body>
-
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="fw-bold m-0"><i class="fas fa-money-bill-wave text-success"></i> แผงหวย (งวด 2 ม.ค. 69)</h4>
-        <button onclick="clearData()" class="btn btn-sm btn-light text-danger">ล้างข้อมูลใหม่</button>
-    </div>
 
-    <div class="row g-2 mb-3">
-        <div class="col-6">
-            <div class="stat-card">
-                <div class="text-muted small">ขายแล้ว (ใบ)</div>
-                <div class="stat-value text-primary" id="soldCount">0</div>
-            </div>
-        </div>
-        <div class="col-6">
-            <div class="stat-card">
-                <div class="text-muted small">รับเงินแล้ว (บาท)</div>
-                <div class="stat-value text-success" id="moneyCount">0</div>
-            </div>
-        </div>
-        <div class="col-12">
-            <div id="alertPending" class="alert alert-warning d-none d-flex justify-content-between align-items-center py-2">
-                <span><i class="fas fa-clock"></i> รอเก็บเงิน:</span>
-                <strong id="pendingCount">0 บาท</strong>
-            </div>
-        </div>
-    </div>
-
-    <input type="tel" id="searchInput" class="form-control form-control-lg mb-3 shadow-sm" 
-           placeholder="🔍 ค้นหาเลขท้าย..." onkeyup="renderList()">
-
-    <div id="lottoList"></div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+<h4 class="fw-bold m-0"><i class="fas fa-store text-primary"></i> แผงหวย (2 ม.ค. 69)</h4>
+<div>
+<button class="btn btn-sm btn-outline-danger me-1" onclick="clearData()">ล้างใหม่</button>
+<button class="btn btn-sm btn-dark me-1" onclick="showSummary()">สรุปยอด</button>
+<button class="btn btn-sm btn-primary" onclick="showPersonSummary()">สรุปรายบุคคล</button>
+</div>
 </div>
 
+<div class="row g-2 mb-3">
+<div class="col-6">
+<div class="stat-card">
+<div class="text-muted small">ขายแล้ว (ใบ)</div>
+<div class="stat-value text-primary" id="soldCount">0</div>
+</div>
+</div>
+<div class="col-6">
+<div class="stat-card">
+<div class="text-muted small">รับเงินแล้ว (บาท)</div>
+<div class="stat-value text-success" id="moneyCount">0</div>
+</div>
+</div>
+</div>
+
+<input type="tel" id="searchInput" class="form-control form-control-lg mb-3"
+placeholder="🔍 ค้นหาเลข..." onkeyup="renderList()">
+
+<div id="lottoList"></div>
+</div>
+
+<!-- SUMMARY MODAL -->
+<div class="modal fade" id="summaryModal" tabindex="-1">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title fw-bold">สรุปยอดรวม</h5>
+<button class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body">
+<pre id="summaryText"></pre>
+</div>
+<div class="modal-footer">
+<button class="btn btn-primary w-100" onclick="copyText('summaryText')">ก๊อปปี้ส่ง LINE</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- PERSON MODAL -->
+<div class="modal fade" id="personModal" tabindex="-1">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title fw-bold">สรุปยอดรายบุคคล (ค้างจ่าย)</h5>
+<button class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body">
+<select id="personSelect" class="form-select mb-2" onchange="renderPersonSummary()"></select>
+<pre id="personSummaryText" class="bg-light p-3 rounded"></pre>
+</div>
+<div class="modal-footer">
+<button class="btn btn-success w-100" onclick="copyText('personSummaryText')">ก๊อปปี้ส่งลูกค้า</button>
+</div>
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-    // 1. ข้อมูลหวย 40 ชุด สกัดจากรูปภาพ (เรียงลำดับซ้ายไปขวา บนลงล่าง)
-    const rawData = [
-        "334309", "794712", "109713", "731015", "413020", 
-        "154530", "622531", "491731", "796536", "883137", 
-        "293137", "362538", "757938", "052940", "232545", 
-        "104246", "651047", "959548", "123549", "995350",
-        "083251", "730254", "570654", "640255", "592056", 
-        "435257", "852557", "068760", "489061", "302363", 
-        "404466", "201367", "261368", "837570", "851173", 
-        "650674", "785975", "995483", "226390", "652690"
-    ];
+const PRICE = 200;
 
-    let tickets = [];
+const BANK_INFO =
+`🏦 ธนาคารออมสิน
+เลขบัญชี 020-1-25404-630
+ชื่อบัญชี นันท์ภสร ขอบรูป`;
 
-    function init() {
-        const saved = localStorage.getItem('myLottoShop');
-        if (saved) {
-            tickets = JSON.parse(saved);
-            // ตรวจสอบว่าจำนวนเลขตรงกับฐานข้อมูลใหม่ไหม
-            if (tickets.length !== rawData.length) {
-                resetTickets();
-            }
-        } else {
-            resetTickets();
-        }
-        renderList();
-    }
+const rawData = [
+"334309","794712","109713","731015","413020","154530","622531","491731","796536","883137",
+"293137","362538","757938","052940","232545","104246","651047","959548","123549","995350",
+"083251","730254","570654","640255","592056","435257","852557","068760","489061","302363",
+"404466","201367","261368","837570","851173","650674","785975","995483","226390","652690"
+];
 
-    function resetTickets() {
-        tickets = rawData.map(num => ({
-            number: num,
-            price: 100, // ปรับราคาเป็น 100 บาทตามต้องการ
-            customer: "",
-            isPaid: false
-        }));
-        save();
-    }
+let tickets = [];
 
-    function renderList() {
-        const search = document.getElementById('searchInput').value;
-        const listDiv = document.getElementById('lottoList');
-        listDiv.innerHTML = '';
+function init(){
+const saved = localStorage.getItem('lotto69');
+if(saved){
+tickets = JSON.parse(saved);
+} else {
+tickets = rawData.map(n => ({number:n, customer:"", isPaid:false}));
+save();
+}
+renderList();
+}
 
-        let sold = 0, money = 0, pending = 0;
+function save(){
+localStorage.setItem('lotto69', JSON.stringify(tickets));
+renderList();
+}
 
-        tickets.forEach((t, index) => {
-            if (t.customer) {
-                sold++;
-                if (t.isPaid) money += t.price;
-                else pending += t.price;
-            }
+function renderList(){
+let sold=0, money=0;
+const search = searchInput.value;
+lottoList.innerHTML="";
 
-            if (!t.number.includes(search)) return;
+tickets.forEach((t,i)=>{
+if(t.customer){
+sold++;
+if(t.isPaid) money+=PRICE;
+}
+if(!t.number.includes(search)) return;
 
-            let statusClass = t.customer ? (t.isPaid ? 'status-paid' : 'status-pending') : 'status-free';
-            let statusBadge = t.customer ? (t.isPaid ? '<span class="badge bg-success">จ่ายแล้ว</span>' : '<span class="badge bg-warning text-dark">รอโอน</span>') : '<span class="badge bg-secondary">ว่าง</span>';
+let cls = t.customer ? (t.isPaid?'status-paid':'status-pending') : 'status-free';
 
-            const html = `
-                <div class="ticket-item ${statusClass}">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="lotto-num text-primary">${t.number}</span>
-                        ${statusBadge}
-                    </div>
-                    <div class="row g-2">
-                        <div class="col-8">
-                            <input type="text" class="form-control form-control-sm" 
-                                   placeholder="ชื่อลูกค้า..." 
-                                   value="${t.customer}" 
-                                   onchange="updateCustomer(${index}, this.value)">
-                        </div>
-                        <div class="col-4">
-                            <button class="btn btn-sm w-100 ${t.isPaid ? 'btn-success' : 'btn-outline-secondary'}" 
-                                    onclick="togglePaid(${index})" 
-                                    ${!t.customer ? 'disabled' : ''}>
-                                ${t.isPaid ? '<i class="fas fa-check"></i> รับแล้ว' : 'รับเงิน'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            listDiv.innerHTML += html;
-        });
+lottoList.innerHTML += `
+<div class="ticket-item ${cls}">
+<div class="d-flex justify-content-between mb-2">
+<span class="lotto-num text-primary">${t.number}</span>
+<span class="badge ${t.customer?(t.isPaid?'bg-success':'bg-warning text-dark'):'bg-secondary'}">
+${t.customer?(t.isPaid?'จ่ายแล้ว':'รอโอน'):'ว่าง'}
+</span>
+</div>
+<div class="row g-2">
+<div class="col-8">
+<input class="form-control form-control-sm" placeholder="ชื่อลูกค้า"
+value="${t.customer}" onchange="tickets[${i}].customer=this.value; if(!this.value) tickets[${i}].isPaid=false; save();">
+</div>
+<div class="col-4">
+<button class="btn btn-sm w-100 ${t.isPaid?'btn-success':'btn-outline-secondary'}"
+onclick="tickets[${i}].isPaid=!tickets[${i}].isPaid; save();"
+${!t.customer?'disabled':''}>
+${t.isPaid?'รับแล้ว':'รับเงิน'}
+</button>
+</div>
+</div>
+</div>`;
+});
 
-        document.getElementById('soldCount').innerText = sold + "/40";
-        document.getElementById('moneyCount').innerText = money.toLocaleString();
-        
-        const alertPending = document.getElementById('alertPending');
-        if (pending > 0) {
-            alertPending.classList.remove('d-none');
-            document.getElementById('pendingCount').innerText = pending.toLocaleString() + " บาท";
-        } else {
-            alertPending.classList.add('d-none');
-        }
-    }
+soldCount.innerText = sold + "/40";
+moneyCount.innerText = money.toLocaleString();
+}
 
-    function updateCustomer(index, name) {
-        tickets[index].customer = name;
-        if (!name) tickets[index].isPaid = false;
-        save();
-    }
+function clearData(){
+if(confirm("ล้างข้อมูลทั้งหมด?")){
+localStorage.removeItem('lotto69');
+init();
+}
+}
 
-    function togglePaid(index) {
-        tickets[index].isPaid = !tickets[index].isPaid;
-        save();
-    }
+// SUMMARY
+function showSummary(){
+let sold = tickets.filter(t=>t.customer);
+let paid = sold.filter(t=>t.isPaid);
+let pending = sold.filter(t=>!t.isPaid);
 
-    function save() {
-        localStorage.setItem('myLottoShop', JSON.stringify(tickets));
-        renderList();
-    }
+let txt =
+`📊 สรุปยอด งวด 2 ม.ค. 69
+------------------------
+ขายแล้ว ${sold.length} ใบ
+รับเงินแล้ว ${paid.length*PRICE} บาท
+ค้างจ่าย ${pending.length*PRICE} บาท
 
-    function clearData() {
-        if(confirm("ต้องการล้างข้อมูลลูกค้าทั้งหมดเพื่อเริ่มงวดใหม่ใช่หรือไม่?")) {
-            resetTickets();
-        }
-    }
+📌 ค้างจ่าย:
+${pending.map(p=>`- ${p.number} (${p.customer})`).join('\n')}
 
-    init();
+✅ จ่ายแล้ว:
+${paid.map(p=>`- ${p.number} (${p.customer})`).join('\n')}
+`;
+
+summaryText.innerText = txt;
+new bootstrap.Modal(summaryModal).show();
+}
+
+// PERSON SUMMARY
+function showPersonSummary(){
+const names = [...new Set(tickets.filter(t=>t.customer&&!t.isPaid).map(t=>t.customer))];
+personSelect.innerHTML = '<option value="">-- เลือกลูกค้า --</option>';
+names.forEach(n=>personSelect.innerHTML+=`<option>${n}</option>`);
+personSummaryText.innerText="";
+new bootstrap.Modal(personModal).show();
+}
+
+function renderPersonSummary(){
+const name = personSelect.value;
+if(!name) return;
+const items = tickets.filter(t=>t.customer===name&&!t.isPaid);
+let txt =
+`📌 สรุปยอดคุณ ${name}
+--------------------
+เลขที่ซื้อ:
+${items.map(i=>`- ${i.number}`).join('\n')}
+
+💰 ยอดที่ต้องโอน ${items.length*PRICE} บาท
+--------------------
+${BANK_INFO}`;
+
+personSummaryText.innerText = txt;
+}
+
+function copyText(id){
+navigator.clipboard.writeText(document.getElementById(id).innerText)
+.then(()=>alert("ก๊อปปี้เรียบร้อย"));
+}
+
+init();
 </script>
-
 </body>
 </html>
