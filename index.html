@@ -26,12 +26,14 @@ body{background:#f0f2f5;font-family:'Sarabun',sans-serif;padding-bottom:80px}
 
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
-    <small class="text-muted">ระบบเช็คหวย</small>
-    <h5 class="fw-bold m-0"><i class="fas fa-store text-primary"></i> แผงหวย (2 ม.ค. 69)</h5>
+    <small class="text-muted" style="font-size:12px">ระบบเช็คหวย</small>
+    <h5 class="fw-bold m-0">
+      <i class="fas fa-store text-primary"></i> แผงหวย (2 ม.ค. 69)
+    </h5>
   </div>
-  <div>
-    <button class="btn btn-sm btn-primary" onclick="showPersonSummary()">สรุปรายคน</button>
-    <button class="btn btn-sm btn-dark" onclick="showSummary()">สรุปยอด</button>
+  <div class="text-end">
+    <button class="btn btn-sm btn-primary mb-1" onclick="showPersonSummary()">สรุปรายคน</button>
+    <button class="btn btn-sm btn-dark mb-1" onclick="showSummary()">สรุปยอด</button>
     <button class="btn btn-sm btn-outline-danger" onclick="clearData()">ล้างใหม่</button>
   </div>
 </div>
@@ -57,12 +59,12 @@ body{background:#f0f2f5;font-family:'Sarabun',sans-serif;padding-bottom:80px}
 <div id="lottoList"></div>
 </div>
 
-<!-- MODAL สรุปรายคน -->
+<!-- MODAL : สรุปรายคน -->
 <div class="modal fade" id="personModal">
 <div class="modal-dialog modal-dialog-centered">
 <div class="modal-content">
 <div class="modal-header">
-<h5 class="modal-title fw-bold">สรุปยอดรายคน (ค้างจ่าย)</h5>
+<h5 class="modal-title fw-bold">สรุปรายคน (ค้างจ่าย)</h5>
 <button class="btn-close" data-bs-dismiss="modal"></button>
 </div>
 <div class="modal-body">
@@ -71,6 +73,21 @@ body{background:#f0f2f5;font-family:'Sarabun',sans-serif;padding-bottom:80px}
 </div>
 <div class="modal-footer">
 <button class="btn btn-success w-100" onclick="copyPersonSummary()">ก๊อปปี้ส่งลูกค้า</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- MODAL : สรุปยอด -->
+<div class="modal fade" id="summaryModal">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title fw-bold">สรุปยอดทั้งหมด</h5>
+<button class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body">
+<pre id="summaryText" class="p-3 bg-light rounded"></pre>
 </div>
 </div>
 </div>
@@ -111,7 +128,10 @@ list.innerHTML="";
 let sold=0,money=0;
 
 tickets.forEach((t,i)=>{
-if(t.customer){sold++;if(t.isPaid)money+=PRICE}
+if(t.customer){
+sold++;
+if(t.isPaid)money+=PRICE;
+}
 if(!t.number.includes(s))return;
 
 list.innerHTML+=`
@@ -141,10 +161,25 @@ soldCount.innerText=sold+"/40";
 moneyCount.innerText=money.toLocaleString();
 }
 
-function updateCustomer(i,v){tickets[i].customer=v;if(!v)tickets[i].isPaid=false;save();}
-function togglePaid(i){tickets[i].isPaid=!tickets[i].isPaid;save();}
-function save(){localStorage.setItem("myLottoShop",JSON.stringify(tickets));renderList();}
-function clearData(){if(confirm("ล้างข้อมูลทั้งหมด?"))resetTickets();}
+function updateCustomer(i,v){
+tickets[i].customer=v;
+if(!v)tickets[i].isPaid=false;
+save();
+}
+
+function togglePaid(i){
+tickets[i].isPaid=!tickets[i].isPaid;
+save();
+}
+
+function save(){
+localStorage.setItem("myLottoShop",JSON.stringify(tickets));
+renderList();
+}
+
+function clearData(){
+if(confirm("ล้างข้อมูลทั้งหมด?"))resetTickets();
+}
 
 function showPersonSummary(){
 const names=[...new Set(tickets.filter(t=>t.customer&&!t.isPaid).map(t=>t.customer))];
@@ -158,7 +193,7 @@ function renderPersonSummary(){
 const name=personSelect.value;
 if(!name)return;
 const items=tickets.filter(t=>t.customer===name&&!t.isPaid);
-let txt=`📌 สรุปยอดคุณ ${name}\n`;
+let txt=`📌 สรุปยอดคุณ ${name}\n\n`;
 txt+=`เลขที่ซื้อ:\n`;
 items.forEach(i=>txt+=`- ${i.number}\n`);
 txt+=`\n💰 ยอดที่ต้องโอน ${items.length*PRICE} บาท\n\n${BANK_INFO}`;
@@ -168,6 +203,33 @@ personSummaryText.innerText=txt;
 function copyPersonSummary(){
 navigator.clipboard.writeText(personSummaryText.innerText)
 .then(()=>alert("ก๊อปปี้เรียบร้อย"));
+}
+
+function showSummary(){
+let sold=0,paid=0,pending=0,money=0;
+
+tickets.forEach(t=>{
+if(t.customer){
+sold++;
+if(t.isPaid){
+paid++;
+money+=PRICE;
+}else{
+pending++;
+}
+}
+});
+
+summaryText.innerText=
+`📊 สรุปยอดทั้งหมด
+
+🎟️ ขายแล้ว ${sold} ใบ
+💸 รับเงินแล้ว ${paid} ใบ
+⏳ ค้างจ่าย ${pending} ใบ
+💰 เงินที่รับแล้ว ${money.toLocaleString()} บาท
+`;
+
+new bootstrap.Modal(summaryModal).show();
 }
 
 init();
