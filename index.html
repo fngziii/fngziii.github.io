@@ -4,67 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบเช็คหวย - งวด 1 ก.พ. 69</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
-
+    
     <style>
-        body {
-            background-color: #f0f2f5;
-            font-family: 'Sarabun', sans-serif;
-            padding-bottom: 80px;
-        }
+        body { background-color: #f0f2f5; font-family: 'Sarabun', sans-serif; padding-bottom: 80px; }
         .container { max-width: 600px; margin: 0 auto; }
         .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            text-align: center;
+            background: white; border-radius: 15px; padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center;
         }
         .stat-value { font-size: 1.5rem; font-weight: bold; }
         .ticket-item {
-            background: white;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            padding: 15px;
-            border-left: 6px solid #e9ecef;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            background: white; border-radius: 12px; margin-bottom: 10px; padding: 15px;
+            border-left: 6px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         .status-free { border-left-color: #ced4da; }
         .status-pending { border-left-color: #ffc107; background-color: #fffbf0; }
         .status-paid { border-left-color: #198754; background-color: #f0f9f4; }
-        .lotto-num {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: #333;
-            letter-spacing: 2px;
-        }
-        #summaryText {
-            white-space: pre-wrap;
-            font-family: 'Courier New', Courier, monospace;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
+        .lotto-num { font-size: 1.6rem; font-weight: 800; color: #333; letter-spacing: 2px; }
+        
+        /* สไตล์ Modal สรุปยอด */
+        #summaryText { white-space: pre-wrap; font-family: 'Courier New', Courier, monospace; background: #f8f9fa; padding: 15px; border-radius: 8px; font-size: 0.9rem; }
     </style>
 </head>
-
 <body>
 
 <div class="container mt-4">
-
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="fw-bold m-0 text-dark">
-            <i class="fas fa-store text-primary"></i> แผงหวย (งวด 1 ก.พ. 69)
-        </h5>
+        <h4 class="fw-bold m-0 text-dark"><i class="fas fa-store text-primary"></i> แผงหวย (2 ม.ค. 69)</h4>
         <div>
             <button onclick="clearData()" class="btn btn-sm btn-outline-danger me-1">ล้างใหม่</button>
-            <button class="btn btn-sm btn-dark" onclick="showSummary()">
-                <i class="fas fa-file-alt"></i> สรุปยอด
-            </button>
+            <button class="btn btn-sm btn-dark" onclick="showSummary()"><i class="fas fa-file-alt"></i> สรุปยอด</button>
         </div>
     </div>
 
@@ -83,16 +55,12 @@
         </div>
     </div>
 
-    <input type="tel"
-           id="searchInput"
-           class="form-control form-control-lg mb-3 shadow-sm"
-           placeholder="🔍 ค้นหาเลข..."
-           onkeyup="renderList()">
+    <input type="tel" id="searchInput" class="form-control form-control-lg mb-3 shadow-sm" 
+           placeholder="🔍 ค้นหาเลข..." onkeyup="renderList()">
 
     <div id="lottoList"></div>
 </div>
 
-<!-- Modal -->
 <div class="modal fade" id="summaryModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -104,7 +72,7 @@
                 <div id="summaryText"></div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary w-100" onclick="copySummary()">ก๊อปปี้ส่ง LINE</button>
+                <button type="button" class="btn btn-primary w-100" onclick="copySummary()">ก๊อปปี้ส่ง LINE</button>
             </div>
         </div>
     </div>
@@ -113,18 +81,20 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // 🔢 เลขหวยจากรูป (ครบ 40 ใบ)
     const rawData = [
-        "078404","960808","066110","005812","845214",
-        "282316","354518","523420","284422","090924",
-        "885326","971828","360232","387534","855546",
-        "575148","713950","622952","531954","938556",
-        "169558",
-        "209360","281662","353964","378268","300070",
-        "442872","585674","037376","888578","717880",
-        "925082","867884","440386","334388","338790",
-        "908092","522594","285096","194198"
-    ];
+  // แผงซ้าย
+  "078404", "960808", "066110", "005812", "845214",
+  "282316", "354518", "523420", "284422", "090924",
+  "885326", "971828", "360232", "387534", "855546",
+  "575148", "713950", "622952", "531954", "938556",
+  "169558",
+
+  // แผงขวา
+  "209360", "281662", "353964", "378268", "300070",
+  "442872", "585674", "037376", "888578", "717880",
+  "925082", "867884", "440386", "334388", "338790",
+  "908092", "522594", "285096", "194198"
+];
 
     let tickets = [];
 
@@ -140,12 +110,7 @@
     }
 
     function resetTickets() {
-        tickets = rawData.map(num => ({
-            number: num,
-            price: 100,
-            customer: "",
-            isPaid: false
-        }));
+        tickets = rawData.map(num => ({ number: num, price: 100, customer: "", isPaid: false }));
         save();
     }
 
@@ -153,27 +118,17 @@
         const search = document.getElementById('searchInput').value;
         const listDiv = document.getElementById('lottoList');
         listDiv.innerHTML = '';
-
-        let sold = 0;
-        let money = 0;
+        let sold = 0, money = 0;
 
         tickets.forEach((t, index) => {
             if (t.customer) {
                 sold++;
                 if (t.isPaid) money += t.price;
             }
-
             if (!t.number.includes(search)) return;
 
-            let statusClass = t.customer
-                ? (t.isPaid ? 'status-paid' : 'status-pending')
-                : 'status-free';
-
-            let statusBadge = t.customer
-                ? (t.isPaid
-                    ? '<span class="badge bg-success">จ่ายแล้ว</span>'
-                    : '<span class="badge bg-warning text-dark">รอโอน</span>')
-                : '<span class="badge bg-secondary">ว่าง</span>';
+            let statusClass = t.customer ? (t.isPaid ? 'status-paid' : 'status-pending') : 'status-free';
+            let statusBadge = t.customer ? (t.isPaid ? '<span class="badge bg-success">จ่ายแล้ว</span>' : '<span class="badge bg-warning text-dark">รอโอน</span>') : '<span class="badge bg-secondary">ว่าง</span>';
 
             listDiv.innerHTML += `
                 <div class="ticket-item ${statusClass}">
@@ -182,82 +137,52 @@
                         ${statusBadge}
                     </div>
                     <div class="row g-2">
-                        <div class="col-8">
-                            <input type="text"
-                                   class="form-control form-control-sm"
-                                   placeholder="ชื่อลูกค้า..."
-                                   value="${t.customer}"
-                                   onchange="updateCustomer(${index}, this.value)">
-                        </div>
-                        <div class="col-4">
-                            <button class="btn btn-sm w-100 ${t.isPaid ? 'btn-success' : 'btn-outline-secondary'}"
-                                    onclick="togglePaid(${index})"
-                                    ${!t.customer ? 'disabled' : ''}>
-                                ${t.isPaid ? 'รับแล้ว' : 'รับเงิน'}
-                            </button>
-                        </div>
+                        <div class="col-8"><input type="text" class="form-control form-control-sm" placeholder="ชื่อลูกค้า..." value="${t.customer}" onchange="updateCustomer(${index}, this.value)"></div>
+                        <div class="col-4"><button class="btn btn-sm w-100 ${t.isPaid ? 'btn-success' : 'btn-outline-secondary'}" onclick="togglePaid(${index})" ${!t.customer ? 'disabled' : ''}>${t.isPaid ? 'รับแล้ว' : 'รับเงิน'}</button></div>
                     </div>
-                </div>
-            `;
+                </div>`;
         });
-
         document.getElementById('soldCount').innerText = sold + "/40";
         document.getElementById('moneyCount').innerText = money.toLocaleString();
     }
 
-    function updateCustomer(i, v) {
-        tickets[i].customer = v;
-        if (!v) tickets[i].isPaid = false;
-        save();
-    }
+    function updateCustomer(i, v) { tickets[i].customer = v; if (!v) tickets[i].isPaid = false; save(); }
+    function togglePaid(i) { tickets[i].isPaid = !tickets[i].isPaid; save(); }
+    function save() { localStorage.setItem('myLottoShop', JSON.stringify(tickets)); renderList(); }
+    function clearData() { if(confirm("ล้างข้อมูลทั้งหมด?")) resetTickets(); }
 
-    function togglePaid(i) {
-        tickets[i].isPaid = !tickets[i].isPaid;
-        save();
-    }
-
-    function save() {
-        localStorage.setItem('myLottoShop', JSON.stringify(tickets));
-        renderList();
-    }
-
-    function clearData() {
-        if (confirm("ล้างข้อมูลทั้งหมด?")) resetTickets();
-    }
-
+    // ฟังก์ชั่นสรุปยอด
     function showSummary() {
         let soldItems = tickets.filter(t => t.customer);
         let paidItems = soldItems.filter(t => t.isPaid);
         let pendingItems = soldItems.filter(t => !t.isPaid);
-
-        let txt = `📊 สรุปยอดขาย งวด 1 ก.พ. 69\n`;
+        
+        let txt = `📊 สรุปยอดขาย งวด 2 ม.ค. 69\n`;
         txt += `--------------------------\n`;
         txt += `✅ ขายแล้ว: ${soldItems.length} ใบ\n`;
         txt += `💰 รับเงินแล้ว: ${paidItems.length * 100} บาท\n`;
         txt += `⏳ ค้างจ่าย: ${pendingItems.length * 100} บาท\n`;
         txt += `--------------------------\n\n`;
-
-        if (pendingItems.length) {
+        
+        if(pendingItems.length > 0) {
             txt += `📌 รายชื่อค้างจ่าย:\n`;
-            pendingItems.forEach(i => txt += `- ${i.number} (${i.customer})\n`);
+            pendingItems.forEach(item => txt += `- ${item.number} (${item.customer})\n`);
             txt += `\n`;
         }
 
         txt += `✅ รายชื่อจ่ายแล้ว:\n`;
-        paidItems.forEach(i => txt += `- ${i.number} (${i.customer})\n`);
+        paidItems.forEach(item => txt += `- ${item.number} (${item.customer})\n`);
 
         document.getElementById('summaryText').innerText = txt;
         new bootstrap.Modal(document.getElementById('summaryModal')).show();
     }
 
     function copySummary() {
-        navigator.clipboard.writeText(
-            document.getElementById('summaryText').innerText
-        ).then(() => alert("ก๊อปปี้สรุปยอดเรียบร้อย!"));
+        const text = document.getElementById('summaryText').innerText;
+        navigator.clipboard.writeText(text).then(() => alert("ก๊อปปี้สรุปยอดเรียบร้อย!"));
     }
 
     init();
 </script>
-
 </body>
 </html>
