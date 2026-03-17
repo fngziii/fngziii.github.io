@@ -16,7 +16,7 @@
             padding-bottom: 80px;
         }
         
-        /* ปรับแต่งส่วนหัวให้ลอยอยู่ด้านบน (Sticky) เพื่อให้หาง่ายเวลาเลื่อนลง */
+        /* ปรับแต่งส่วนหัวให้ลอยอยู่ด้านบน (Sticky) */
         .sticky-header {
             position: sticky;
             top: 0;
@@ -38,7 +38,7 @@
             transition: transform 0.2s;
         }
         
-        /* ตกแต่งรายการตั๋วแต่ละใบ */
+        /* ตกแต่งรายการตั๋วแต่ละใบ (แบบเดิม 1 คอลัมน์) */
         .ticket-item {
             background: #ffffff;
             border-radius: 16px;
@@ -72,9 +72,53 @@
             color: #2c3e50;
         }
         
-        .form-control, .btn { border-radius: 8px; }
-        
-        /* ซ่อน Scrollbar สำหรับเนื้อหา Modal ยาวๆ */
+        /* ดีไซน์ช่องกรอกและปุ่มให้โค้งมน (ข้อ 5) */
+        .rounded-input-group {
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #ced4da;
+            background: #fff;
+        }
+        .rounded-input-group .input-group-text, 
+        .rounded-input-group .form-control {
+            border: none;
+            background: transparent;
+            box-shadow: none;
+        }
+        .rounded-btn {
+            border-radius: 20px !important;
+        }
+
+        /* ส่วนค้นหาและตัวกรอง (ข้อ 4) */
+        .search-container {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            border: 1px solid #eef2f5;
+        }
+        .search-input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+        }
+
+        /* ปุ่ม Filter ตัวกรอง */
+        .filter-btn {
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 0.85rem;
+            border: 1px solid #dee2e6;
+            background: white;
+            color: #6c757d;
+            transition: all 0.2s;
+        }
+        .filter-btn.active-all { background: #3b82f6; color: white; border-color: #3b82f6; }
+        .filter-btn.active-empty { border-color: #adb5bd; color: #495057; }
+        .filter-btn.active-pending { border-color: #ffc107; color: #b08a00; }
+        .filter-btn.active-paid { border-color: #198754; color: #198754; }
+
         .modal-body pre { white-space: pre-wrap; word-wrap: break-word; }
     </style>
 </head>
@@ -114,10 +158,17 @@
             </div>
         </div>
 
-        <div class="input-group shadow-sm mb-3">
-            <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
-            <input id="searchInput" class="form-control form-control-lg border-start-0 ps-0" 
-                   placeholder="ค้นหาเลข..." onkeyup="renderList()">
+        <div class="search-container mb-3 shadow-sm">
+            <div class="d-flex align-items-center border-bottom pb-2 mb-3">
+                <i class="fas fa-search text-muted me-2"></i>
+                <input id="searchInput" class="search-input" placeholder="ค้นหาหมายเลข หรือ ชื่อลูกค้า..." onkeyup="renderList()">
+            </div>
+            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <button class="filter-btn active-all" id="btn-filter-all" onclick="setFilter('all')">ทั้งหมด</button>
+                <button class="filter-btn" id="btn-filter-empty" onclick="setFilter('empty')">ว่าง</button>
+                <button class="filter-btn" id="btn-filter-pending" onclick="setFilter('pending')">รอโอน</button>
+                <button class="filter-btn" id="btn-filter-paid" onclick="setFilter('paid')">จ่ายแล้ว</button>
+            </div>
         </div>
     </div>
 
@@ -137,7 +188,7 @@
                 <pre id="personSummaryText" class="p-3 bg-light rounded border border-warning border-opacity-25" style="font-family:'Sarabun'; font-size:15px;"></pre>
             </div>
             <div class="modal-footer border-top-0">
-                <button class="btn btn-success w-100 py-2 fw-bold" onclick="copyPersonSummary()">
+                <button class="btn btn-success w-100 py-2 fw-bold rounded-btn" onclick="copyPersonSummary()">
                     <i class="fas fa-copy"></i> ก๊อปปี้ส่งลูกค้า
                 </button>
             </div>
@@ -164,7 +215,7 @@
     const PRICE_PER_PAIR = 200; 
     const BANK_INFO = `🏦 ธนาคารออมสิน\nเลขบัญชี 020-1-25404-630\nชื่อบัญชี นันท์ภสร ขอบรูป`;
 
-    // ข้อมูลลอตเตอรี่ (47 คู่)
+    // ใช้ข้อมูล 47 ชุดแบบเดิม
     const rawData = [
         "166301", "447302", "180604", "311214", "529514", "133920", "465225", "227526",
         "332027", "748936", "821336", "535338", "794838", "249440", "679743", "080344",
@@ -175,6 +226,7 @@
     ];
 
     let tickets = [];
+    let currentFilter = 'all'; 
 
     function init() {
         const saved = localStorage.getItem("myLottoShop");
@@ -191,12 +243,28 @@
         save();
     }
 
+    function setFilter(filterType) {
+        currentFilter = filterType;
+        
+        document.getElementById('btn-filter-all').className = 'filter-btn';
+        document.getElementById('btn-filter-empty').className = 'filter-btn';
+        document.getElementById('btn-filter-pending').className = 'filter-btn';
+        document.getElementById('btn-filter-paid').className = 'filter-btn';
+        
+        if(filterType === 'all') document.getElementById('btn-filter-all').classList.add('active-all');
+        if(filterType === 'empty') document.getElementById('btn-filter-empty').classList.add('active-empty');
+        if(filterType === 'pending') document.getElementById('btn-filter-pending').classList.add('active-pending');
+        if(filterType === 'paid') document.getElementById('btn-filter-paid').classList.add('active-paid');
+        
+        renderList();
+    }
+
     function renderList() {
-        const searchValue = document.getElementById("searchInput").value.trim();
+        const searchValue = document.getElementById("searchInput").value.trim().toLowerCase();
         const listContainer = document.getElementById("lottoList");
         
         let sold = 0, money = 0;
-        let htmlContent = ''; // การใช้ตัวแปรเก็บ HTML ก่อนช่วยให้ทำงานลื่นไหลกว่าการใช้ innerHTML += หลายๆ รอบ
+        let htmlContent = ''; 
 
         tickets.forEach((t, i) => {
             if (t.customer) {
@@ -204,10 +272,15 @@
                 if (t.isPaid) money += PRICE_PER_PAIR;
             }
             
-            // กรองข้อมูลตามที่ค้นหา
-            if (!t.number.includes(searchValue)) return;
+            // 1. กรองคำค้นหา
+            const matchSearch = t.number.includes(searchValue) || t.customer.toLowerCase().includes(searchValue);
+            if (!matchSearch) return;
 
-            // กำหนด CSS Class ตามสถานะ
+            // 2. กรองตามปุ่มสถานะ
+            if (currentFilter === 'empty' && t.customer !== "") return;
+            if (currentFilter === 'pending' && (!t.customer || t.isPaid)) return;
+            if (currentFilter === 'paid' && (!t.customer || !t.isPaid)) return;
+
             const statusClass = t.customer ? (t.isPaid ? 'status-paid' : 'status-pending') : 'status-free';
             const badgeClass = t.customer ? (t.isPaid ? 'bg-success' : 'bg-warning text-dark') : 'bg-secondary';
             const badgeText = t.customer ? (t.isPaid ? '<i class="fas fa-check-circle"></i> จ่ายแล้ว' : '<i class="fas fa-clock"></i> รอโอน') : 'ว่าง';
@@ -221,14 +294,14 @@
                 </div>
                 <div class="row g-2 align-items-center">
                     <div class="col-8">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-light"><i class="fas fa-user text-muted"></i></span>
+                        <div class="input-group input-group-sm rounded-input-group">
+                            <span class="input-group-text"><i class="fas fa-user text-muted"></i></span>
                             <input class="form-control form-control-sm py-2" placeholder="พิมพ์ชื่อลูกค้า..."
                             value="${t.customer}" onchange="updateCustomer(${i}, this.value)">
                         </div>
                     </div>
                     <div class="col-4">
-                        <button class="btn btn-sm w-100 py-2 fw-bold ${btnClass}"
+                        <button class="btn btn-sm w-100 py-2 fw-bold rounded-btn ${btnClass}"
                         onclick="togglePaid(${i})" ${!t.customer ? 'disabled' : ''}>
                             ${t.isPaid ? 'รับแล้ว' : 'กดรับเงิน'}
                         </button>
@@ -237,7 +310,6 @@
             </div>`;
         });
 
-        // แปะ HTML เข้า DOM ทีเดียวเลย
         listContainer.innerHTML = htmlContent;
 
         // อัปเดตตัวเลขสถิติด้านบน
@@ -247,13 +319,12 @@
 
     function updateCustomer(i, value) {
         tickets[i].customer = value.trim();
-        // ถ้ายกเลิกชื่อลูกค้า ให้สถานะการจ่ายเงินกลับเป็นยังไม่จ่ายด้วย
         if (!tickets[i].customer) tickets[i].isPaid = false; 
         save();
     }
 
     function togglePaid(i) {
-        if (!tickets[i].customer) return; // ป้องกันการกดรับเงินถ้ายังไม่มีชื่อลูกค้า
+        if (!tickets[i].customer) return;
         tickets[i].isPaid = !tickets[i].isPaid;
         save();
     }
@@ -270,7 +341,6 @@
     }
 
     function showPersonSummary() {
-        // กรองหาชื่อลูกค้าที่ค้างจ่าย (ไม่ซ้ำกัน)
         const names = [...new Set(tickets.filter(t => t.customer && !t.isPaid).map(t => t.customer))];
         const personSelect = document.getElementById("personSelect");
         
@@ -341,7 +411,6 @@
         new bootstrap.Modal(document.getElementById("summaryModal")).show();
     }
 
-    // เริ่มการทำงาน
     init();
 </script>
 </body>
