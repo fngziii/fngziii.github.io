@@ -138,8 +138,13 @@
                     <label class="form-label fw-bold text-muted">วางตัวเลขทั้งหมดที่นี่ (1 บรรทัด = 1 คู่)</label>
                     <textarea id="rawNumbersInput" class="form-control" rows="8" placeholder="600410&#10;642511&#10;593812" style="border-radius: 16px; background: #f8fafc; border: 2px solid #e2e8f0;"></textarea>
                 </div>
+                
                 <div class="p-3 bg-light rounded-3 text-secondary" style="font-size: 0.9rem;">
-                    <i class="fas fa-info-circle text-primary me-1"></i> ระบบจะคัดเฉพาะเลข 6 หลัก และ <b>เรียงจาก 2 ตัวท้ายเป็นหลัก</b> ให้อัตโนมัติ (ถ้า 2 ตัวท้ายซ้ำกัน จะเช็คตัวที่ 3 ต่อ)
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                        <span class="fw-bold text-dark"><i class="fas fa-calculator text-primary me-1"></i> เช็คยอดหวยที่วาง:</span>
+                        <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill shadow-sm">นับได้: <span id="currentNumberCount">0</span> คู่</span>
+                    </div>
+                    <i class="fas fa-info-circle text-primary me-1"></i> ระบบจะคัดเฉพาะเลข 6 หลัก และ <b>เรียงจาก 2 ตัวท้ายเป็นหลัก</b> ให้อัตโนมัติ
                 </div>
             </div>
             <div class="modal-footer border-top-0 p-4">
@@ -195,7 +200,11 @@
                 <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body px-4 pb-4">
-                <pre id="summaryText" class="p-3 bg-dark bg-opacity-50 text-white border-0 shadow-sm" style="font-size: 17px;"></pre>
+                <pre id="summaryText" class="p-3 bg-dark bg-opacity-50 text-white border-0 shadow-sm mb-3" style="font-size: 17px;"></pre>
+                
+                <button class="btn btn-outline-info w-100 py-3 fw-bold rounded-btn fs-6" onclick="copyUnsoldNumbers()">
+                    <i class="fas fa-bullhorn me-2"></i> คัดลอก "เลขที่เหลือ" ไปโพสต์ขาย
+                </button>
             </div>
         </div>
     </div>
@@ -204,7 +213,7 @@
 <div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1055;">
     <div id="copyToast" class="toast align-items-center text-bg-dark border-0 shadow-lg" style="border-radius: 50px;" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex px-2 py-1">
-            <div class="toast-body fw-bold fs-6 text-center w-100">
+            <div class="toast-body fw-bold fs-6 text-center w-100" id="toastMessage">
                 <i class="fas fa-check-circle text-success me-2 fs-5 align-middle"></i> คัดลอกเรียบร้อยแล้ว
             </div>
         </div>
@@ -218,18 +227,20 @@
 
     let tickets = [];
     let currentFilter = 'all'; 
-    // ใช้ Key เดิมเพื่อให้เซฟและอ่านค่าได้คงที่
     const STORAGE_KEY = "myLottoShop_DataStorage"; 
     
     let setupModalInstance;
     let confirmClearModalInstance;
+    let currentUnsoldTextToCopy = ""; // เก็บข้อความสำหรับกดก๊อปปี้หวยที่เหลือ
 
     function init() {
         try {
             setupModalInstance = new bootstrap.Modal(document.getElementById('setupModal'));
             confirmClearModalInstance = new bootstrap.Modal(document.getElementById('confirmClearModal'));
 
-            // ระบบกู้คืนข้อมูลอัจฉริยะ (ค้นหาจากทุกเวอร์ชันที่เคยเล่น)
+            // ดัก Event การพิมพ์เพื่อนับจำนวน
+            document.getElementById('rawNumbersInput').addEventListener('input', updateTextareaCount);
+
             let savedData = localStorage.getItem(STORAGE_KEY) || 
                             localStorage.getItem("myLottoShop_PremiumData") || 
                             localStorage.getItem("myLottoShop_SimpleData") || 
@@ -238,7 +249,6 @@
 
             if (savedData) {
                 let parsed = JSON.parse(savedData);
-                // ดักจับโครงสร้างข้อมูลที่อาจจะแตกต่างกันในแต่ละเวอร์ชัน
                 if (parsed && parsed.tickets && Array.isArray(parsed.tickets)) {
                     tickets = parsed.tickets;
                 } else if (Array.isArray(parsed)) {
@@ -249,7 +259,7 @@
             }
         } catch (e) {
             console.error("Error loading data:", e);
-            tickets = []; // ถ้าพังให้เริ่มเป็น Array ว่าง ป้องกันค้าง
+            tickets = []; 
         }
 
         if (tickets && tickets.length > 0) {
@@ -262,6 +272,18 @@
 
     function updateHeaderCount() {
         document.getElementById('shopTitle').innerText = `ร้านหวย (ขาย ${tickets.length} คู่)`;
+    }
+
+    // ฟังก์ชันนับจำนวนตอนกำลังพิมพ์
+    function updateTextareaCount() {
+        const text = document.getElementById('rawNumbersInput').value;
+        const validNumbers = text.split('\n')
+            .map(n => n.trim().replace(/\s+/g, ''))
+            .filter(n => n.length === 6 && !isNaN(n));
+        
+        // ลบตัวที่ซ้ำกันออกเพื่อนับจำนวนคู่ที่แท้จริง
+        const uniqueNumbers = [...new Set(validNumbers)];
+        document.getElementById('currentNumberCount').innerText = uniqueNumbers.length;
     }
 
     function saveNewNumbers() {
@@ -283,7 +305,6 @@
 
         numList = [...new Set(numList)];
 
-        // เรียงจาก 2 ตัวท้ายเป็นหลัก (ป้องกัน Error โดยแปลงเป็น String ให้ชัวร์)
         numList.sort((a, b) => {
             const strA = String(a);
             const strB = String(b);
@@ -305,6 +326,7 @@
         updateHeaderCount();
         setupModalInstance.hide();
         document.getElementById('rawNumbersInput').value = ""; 
+        document.getElementById('currentNumberCount').innerText = "0"; // รีเซ็ตตัวนับ
     }
 
     function setFilter(filterType) {
@@ -346,7 +368,6 @@
                     if (t.isPaid) money += PRICE_PER_PAIR;
                 }
                 
-                // ดักจับ Error ตรงนี้โดยบังคับให้เป็น String
                 const numStr = String(t.number || "");
                 const matchSearch = numStr.includes(searchValue) || (t.customer && t.customer.toLowerCase().includes(searchValue));
                 if (!matchSearch) return;
@@ -424,15 +445,23 @@
 
     function executeClearData() {
         localStorage.removeItem(STORAGE_KEY);
-        // ล้างเผื่อ Key เก่าด้วยเพื่อความสะอาด
         localStorage.removeItem("myLottoShop_PremiumData");
         localStorage.removeItem("myLottoShop_SimpleData");
         localStorage.removeItem("myLottoShop_Data");
         localStorage.removeItem("myLottoShop_1Mar69");
         
         tickets = [];
+        document.getElementById('currentNumberCount').innerText = "0"; // รีเซ็ตตัวนับตอนล้างข้อมูล
         confirmClearModalInstance.hide();
         setupModalInstance.show(); 
+    }
+
+    // ฟังก์ชันโชว์ Toast อเนกประสงค์
+    function showToast(message) {
+        const toastEl = document.getElementById('copyToast');
+        document.getElementById('toastMessage').innerHTML = `<i class="fas fa-check-circle text-success me-2 fs-5 align-middle"></i> ${message}`;
+        const toast = new bootstrap.Toast(toastEl, { delay: 2000 });
+        toast.show();
     }
 
     function showPersonSummary() {
@@ -471,39 +500,55 @@
     function copyPersonSummary() {
         const textToCopy = document.getElementById("personSummaryText").innerText;
         navigator.clipboard.writeText(textToCopy).then(() => {
-            const toastEl = document.getElementById('copyToast');
-            const toast = new bootstrap.Toast(toastEl, { delay: 2000 });
-            toast.show();
+            showToast("คัดลอกส่งลูกค้าเรียบร้อยแล้ว");
             bootstrap.Modal.getInstance(document.getElementById("personModal")).hide();
         });
     }
 
     function showSummary() {
         let sold = 0, paid = 0, pending = 0, money = 0;
+        let unsoldList = []; // เก็บเลขที่ยังไม่ได้ขาย
+
         tickets.forEach(t => {
             if (t.customer) {
                 sold++;
                 if (t.isPaid) { paid++; money += PRICE_PER_PAIR; } 
                 else { pending++; }
+            } else {
+                unsoldList.push(t.number); // นำเลขว่างมาเก็บไว้
             }
         });
 
         const totalPairs = tickets.length;
         const summaryText = document.getElementById("summaryText");
         
-        summaryText.innerText = 
-`📊 สรุปรายงานการขาย
+        let txt = `📊 สรุปรายงานการขาย\n\n`;
+        txt += `📦 หวยทั้งหมด: ${totalPairs} ชุด\n`;
+        txt += `🎟️ ขายออกแล้ว: ${sold} ชุด\n`;
+        txt += `✅ รับเงินแล้ว: ${paid} ชุด\n`;
+        txt += `⏳ รอโอนเงิน: ${pending} ชุด\n`;
+        txt += `💰 รายได้: ฿ ${money.toLocaleString()}\n`;
+        txt += `━━━━━━━━━━━━━━━━━━━\n`;
+        txt += `🎯 เลขที่เหลือบนแผง (${unsoldList.length} ชุด):\n`;
+        
+        if(unsoldList.length > 0) {
+            // แสดงเลขทีละบรรทัด หรือเว้นวรรค
+            txt += unsoldList.join(' , ');
+        } else {
+            txt += `- ขายหมดเกลี้ยงแล้วจ้า! 🎉 -`;
+        }
 
-📦 หวยทั้งหมด: ${totalPairs} ชุด (${totalPairs * 2} ใบ)
-🎟️ ขายออกแล้ว: ${sold} ชุด
-❌ เหลือบนแผง: ${totalPairs - sold} ชุด
+        // เตรียมข้อความสำหรับก๊อปปี้ไปโพสต์
+        currentUnsoldTextToCopy = `🎯 อัปเดตเลขว่างจ้า (เหลือ ${unsoldList.length} ชุด)\n${unsoldList.join('\n')}\n\nรีบจับจองกันได้เลยจ้า!`;
 
-✅ รับเงินโอนแล้ว: ${paid} ชุด
-⏳ ลูกค้าค้างจ่าย: ${pending} ชุด
-
-💰 รายได้เข้ากระเป๋า: ฿ ${money.toLocaleString()}`;
-
+        summaryText.innerText = txt;
         new bootstrap.Modal(document.getElementById("summaryModal")).show();
+    }
+
+    function copyUnsoldNumbers() {
+        navigator.clipboard.writeText(currentUnsoldTextToCopy).then(() => {
+            showToast("คัดลอกเลขว่างไปโพสต์ได้เลย!");
+        });
     }
 
     window.onload = init;
