@@ -19,135 +19,46 @@
             --status-pending: #f59e0b;
         }
 
-        body { 
-            background-color: var(--primary-bg); 
-            font-family: 'Sarabun', sans-serif; 
-            padding-bottom: 90px; 
-            color: #2d3436;
-        }
-        
-        /* Glassmorphism Header */
-        .sticky-header { 
-            position: sticky; 
-            top: 0; 
-            background: rgba(243, 246, 250, 0.85); 
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            z-index: 1000; 
-            padding-top: 15px; 
-            padding-bottom: 10px; 
-            border-bottom: 1px solid rgba(255,255,255,0.5);
-        }
-
+        body { background-color: var(--primary-bg); font-family: 'Sarabun', sans-serif; padding-bottom: 90px; color: #2d3436; }
+        .sticky-header { position: sticky; top: 0; background: rgba(243, 246, 250, 0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 1000; padding-top: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.5); }
         .container { max-width: 600px; }
         
-        /* Shop Title Card */
-        .shop-header-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-            border: 1px solid rgba(255,255,255,0.8);
-        }
-
-        .shop-icon { 
-            width: 55px; height: 55px; 
-            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-            color: white; 
-            border-radius: 16px; 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 1.5rem; flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
-        }
+        .shop-header-card { background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid rgba(255,255,255,0.8); }
+        .shop-icon { width: 55px; height: 55px; background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%); color: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); }
 
         /* Stats Cards */
-        .stat-card { 
-            border-radius: 18px; 
-            padding: 15px 10px; 
-            text-align: center; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02); 
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.2s;
-        }
-        
-        .stat-card.sold-card {
-            background-color: rgba(37, 99, 235, 0.08);
-            border: 1px solid rgba(37, 99, 235, 0.25);
-        }
-        
-        .stat-card.money-card {
-            background-color: rgba(16, 185, 129, 0.08);
-            border: 1px solid rgba(16, 185, 129, 0.25);
-        }
-
+        .stat-card { border-radius: 18px; padding: 15px 10px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.02); position: relative; overflow: hidden; transition: transform 0.2s; }
+        .stat-card.sold-card { background-color: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.25); }
+        .stat-card.money-card { background-color: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); }
         .stat-value { font-weight: 800; letter-spacing: 0.5px; }
 
-        /* Ticket Item Premium & Colorful Design */
-        .ticket-item { 
-            background: var(--card-bg); 
-            border-radius: 20px; 
-            margin-bottom: 16px; 
-            padding: 22px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            position: relative;
-            overflow: hidden;
-        }
-        
+        /* Ticket Item */
+        .ticket-item { background: var(--card-bg); border-radius: 20px; margin-bottom: 16px; padding: 22px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.3s ease; position: relative; overflow: hidden; }
         .status-free { border: 1px solid rgba(99, 102, 241, 0.2); }
-        .status-free:hover { border-color: rgba(99, 102, 241, 0.5); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.12); transform: translateY(-2px); }
-        
         .status-pending { border: 1px solid rgba(245, 158, 11, 0.3); background: linear-gradient(to right, #fffdf8, #ffffff); }
-        .status-pending:hover { border-color: rgba(245, 158, 11, 0.6); box-shadow: 0 8px 20px rgba(245, 158, 11, 0.12); transform: translateY(-2px); }
-        
         .status-paid { border: 1px solid rgba(16, 185, 129, 0.3); background: linear-gradient(to right, #f2fbf7, #ffffff); }
-        .status-paid:hover { border-color: rgba(16, 185, 129, 0.6); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.12); transform: translateY(-2px); }
-
         .ticket-item::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 6px; }
         .status-free::before { background: linear-gradient(180deg, #818cf8, #60a5fa); }
         .status-pending::before { background: linear-gradient(180deg, #fbbf24, #f59e0b); }
         .status-paid::before { background: linear-gradient(180deg, #34d399, #10b981); }
 
-        /* Number Display */
-        .lotto-num { 
-            font-size: 1.8rem; 
-            font-weight: 800; 
-            letter-spacing: 3px; 
-            color: #2c3e50; 
-            text-shadow: 1px 1px 0px rgba(0,0,0,0.05);
-        }
+        .lotto-num { font-size: 1.8rem; font-weight: 800; letter-spacing: 3px; color: #2c3e50; text-shadow: 1px 1px 0px rgba(0,0,0,0.05); }
         .lotto-num-highlight { color: var(--accent-blue); font-weight: 800; }
 
-        /* Inputs & Buttons */
-        .rounded-input-group { 
-            border-radius: 12px; overflow: hidden; background: #f8fafc; border: 1px solid #e2e8f0; transition: border-color 0.2s;
-        }
+        .rounded-input-group { border-radius: 12px; overflow: hidden; background: #f8fafc; border: 1px solid #e2e8f0; transition: border-color 0.2s; }
         .rounded-input-group:focus-within { border-color: var(--accent-blue); background: #ffffff;}
-        .rounded-input-group .input-group-text, .rounded-input-group .form-control { 
-            border: none; background: transparent; box-shadow: none; font-size: 16px;
-        }
+        .rounded-input-group .input-group-text, .rounded-input-group .form-control { border: none; background: transparent; box-shadow: none; font-size: 16px; }
         
         .btn { font-weight: 600; letter-spacing: 0.3px; }
         .rounded-btn { border-radius: 12px !important; }
         .btn-pay-status { border-radius: 12px; font-size: 0.9rem; padding: 10px 0; transition: all 0.2s; }
 
-        /* Search & Filters */
-        .search-container { 
-            background: var(--card-bg); border-radius: 20px; padding: 18px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #edf2f7; 
-        }
+        .search-container { background: var(--card-bg); border-radius: 20px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #edf2f7; }
         .search-input { border: none; background: transparent; width: 100%; outline: none; font-size: 16px; }
         
-        .main-menu-btn { 
-            border-radius: 14px; font-size: 0.95rem; padding: 12px; 
-            display: flex; align-items: center; justify-content: center; gap: 8px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.1s;
-        }
-        .main-menu-btn:active { transform: scale(0.96); }
-
+        .main-menu-btn { border-radius: 14px; font-size: 0.95rem; padding: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .filter-btn { border-radius: 30px; padding: 6px 18px; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; border: 2px solid transparent; }
 
-        /* Badges */
         .badge-custom { padding: 8px 14px; font-size: 0.8rem; font-weight: 600; border-radius: 30px; }
         .bg-pending-custom { background-color: #fef3c7; color: #b45309; }
         .bg-paid-custom { background-color: #d1fae5; color: #047857; }
@@ -172,27 +83,16 @@
             </div>
         </div>
 
-        <div class="row g-2 mb-3">
-            <div class="col-6">
-                <button class="btn btn-outline-primary main-menu-btn w-100 bg-white" onclick="showPersonSummary()">
-                    <i class="fas fa-user-clock text-primary"></i> ค้างจ่าย
-                </button>
-            </div>
-            <div class="col-6">
-                <button class="btn btn-dark main-menu-btn w-100 shadow-sm" onclick="showSummary()">
-                    <i class="fas fa-chart-pie text-white"></i> ยอดรวม
-                </button>
-            </div>
-            <div class="col-6">
-                <button class="btn btn-outline-success main-menu-btn w-100 bg-white" onclick="showRemaining()">
-                    <i class="fas fa-ticket-alt text-success"></i> หวยที่เหลือ
-                </button>
-            </div>
-            <div class="col-6">
-                <button class="btn btn-danger main-menu-btn w-100 shadow-sm" onclick="confirmClearData()">
-                    <i class="fas fa-trash-alt text-white"></i> ล้างข้อมูล
-                </button>
-            </div>
+        <div class="d-flex justify-content-between gap-2 mb-3">
+            <button class="btn btn-outline-primary main-menu-btn flex-fill bg-white" onclick="showPersonSummary()">
+                <i class="fas fa-user-clock text-primary"></i> ค้างจ่าย
+            </button>
+            <button class="btn btn-dark main-menu-btn flex-fill shadow-sm" onclick="showSummary()">
+                <i class="fas fa-chart-pie text-white"></i> ยอดรวม
+            </button>
+            <button class="btn btn-danger main-menu-btn flex-fill shadow-sm" onclick="confirmClearData()">
+                <i class="fas fa-trash-alt text-white"></i> ล้างข้อมูล
+            </button>
         </div>
 
         <div class="row g-2 mb-3">
@@ -279,7 +179,7 @@
                 <pre id="personSummaryText" class="p-3 border-0 shadow-sm text-dark"></pre>
             </div>
             <div class="modal-footer border-top-0 px-4 pb-4">
-                <button class="btn btn-success w-100 py-3 fw-bold rounded-btn fs-5 shadow-sm" onclick="copyText('personSummaryText')">
+                <button class="btn btn-success w-100 py-3 fw-bold rounded-btn fs-5 shadow-sm" onclick="copyPersonSummary()">
                     <i class="fas fa-copy me-2"></i> คัดลอกส่งลูกค้า
                 </button>
             </div>
@@ -301,25 +201,312 @@
     </div>
 </div>
 
-<div class="modal fade" id="remainingModal">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
-            <div class="modal-header border-bottom-0 px-4 pt-4">
-                <h5 class="modal-title fw-bold text-dark"><i class="fas fa-ticket-alt text-success me-2"></i> หวยที่เหลือบนแผง</h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body px-4">
-                <div class="p-3 bg-light text-dark" style="border-radius: 12px; border: 1px solid #e2e8f0; font-size: 1.1rem; word-wrap: break-word;" id="remainingText">
-                    </div>
-            </div>
-            <div class="modal-footer border-top-0 px-4 pb-4">
-                <button class="btn btn-success w-100 py-3 fw-bold rounded-btn fs-5 shadow-sm" onclick="copyRemaining()">
-                    <i class="fas fa-copy me-2"></i> คัดลอกเลขที่เหลือ
-                </button>
+<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1055;">
+    <div id="copyToast" class="toast align-items-center text-bg-dark border-0 shadow-lg" style="border-radius: 50px;" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex px-2 py-1">
+            <div class="toast-body fw-bold fs-6 text-center w-100">
+                <i class="fas fa-check-circle text-success me-2 fs-5 align-middle"></i> คัดลอกเรียบร้อยแล้ว
             </div>
         </div>
     </div>
 </div>
 
-<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1055;">
-    <div id="copyToast" class="toast align-items-center text-bg-dark border-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const PRICE_PER_PAIR = 200; 
+    const BANK_INFO = `🏦 ธนาคารออมสิน\nเลขบัญชี 020-1-25404-630\nชื่อบัญชี นันท์ภสร ขอบรูป`;
+
+    let tickets = [];
+    let currentFilter = 'all'; 
+    // ใช้ Key เดิมเพื่อให้เซฟและอ่านค่าได้คงที่
+    const STORAGE_KEY = "myLottoShop_DataStorage"; 
+    
+    let setupModalInstance;
+    let confirmClearModalInstance;
+
+    function init() {
+        try {
+            setupModalInstance = new bootstrap.Modal(document.getElementById('setupModal'));
+            confirmClearModalInstance = new bootstrap.Modal(document.getElementById('confirmClearModal'));
+
+            // ระบบกู้คืนข้อมูลอัจฉริยะ (ค้นหาจากทุกเวอร์ชันที่เคยเล่น)
+            let savedData = localStorage.getItem(STORAGE_KEY) || 
+                            localStorage.getItem("myLottoShop_PremiumData") || 
+                            localStorage.getItem("myLottoShop_SimpleData") || 
+                            localStorage.getItem("myLottoShop_Data") || 
+                            localStorage.getItem("myLottoShop_1Mar69");
+
+            if (savedData) {
+                let parsed = JSON.parse(savedData);
+                // ดักจับโครงสร้างข้อมูลที่อาจจะแตกต่างกันในแต่ละเวอร์ชัน
+                if (parsed && parsed.tickets && Array.isArray(parsed.tickets)) {
+                    tickets = parsed.tickets;
+                } else if (Array.isArray(parsed)) {
+                    tickets = parsed;
+                } else {
+                    tickets = [];
+                }
+            }
+        } catch (e) {
+            console.error("Error loading data:", e);
+            tickets = []; // ถ้าพังให้เริ่มเป็น Array ว่าง ป้องกันค้าง
+        }
+
+        if (tickets && tickets.length > 0) {
+            updateHeaderCount();
+            renderList();
+        } else {
+            setupModalInstance.show();
+        }
+    }
+
+    function updateHeaderCount() {
+        document.getElementById('shopTitle').innerText = `ร้านหวย (ขาย ${tickets.length} คู่)`;
+    }
+
+    function saveNewNumbers() {
+        const rawText = document.getElementById('rawNumbersInput').value.trim();
+
+        if (!rawText) {
+            alert("กรุณาใส่หมายเลขอย่างน้อย 1 คู่ครับ");
+            return;
+        }
+
+        let numList = rawText.split('\n')
+            .map(n => n.trim().replace(/\s+/g, ''))
+            .filter(n => n.length === 6 && !isNaN(n));
+
+        if (numList.length === 0) {
+            alert("ไม่พบหมายเลข 6 หลัก กรุณาตรวจสอบการพิมพ์อีกครั้งครับ");
+            return;
+        }
+
+        numList = [...new Set(numList)];
+
+        // เรียงจาก 2 ตัวท้ายเป็นหลัก (ป้องกัน Error โดยแปลงเป็น String ให้ชัวร์)
+        numList.sort((a, b) => {
+            const strA = String(a);
+            const strB = String(b);
+            const last2A = parseInt(strA.slice(-2), 10) || 0;
+            const last2B = parseInt(strB.slice(-2), 10) || 0;
+            
+            if (last2A !== last2B) {
+                return last2A - last2B;
+            }
+            
+            const last3A = parseInt(strA.slice(-3), 10) || 0;
+            const last3B = parseInt(strB.slice(-3), 10) || 0;
+            return last3A - last3B;
+        });
+
+        tickets = numList.map(n => ({ number: String(n), price: PRICE_PER_PAIR, customer: "", isPaid: false }));
+        
+        save();
+        updateHeaderCount();
+        setupModalInstance.hide();
+        document.getElementById('rawNumbersInput').value = ""; 
+    }
+
+    function setFilter(filterType) {
+        currentFilter = filterType;
+        
+        const resetBtn = (id, baseClass, textClass, borderClass) => {
+            document.getElementById(id).className = `filter-btn ${baseClass} ${textClass} ${borderClass}`;
+            document.getElementById(id).style.color = '';
+        };
+
+        resetBtn('btn-filter-all', 'bg-white', 'text-primary', 'border-primary');
+        resetBtn('btn-filter-empty', 'bg-white', 'text-secondary', 'border-secondary');
+        resetBtn('btn-filter-pending', 'bg-white', 'text-warning', 'border-warning');
+        resetBtn('btn-filter-paid', 'bg-white', 'text-success', 'border-success');
+        
+        document.getElementById('btn-filter-pending').style.color = '#d97706';
+        
+        if(filterType === 'all') resetBtn('btn-filter-all', 'bg-primary', 'text-white', 'border-primary shadow-sm');
+        if(filterType === 'empty') resetBtn('btn-filter-empty', 'bg-secondary', 'text-white', 'border-secondary shadow-sm');
+        if(filterType === 'pending') {
+            resetBtn('btn-filter-pending', 'bg-warning', 'text-dark', 'border-warning shadow-sm');
+        }
+        if(filterType === 'paid') resetBtn('btn-filter-paid', 'bg-success', 'text-white', 'border-success shadow-sm');
+        
+        renderList();
+    }
+
+    function renderList() {
+        try {
+            const searchValue = document.getElementById("searchInput").value.trim().toLowerCase();
+            const listContainer = document.getElementById("lottoList");
+            
+            let sold = 0, money = 0;
+            let htmlContent = ''; 
+
+            tickets.forEach((t, i) => {
+                if (t.customer) {
+                    sold++;
+                    if (t.isPaid) money += PRICE_PER_PAIR;
+                }
+                
+                // ดักจับ Error ตรงนี้โดยบังคับให้เป็น String
+                const numStr = String(t.number || "");
+                const matchSearch = numStr.includes(searchValue) || (t.customer && t.customer.toLowerCase().includes(searchValue));
+                if (!matchSearch) return;
+
+                if (currentFilter === 'empty' && t.customer !== "") return;
+                if (currentFilter === 'pending' && (!t.customer || t.isPaid)) return;
+                if (currentFilter === 'paid' && (!t.customer || !t.isPaid)) return;
+
+                const statusClass = t.customer ? (t.isPaid ? 'status-paid' : 'status-pending') : 'status-free';
+                const badgeClass = t.customer ? (t.isPaid ? 'bg-paid-custom' : 'bg-pending-custom') : 'bg-free-custom';
+                const badgeIcon = t.customer ? (t.isPaid ? 'fa-check-circle' : 'fa-clock') : 'fa-ticket-alt';
+                const badgeText = t.customer ? (t.isPaid ? 'จ่ายแล้ว' : 'รอโอน') : 'ว่าง';
+                
+                const btnClass = t.isPaid ? 'btn-success shadow-sm' : 'btn-outline-primary';
+                const btnIcon = t.isPaid ? '<i class="fas fa-check"></i> รับแล้ว' : 'รับเงิน';
+                
+                const first4 = numStr.substring(0, 4);
+                const last2 = numStr.substring(4, 6);
+
+                htmlContent += `
+                <div class="ticket-item ${statusClass}">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="lotto-num">${first4}<span class="lotto-num-highlight">${last2}</span></div>   
+                        <span class="badge badge-custom ${badgeClass}"><i class="fas ${badgeIcon} me-1"></i>${badgeText}</span>
+                    </div>
+                    <div class="row g-2 align-items-center">
+                        <div class="col-8">
+                            <div class="input-group rounded-input-group">
+                                <span class="input-group-text px-3"><i class="fas fa-user-circle text-muted fs-5"></i></span>
+                                <input class="form-control py-2 fw-bold" style="color: #334155;" placeholder="ชื่อลูกค้า..."
+                                value="${t.customer || ""}" onchange="updateCustomer(${i}, this.value)">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <button class="btn btn-pay-status w-100 fw-bold ${btnClass}"
+                            onclick="togglePaid(${i})" ${!t.customer ? 'disabled' : ''}>
+                                ${btnIcon}
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+
+            listContainer.innerHTML = htmlContent;
+
+            document.getElementById("soldCount").innerText = `${sold} / ${tickets.length}`;
+            document.getElementById("moneyCount").innerText = `฿ ${money.toLocaleString()}`;
+            
+        } catch (error) {
+            console.error("Render Error:", error);
+            document.getElementById("lottoList").innerHTML = `<div class="alert alert-danger text-center">เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณากดปุ่มล้างข้อมูลแล้วเริ่มใหม่ครับ</div>`;
+        }
+    }
+
+    function updateCustomer(i, value) {
+        tickets[i].customer = value.trim();
+        if (!tickets[i].customer) tickets[i].isPaid = false; 
+        save();
+    }
+
+    function togglePaid(i) {
+        if (!tickets[i].customer) return;
+        tickets[i].isPaid = !tickets[i].isPaid;
+        save();
+    }
+
+    function save() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tickets));
+        renderList();
+    }
+
+    function confirmClearData() {
+        confirmClearModalInstance.show();
+    }
+
+    function executeClearData() {
+        localStorage.removeItem(STORAGE_KEY);
+        // ล้างเผื่อ Key เก่าด้วยเพื่อความสะอาด
+        localStorage.removeItem("myLottoShop_PremiumData");
+        localStorage.removeItem("myLottoShop_SimpleData");
+        localStorage.removeItem("myLottoShop_Data");
+        localStorage.removeItem("myLottoShop_1Mar69");
+        
+        tickets = [];
+        confirmClearModalInstance.hide();
+        setupModalInstance.show(); 
+    }
+
+    function showPersonSummary() {
+        const names = [...new Set(tickets.filter(t => t.customer && !t.isPaid).map(t => t.customer))];
+        const personSelect = document.getElementById("personSelect");
+        
+        personSelect.innerHTML = '<option value="">-- เลือกลูกค้าที่ต้องการเรียกเก็บ --</option>';
+        names.forEach(n => personSelect.innerHTML += `<option value="${n}">${n}</option>`);
+        
+        document.getElementById("personSummaryText").innerText = "กรุณาเลือกลูกค้าจากเมนูด้านบนครับ...";
+        new bootstrap.Modal(document.getElementById("personModal")).show();
+    }
+
+    function renderPersonSummary() {
+        const name = document.getElementById("personSelect").value;
+        const personSummaryText = document.getElementById("personSummaryText");
+        
+        if (!name) {
+            personSummaryText.innerText = "กรุณาเลือกลูกค้าจากเมนูด้านบนครับ...";
+            return;
+        }
+        
+        const items = tickets.filter(t => t.customer === name && !t.isPaid);
+        let txt = `🧾 สรุปยอดคุณ ${name}\n`;
+        txt += `━━━━━━━━━━━━━━━━━━━\n`;
+        txt += `เลขที่สั่งซื้อ (ชุดละ 2 ใบ):\n`;
+        items.forEach(i => txt += `🎟️ ${i.number}\n`);
+        txt += `━━━━━━━━━━━━━━━━━━━\n`;
+        txt += `รวมทั้งหมด: ${items.length} ชุด\n`;
+        txt += `💰 ยอดที่ต้องโอน: ${(items.length * PRICE_PER_PAIR).toLocaleString()} บาท\n\n`;
+        txt += `${BANK_INFO}`;
+        
+        personSummaryText.innerText = txt;
+    }
+
+    function copyPersonSummary() {
+        const textToCopy = document.getElementById("personSummaryText").innerText;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const toastEl = document.getElementById('copyToast');
+            const toast = new bootstrap.Toast(toastEl, { delay: 2000 });
+            toast.show();
+            bootstrap.Modal.getInstance(document.getElementById("personModal")).hide();
+        });
+    }
+
+    function showSummary() {
+        let sold = 0, paid = 0, pending = 0, money = 0;
+        tickets.forEach(t => {
+            if (t.customer) {
+                sold++;
+                if (t.isPaid) { paid++; money += PRICE_PER_PAIR; } 
+                else { pending++; }
+            }
+        });
+
+        const totalPairs = tickets.length;
+        const summaryText = document.getElementById("summaryText");
+        
+        summaryText.innerText = 
+`📊 สรุปรายงานการขาย
+
+📦 หวยทั้งหมด: ${totalPairs} ชุด (${totalPairs * 2} ใบ)
+🎟️ ขายออกแล้ว: ${sold} ชุด
+❌ เหลือบนแผง: ${totalPairs - sold} ชุด
+
+✅ รับเงินโอนแล้ว: ${paid} ชุด
+⏳ ลูกค้าค้างจ่าย: ${pending} ชุด
+
+💰 รายได้เข้ากระเป๋า: ฿ ${money.toLocaleString()}`;
+
+        new bootstrap.Modal(document.getElementById("summaryModal")).show();
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>
