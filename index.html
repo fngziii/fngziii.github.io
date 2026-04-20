@@ -14,7 +14,7 @@
         :root {
             --primary-bg: #f3f6fa;
             --card-bg: #ffffff;
-            --accent-blue: #2563eb; /* ปรับเป็นสีน้ำเงินสบายตา */
+            --accent-blue: #2563eb; 
             --status-paid: #10b981;
             --status-pending: #f59e0b;
         }
@@ -51,7 +51,7 @@
 
         .shop-icon { 
             width: 55px; height: 55px; 
-            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%); /* ไล่สีน้ำเงินไปม่วงนิดๆ */
+            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
             color: white; 
             border-radius: 16px; 
             display: flex; align-items: center; justify-content: center; 
@@ -59,25 +59,25 @@
             box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
         }
 
-        /* Stats Cards */
+        /* Stats Cards - กลับมาใช้พื้นหลังสีอ่อนแบบที่ชอบ */
         .stat-card { 
             border-radius: 18px; 
             padding: 15px 10px; 
             text-align: center; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
-            background: var(--card-bg);
-            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02); 
             position: relative;
             overflow: hidden;
+            transition: transform 0.2s;
         }
         
-        .stat-card.sold-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; 
-            background: linear-gradient(90deg, #60a5fa, #3b82f6);
+        .stat-card.sold-card {
+            background-color: rgba(37, 99, 235, 0.08); /* สีฟ้าอ่อน */
+            border: 1px solid rgba(37, 99, 235, 0.25);
         }
-        .stat-card.money-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; 
-            background: linear-gradient(90deg, #34d399, #10b981);
+        
+        .stat-card.money-card {
+            background-color: rgba(16, 185, 129, 0.08); /* สีเขียวอ่อน */
+            border: 1px solid rgba(16, 185, 129, 0.25);
         }
 
         .stat-value { font-weight: 800; letter-spacing: 0.5px; }
@@ -94,7 +94,6 @@
             overflow: hidden;
         }
         
-        /* ขอบสีสันสดใสแยกตามสถานะ */
         .status-free { border: 1px solid rgba(99, 102, 241, 0.2); }
         .status-free:hover { border-color: rgba(99, 102, 241, 0.5); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.12); transform: translateY(-2px); }
         
@@ -108,9 +107,9 @@
         .ticket-item::before {
             content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 6px;
         }
-        .status-free::before { background: linear-gradient(180deg, #818cf8, #60a5fa); } /* ม่วงไปฟ้า */
-        .status-pending::before { background: linear-gradient(180deg, #fbbf24, #f59e0b); } /* เหลืองไปส้ม */
-        .status-paid::before { background: linear-gradient(180deg, #34d399, #10b981); } /* เขียวอ่อนไปเขียวเข้ม */
+        .status-free::before { background: linear-gradient(180deg, #818cf8, #60a5fa); }
+        .status-pending::before { background: linear-gradient(180deg, #fbbf24, #f59e0b); }
+        .status-paid::before { background: linear-gradient(180deg, #34d399, #10b981); }
 
         /* Number Display */
         .lotto-num { 
@@ -120,7 +119,6 @@
             color: #2c3e50; 
             text-shadow: 1px 1px 0px rgba(0,0,0,0.05);
         }
-        /* ไฮไลท์สีน้ำเงินสบายตา */
         .lotto-num-highlight {
             color: var(--accent-blue);
             font-weight: 800;
@@ -169,7 +167,7 @@
         .badge-custom { padding: 8px 14px; font-size: 0.8rem; font-weight: 600; border-radius: 30px; }
         .bg-pending-custom { background-color: #fef3c7; color: #b45309; }
         .bg-paid-custom { background-color: #d1fae5; color: #047857; }
-        .bg-free-custom { background-color: #eff6ff; color: #3b82f6; } /* ปรับสีป้ายว่างให้ดูสดใสเข้ากับขอบ */
+        .bg-free-custom { background-color: #eff6ff; color: #3b82f6; }
 
         .modal-body pre { white-space: pre-wrap; word-wrap: break-word; font-size: 16px; background: #f8fafc; border-radius: 12px; }
         textarea.form-control { font-size: 1.1rem; letter-spacing: 2px; }
@@ -205,13 +203,13 @@
         <div class="row g-2 mb-3">
             <div class="col-6">
                 <div class="stat-card sold-card">
-                    <div class="text-muted fw-bold mb-1" style="font-size: 0.85rem;"><i class="fas fa-shopping-cart text-primary"></i> ขายแล้ว (คู่)</div>
+                    <div class="text-primary fw-bold mb-1" style="font-size: 0.85rem;"><i class="fas fa-shopping-cart"></i> ขายแล้ว (คู่)</div>
                     <div class="text-primary fs-3 stat-value" id="soldCount">0/0</div>
                 </div>
             </div>
             <div class="col-6">
                 <div class="stat-card money-card">
-                    <div class="text-muted fw-bold mb-1" style="font-size: 0.85rem;"><i class="fas fa-wallet text-success"></i> รับเงินแล้ว</div>
+                    <div class="text-success fw-bold mb-1" style="font-size: 0.85rem;"><i class="fas fa-wallet"></i> รับเงินแล้ว</div>
                     <div class="text-success fs-3 stat-value" id="moneyCount">฿ 0</div>
                 </div>
             </div>
