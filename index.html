@@ -8,8 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
-    
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
     <style>
         body { background: #f4f7f6; font-family: 'Sarabun', sans-serif; padding-bottom: 80px; }
@@ -30,7 +28,6 @@
         .main-menu-btn { border-radius: 10px; font-size: 0.9rem; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .filter-btn { border-radius: 20px; padding: 5px 16px; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; border: 2px solid transparent; }
         .modal-body pre { white-space: pre-wrap; word-wrap: break-word; }
-        #ocrLoading { display: none; }
     </style>
 </head>
 
@@ -40,8 +37,8 @@
         <div class="d-flex align-items-center mb-3 bg-white p-3 rounded-4 shadow-sm border">
             <div class="shop-icon me-3 shadow-sm"><i class="fas fa-store"></i></div>
             <div>
-                <h5 class="fw-bold m-0 text-dark" id="shopTitle">ระบบเช็คเลข (กำลังโหลด...)</h5>
-                <small class="text-muted" style="font-size: 0.8rem;" id="drawDateLabel">พุทธังโหม ธัมมังโหม สังฆังล้อม อันตรายาวินาศสันติ</small>
+                <h5 class="fw-bold m-0 text-dark" id="shopTitle">ระบบเช็คเลข</h5>
+                <small class="text-muted" style="font-size: 0.8rem;">พุทธังโหม ธัมมังโหม สังฆังล้อม อันตรายาวินาศสันติ</small>
             </div>
         </div>
 
@@ -90,32 +87,21 @@
 </div>
 
 <div class="modal fade" id="setupModal" data-bs-backdrop="static" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <div class="modal-header bg-primary text-white border-bottom-0">
-                <h5 class="modal-title fw-bold"><i class="fas fa-cog"></i> ตั้งค่างวดใหม่</h5>
+                <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle"></i> เพิ่มเลขหวยงวดนี้</h5>
             </div>
             <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label fw-bold">ชื่องวด (เช่น 2 พฤษภาคม 2569)</label>
-                    <input type="text" id="inputDrawDate" class="form-control" placeholder="ระบุวันที่หวยออก...">
+                <div class="mb-2">
+                    <label class="form-label fw-bold">วางตัวเลขทั้งหมดที่นี่ (1 บรรทัด = 1 คู่)</label>
+                    <textarea id="rawNumbersInput" class="form-control" rows="10" placeholder="ตัวอย่าง:\n600410\n642511\n593812"></textarea>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">อัปโหลดรูปภาพสลาก (เลือกได้หลายรูป)</label>
-                    <input type="file" id="lottoImage" class="form-control" accept="image/*" multiple>
-                    <div id="ocrLoading" class="text-primary mt-2 fw-bold text-center">
-                        <i class="fas fa-spinner fa-spin"></i> <span id="ocrStatusText">กำลังเตรียมสแกนตัวเลข...</span>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold text-danger">รายการเลขหวยทั้งหมด (แก้ไขด้วยมือได้เลย)</label>
-                    <textarea id="extractedNumbers" class="form-control" rows="8" placeholder="เมื่ออัปโหลดรูป ตัวเลขจะมาต่อท้ายที่นี่เรื่อยๆ... หรือพิมพ์/วางเลขเองก็ได้ครับ"></textarea>
-                    <small class="text-muted d-block mt-1">จำนวน: <span id="currentNumberCount" class="fw-bold text-primary">0</span> คู่ (ระบบจะตัดเลขซ้ำ และเรียงจาก 3 ตัวหลังให้อัตโนมัติ)</small>
-                </div>
+                <small class="text-muted"><i class="fas fa-info-circle"></i> ระบบจะคัดกรองเฉพาะเลข 6 หลัก ตัดเลขซ้ำ และเรียงจากน้อยไปมาก (ตามเลข 3 ตัวหลัง) ให้อัตโนมัติ</small>
             </div>
             <div class="modal-footer border-top-0">
-                <button class="btn btn-success w-100 py-2 fw-bold rounded-btn" onclick="saveNewDraw()">
-                    <i class="fas fa-play-circle"></i> บันทึกและเริ่มขาย
+                <button class="btn btn-success w-100 py-2 fw-bold rounded-btn" onclick="saveNewNumbers()">
+                    <i class="fas fa-save"></i> บันทึกและเริ่มขาย
                 </button>
             </div>
         </div>
@@ -130,11 +116,11 @@
                 <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-center py-4">
-                <p class="fs-5 mb-0">คุณต้องการล้างข้อมูล <b>ลูกค้าทั้งหมด</b> <br>และลบเลขหวยงวดนี้ใช่หรือไม่?</p>
+                <p class="fs-5 mb-0">คุณต้องการล้างข้อมูล <b>ลูกค้าทั้งหมด</b> <br>และลบเลขหวยใช่หรือไม่?</p>
             </div>
             <div class="modal-footer border-top-0 d-flex gap-2">
                 <button class="btn btn-light flex-fill rounded-btn" data-bs-dismiss="modal">ยกเลิก</button>
-                <button class="btn btn-danger flex-fill rounded-btn" onclick="executeClearData()">ล้างข้อมูลและเริ่มงวดใหม่</button>
+                <button class="btn btn-danger flex-fill rounded-btn" onclick="executeClearData()">ล้างข้อมูลและเริ่มใหม่</button>
             </div>
         </div>
     </div>
@@ -191,145 +177,67 @@
     const BANK_INFO = `🏦 ธนาคารออมสิน\nเลขบัญชี 020-1-25404-630\nชื่อบัญชี นันท์ภสร ขอบรูป`;
 
     let tickets = [];
-    let currentDrawDate = "";
     let currentFilter = 'all'; 
-    const STORAGE_KEY = "myLottoShop_Data"; 
+    const STORAGE_KEY = "myLottoShop_SimpleData"; 
     
     let setupModalInstance;
     let confirmClearModalInstance;
 
-    // ฟังก์ชันเริ่มต้นทำงานเมื่อโหลดหน้าเว็บ
     function init() {
         setupModalInstance = new bootstrap.Modal(document.getElementById('setupModal'));
         confirmClearModalInstance = new bootstrap.Modal(document.getElementById('confirmClearModal'));
 
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
-            const parsed = JSON.parse(saved);
-            tickets = parsed.tickets || [];
-            currentDrawDate = parsed.drawDate || "ไม่ระบุงวด";
-            updateHeaders();
+            tickets = JSON.parse(saved);
+            updateHeaderCount();
             renderList();
         } else {
             setupModalInstance.show();
         }
-
-        document.getElementById('lottoImage').addEventListener('change', processImage);
-        document.getElementById('extractedNumbers').addEventListener('input', updateTextareaCount);
     }
 
-    // อัปเดตส่วนหัวและวันที่
-    function updateHeaders() {
-        const totalPairs = tickets.length;
-        document.getElementById('shopTitle').innerText = `ระบบเช็คเลข (ขาย ${totalPairs} คู่)`;
-        document.getElementById('drawDateLabel').innerText = `งวดประจำวันที่ ${currentDrawDate}`;
+    function updateHeaderCount() {
+        document.getElementById('shopTitle').innerText = `ระบบเช็คเลข (ขาย ${tickets.length} คู่)`;
     }
 
-    // นับจำนวนบรรทัดตัวเลขที่ถูกต้อง
-    function updateTextareaCount() {
-        const text = document.getElementById('extractedNumbers').value;
-        const validNumbers = text.split('\n').map(n => n.trim()).filter(n => n.length === 6 && !isNaN(n));
-        document.getElementById('currentNumberCount').innerText = validNumbers.length;
-    }
+    // ฟังก์ชันรับค่าจาก Textarea และสร้างชุดตัวเลข
+    function saveNewNumbers() {
+        const rawText = document.getElementById('rawNumbersInput').value.trim();
 
-    // ระบบ OCR อ่านตัวเลขจากรูปหลายรูป
-    async function processImage(event) {
-        const files = event.target.files;
-        if (!files || files.length === 0) return;
-
-        const loadingDiv = document.getElementById('ocrLoading');
-        const statusText = document.getElementById('ocrStatusText');
-        const textarea = document.getElementById('extractedNumbers');
-        
-        loadingDiv.style.display = 'block';
-        textarea.disabled = true;
-
-        try {
-            const worker = await Tesseract.createWorker('eng');
-            await worker.setParameters({
-                tessedit_char_whitelist: '0123456789 ' 
-            });
-
-            let allNewNumbers = [];
-
-            for (let i = 0; i < files.length; i++) {
-                statusText.innerText = `กำลังสแกนรูปที่ ${i+1} จาก ${files.length}...`;
-                const { data: { text } } = await worker.recognize(files[i]);
-                const regex = /(?:\d\s*){6}/g;
-                const matches = text.match(regex);
-                
-                if (matches) {
-                    const cleanNums = matches.map(m => m.replace(/\s+/g, '')).filter(n => n.length === 6);
-                    allNewNumbers.push(...cleanNums);
-                }
-            }
-            await worker.terminate();
-
-            if (allNewNumbers.length > 0) {
-                let currentText = textarea.value.trim();
-                let newTextToAppend = allNewNumbers.join('\n');
-                textarea.value = currentText ? (currentText + '\n' + newTextToAppend) : newTextToAppend;
-                updateTextareaCount(); 
-                alert(`✅ สแกนเจอเลขเพิ่ม ${allNewNumbers.length} คู่!\n\nคำแนะนำ: รบกวนตรวจสอบจำนวนในกล่องข้อความกับหวยในมืออีกครั้งเพื่อความชัวร์ครับ ถ้าตกหล่นพิมพ์เติมได้เลย`);
-            } else {
-                alert("❌ ระบบมองไม่เห็นตัวเลข 6 หลักในรูปภาพครับ ลองพิมพ์ตัวเลขใส่ช่องข้อความเองได้เลยครับ");
-            }
-
-        } catch (error) {
-            console.error(error);
-            alert("เกิดข้อผิดพลาดในการสแกนรูปภาพ");
-        } finally {
-            loadingDiv.style.display = 'none';
-            textarea.disabled = false;
-            event.target.value = ''; 
-        }
-    }
-
-    // บันทึกและเริ่มขาย
-    function saveNewDraw() {
-        const dateInput = document.getElementById('inputDrawDate').value.trim();
-        const rawNumbersText = document.getElementById('extractedNumbers').value.trim();
-
-        if (!dateInput) {
-            alert("กรุณาระบุชื่องวดด้วยครับ");
-            return;
-        }
-        if (!rawNumbersText) {
+        if (!rawText) {
             alert("กรุณาใส่หมายเลขอย่างน้อย 1 คู่ครับ");
             return;
         }
 
-        let numList = rawNumbersText.split('\n')
-            .map(n => n.trim())
+        // ดึงเฉพาะตัวเลข 6 หลัก
+        let numList = rawText.split('\n')
+            .map(n => n.trim().replace(/\s+/g, ''))
             .filter(n => n.length === 6 && !isNaN(n));
 
         if (numList.length === 0) {
-            alert("ไม่พบหมายเลข 6 หลักที่ถูกต้อง กรุณาตรวจสอบอีกครั้งครับ");
+            alert("ไม่พบหมายเลข 6 หลัก กรุณาตรวจสอบการพิมพ์อีกครั้งครับ");
             return;
         }
 
-        numList = [...new Set(numList)]; // ลบเลขซ้ำ
+        // ลบเลขซ้ำ
+        numList = [...new Set(numList)];
 
-        // เรียงจาก 3 ตัวหลัง
+        // เรียงจากน้อยไปมาก ตาม 3 ตัวท้าย
         numList.sort((a, b) => {
             const last3A = parseInt(a.slice(-3));
             const last3B = parseInt(b.slice(-3));
             return last3A - last3B;
         });
 
-        currentDrawDate = dateInput;
         tickets = numList.map(n => ({ number: n, price: PRICE_PER_PAIR, customer: "", isPaid: false }));
         
         save();
-        updateHeaders();
+        updateHeaderCount();
         setupModalInstance.hide();
-        
-        document.getElementById('inputDrawDate').value = "";
-        document.getElementById('extractedNumbers').value = "";
-        document.getElementById('currentNumberCount').innerText = "0";
+        document.getElementById('rawNumbersInput').value = ""; // ล้างค่าเผื่อรอบหน้า
     }
 
-    // ตัวกรองสถานะ
     function setFilter(filterType) {
         currentFilter = filterType;
         
@@ -351,7 +259,6 @@
         renderList();
     }
 
-    // แสดงรายการ
     function renderList() {
         const searchValue = document.getElementById("searchInput").value.trim().toLowerCase();
         const listContainer = document.getElementById("lottoList");
@@ -421,8 +328,7 @@
     }
 
     function save() {
-        const data = { drawDate: currentDrawDate, tickets: tickets };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tickets));
         renderList();
     }
 
@@ -433,7 +339,6 @@
     function executeClearData() {
         localStorage.removeItem(STORAGE_KEY);
         tickets = [];
-        currentDrawDate = "";
         confirmClearModalInstance.hide();
         setupModalInstance.show(); 
     }
@@ -459,7 +364,7 @@
         }
         
         const items = tickets.filter(t => t.customer === name && !t.isPaid);
-        let txt = `📌 สรุปยอดคุณ ${name} (งวด ${currentDrawDate})\n\n`;
+        let txt = `📌 สรุปยอดคุณ ${name}\n\n`;
         txt += `เลขที่สั่งซื้อ (ชุดละ 2 ใบ):\n`;
         items.forEach(i => txt += `🎟️ ${i.number}\n`);
         txt += `\nรวมทั้งหมด ${items.length} ชุด`;
@@ -493,7 +398,7 @@
         const summaryText = document.getElementById("summaryText");
         
         summaryText.innerText = 
-`📊 สรุปยอดขาย (งวด ${currentDrawDate})
+`📊 สรุปยอดขายทั้งหมด
 
 📦 นำมาขาย: ${totalPairs} ชุด (${totalPairs * 2} ใบ)
 🎟️ ขายแล้ว: ${sold} ชุด
