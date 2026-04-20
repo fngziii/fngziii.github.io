@@ -2,43 +2,186 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบเช็คหวย</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ระบบเช็คหวย - พรีเมียม</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
 
     <style>
-        body { background: #f4f7f6; font-family: 'Sarabun', sans-serif; padding-bottom: 80px; }
-        .sticky-header { position: sticky; top: 0; background: #f4f7f6; z-index: 1000; padding-top: 15px; padding-bottom: 10px; }
+        :root {
+            --primary-bg: #f3f6fa;
+            --card-bg: #ffffff;
+            --accent-blue: #3b82f6;
+            --accent-red: #ff4757;
+            --status-paid: #10b981;
+            --status-pending: #f59e0b;
+        }
+
+        body { 
+            background-color: var(--primary-bg); 
+            font-family: 'Sarabun', sans-serif; 
+            padding-bottom: 90px; 
+            color: #2d3436;
+        }
+        
+        /* Glassmorphism Header */
+        .sticky-header { 
+            position: sticky; 
+            top: 0; 
+            background: rgba(243, 246, 250, 0.85); 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000; 
+            padding-top: 15px; 
+            padding-bottom: 10px; 
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+
         .container { max-width: 600px; }
-        .shop-icon { width: 50px; height: 50px; background-color: #3b82f6; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
-        .stat-card { border-radius: 12px; padding: 15px 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.04); }
-        .ticket-item { background: #ffffff; border-radius: 16px; margin-bottom: 15px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border-left: 8px solid #e9ecef; transition: all 0.3s ease; }
-        .status-free { border-left-color: #ced4da; }
-        .status-pending { border-left-color: #ffc107; background: linear-gradient(to right, #fffbf0, #ffffff); }
-        .status-paid { border-left-color: #198754; background: linear-gradient(to right, #f0f9f4, #ffffff); }
-        .lotto-num { font-size: 1.8rem; font-weight: 800; letter-spacing: 3px; color: #2c3e50; }
-        .rounded-input-group { border-radius: 20px; overflow: hidden; border: 1px solid #ced4da; background: #fff; }
-        .rounded-input-group .input-group-text, .rounded-input-group .form-control { border: none; background: transparent; box-shadow: none; }
-        .rounded-btn { border-radius: 20px !important; }
-        .search-container { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #eef2f5; }
-        .search-input { border: none; background: transparent; width: 100%; outline: none; }
-        .main-menu-btn { border-radius: 10px; font-size: 0.9rem; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .filter-btn { border-radius: 20px; padding: 5px 16px; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; border: 2px solid transparent; }
-        .modal-body pre { white-space: pre-wrap; word-wrap: break-word; }
+        
+        /* Shop Title Card */
+        .shop-header-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        .shop-icon { 
+            width: 55px; height: 55px; 
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #2563eb 100%); 
+            color: white; 
+            border-radius: 16px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 1.5rem; flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Stats Cards */
+        .stat-card { 
+            border-radius: 18px; 
+            padding: 15px 10px; 
+            text-align: center; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
+            background: var(--card-bg);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card.sold-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--accent-blue);
+        }
+        .stat-card.money-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--status-paid);
+        }
+
+        .stat-value { font-family: 'Kanit', sans-serif; font-weight: 700; letter-spacing: 0.5px; }
+
+        /* Ticket Item Premium Design */
+        .ticket-item { 
+            background: var(--card-bg); 
+            border-radius: 20px; 
+            margin-bottom: 16px; 
+            padding: 22px; 
+            box-shadow: 0 6px 16px rgba(0,0,0,0.04); 
+            border: 1px solid #edf2f7;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ticket-item:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+
+        /* Left Color Bar */
+        .ticket-item::before {
+            content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 6px;
+        }
+        .status-free::before { background: #cbd5e1; }
+        .status-pending::before { background: var(--status-pending); }
+        .status-paid::before { background: var(--status-paid); }
+
+        .status-pending { background: linear-gradient(to right, #fffdf8, #ffffff); }
+        .status-paid { background: linear-gradient(to right, #f2fbf7, #ffffff); }
+
+        /* Number Display */
+        .lotto-num { 
+            font-family: 'Kanit', sans-serif; 
+            font-size: 2.2rem; 
+            font-weight: 700; 
+            letter-spacing: 4px; 
+            color: #2d3436; 
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.05);
+        }
+        .lotto-num-highlight {
+            color: var(--accent-red);
+            font-weight: 800;
+        }
+
+        /* Inputs & Buttons */
+        .rounded-input-group { 
+            border-radius: 12px; 
+            overflow: hidden; 
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            transition: border-color 0.2s;
+        }
+        .rounded-input-group:focus-within { border-color: var(--accent-blue); background: #ffffff;}
+        .rounded-input-group .input-group-text, .rounded-input-group .form-control { 
+            border: none; background: transparent; box-shadow: none; font-size: 16px;
+        }
+        
+        .btn { font-family: 'Sarabun', sans-serif; font-weight: 600; letter-spacing: 0.3px; }
+        .rounded-btn { border-radius: 12px !important; }
+        
+        .btn-pay-status {
+            border-radius: 12px; font-size: 0.9rem; padding: 10px 0; transition: all 0.2s;
+        }
+
+        /* Search & Filters */
+        .search-container { 
+            background: var(--card-bg); border-radius: 20px; padding: 18px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #edf2f7; 
+        }
+        .search-input { border: none; background: transparent; width: 100%; outline: none; font-size: 16px; }
+        
+        .main-menu-btn { 
+            border-radius: 14px; font-size: 0.95rem; padding: 12px; 
+            display: flex; align-items: center; justify-content: center; gap: 8px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.1s;
+        }
+        .main-menu-btn:active { transform: scale(0.96); }
+
+        .filter-btn { 
+            border-radius: 30px; padding: 6px 18px; font-size: 0.9rem; font-weight: 600; 
+            transition: all 0.2s; border: 2px solid transparent; 
+        }
+
+        /* Badges */
+        .badge-custom { padding: 8px 14px; font-size: 0.8rem; font-weight: 600; border-radius: 30px; }
+        .bg-pending-custom { background-color: #fef3c7; color: #b45309; }
+        .bg-paid-custom { background-color: #d1fae5; color: #047857; }
+        .bg-free-custom { background-color: #f1f5f9; color: #64748b; }
+
+        .modal-body pre { white-space: pre-wrap; word-wrap: break-word; font-size: 16px; background: #f8fafc; border-radius: 12px; }
+        textarea.form-control { font-family: 'Kanit', sans-serif; font-size: 1.1rem; letter-spacing: 2px; }
     </style>
 </head>
 
 <body>
 <div class="container mt-2">
+    
     <div class="sticky-header">
-        <div class="d-flex align-items-center mb-3 bg-white p-3 rounded-4 shadow-sm border">
-            <div class="shop-icon me-3 shadow-sm"><i class="fas fa-store"></i></div>
+        <div class="d-flex align-items-center mb-3 p-3 shop-header-card">
+            <div class="shop-icon me-3">
+                <i class="fas fa-store"></i>
+            </div>
             <div>
-                <h5 class="fw-bold m-0 text-dark" id="shopTitle">ระบบเช็คเลข</h5>
-                <small class="text-muted" style="font-size: 0.8rem;">พุทธังโหม ธัมมังโหม สังฆังล้อม อันตรายาวินาศสันติ</small>
+                <h5 class="fw-bold m-0 text-dark" id="shopTitle" style="font-family: 'Kanit', sans-serif;">ระบบเช็คเลข</h5>
+                <small class="text-muted"><i class="fas fa-gem text-warning me-1"></i> พุทธังโหม ธัมมังโหม สังฆังล้อม</small>
             </div>
         </div>
 
@@ -46,38 +189,38 @@
             <button class="btn btn-outline-primary main-menu-btn flex-fill bg-white" onclick="showPersonSummary()">
                 <i class="fas fa-user-clock text-primary"></i> ค้างจ่าย
             </button>
-            <button class="btn btn-dark main-menu-btn flex-fill" onclick="showSummary()">
+            <button class="btn btn-dark main-menu-btn flex-fill shadow-sm" onclick="showSummary()">
                 <i class="fas fa-chart-pie text-white"></i> ยอดรวม
             </button>
-            <button class="btn btn-danger main-menu-btn flex-fill" onclick="confirmClearData()">
-                <i class="fas fa-trash text-white"></i> ล้างข้อมูล
+            <button class="btn btn-danger main-menu-btn flex-fill shadow-sm" onclick="confirmClearData()">
+                <i class="fas fa-trash-alt text-white"></i> ล้างข้อมูล
             </button>
         </div>
 
         <div class="row g-2 mb-3">
             <div class="col-6">
-                <div class="stat-card bg-primary bg-opacity-10 border border-primary border-opacity-50">
-                    <small class="text-primary fw-bold"><i class="fas fa-shopping-cart"></i> ขายแล้ว (คู่)</small>
-                    <div class="fw-bold text-primary fs-3 mt-1" id="soldCount">0/0</div>
+                <div class="stat-card sold-card">
+                    <div class="text-muted fw-bold mb-1" style="font-size: 0.85rem;"><i class="fas fa-shopping-cart text-primary"></i> ขายแล้ว (คู่)</div>
+                    <div class="text-primary fs-3 stat-value" id="soldCount">0/0</div>
                 </div>
             </div>
             <div class="col-6">
-                <div class="stat-card bg-success bg-opacity-10 border border-success border-opacity-50">
-                    <small class="text-success fw-bold"><i class="fas fa-wallet"></i> รับเงินแล้ว</small>
-                    <div class="fw-bold text-success fs-3 mt-1" id="moneyCount">฿ 0</div>
+                <div class="stat-card money-card">
+                    <div class="text-muted fw-bold mb-1" style="font-size: 0.85rem;"><i class="fas fa-wallet text-success"></i> รับเงินแล้ว</div>
+                    <div class="text-success fs-3 stat-value" id="moneyCount">฿ 0</div>
                 </div>
             </div>
         </div>
 
         <div class="search-container mb-2">
-            <div class="d-flex align-items-center border-bottom pb-2 mb-3">
-                <i class="fas fa-search text-muted me-2"></i>
-                <input id="searchInput" class="search-input" placeholder="ค้นหาหมายเลข 3 ตัวท้าย หรือ ชื่อลูกค้า..." onkeyup="renderList()">
+            <div class="d-flex align-items-center border-bottom pb-3 mb-3">
+                <i class="fas fa-search text-muted me-3 fs-5"></i>
+                <input id="searchInput" class="search-input" placeholder="ค้นหาเลขท้าย หรือ ชื่อลูกค้า..." onkeyup="renderList()">
             </div>
             <div class="d-flex justify-content-center gap-2 flex-wrap">
-                <button class="filter-btn bg-primary text-white border-primary" id="btn-filter-all" onclick="setFilter('all')">ทั้งหมด</button>
+                <button class="filter-btn bg-primary text-white shadow-sm" id="btn-filter-all" onclick="setFilter('all')">ทั้งหมด</button>
                 <button class="filter-btn bg-white text-secondary border-secondary" id="btn-filter-empty" onclick="setFilter('empty')">ว่าง</button>
-                <button class="filter-btn bg-white text-warning border-warning" style="color: #c99700 !important;" id="btn-filter-pending" onclick="setFilter('pending')">รอโอน</button>
+                <button class="filter-btn bg-white text-warning border-warning" style="color: #d97706 !important;" id="btn-filter-pending" onclick="setFilter('pending')">รอโอน</button>
                 <button class="filter-btn bg-white text-success border-success" id="btn-filter-paid" onclick="setFilter('paid')">จ่ายแล้ว</button>
             </div>
         </div>
@@ -88,20 +231,22 @@
 
 <div class="modal fade" id="setupModal" data-bs-backdrop="static" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-primary text-white border-bottom-0">
-                <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle"></i> เพิ่มเลขหวยงวดนี้</h5>
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+            <div class="modal-header bg-white border-bottom-0 pt-4 px-4">
+                <h5 class="modal-title fw-bold text-dark" style="font-family: 'Kanit', sans-serif;"><i class="fas fa-magic text-primary me-2"></i> เพิ่มเลขหวยงวดนี้</h5>
             </div>
-            <div class="modal-body">
-                <div class="mb-2">
-                    <label class="form-label fw-bold">วางตัวเลขทั้งหมดที่นี่ (1 บรรทัด = 1 คู่)</label>
-                    <textarea id="rawNumbersInput" class="form-control" rows="10" placeholder="ตัวอย่าง:\n600410\n642511\n593812"></textarea>
+            <div class="modal-body px-4 pb-2">
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-muted">วางตัวเลขทั้งหมดที่นี่ (1 บรรทัด = 1 คู่)</label>
+                    <textarea id="rawNumbersInput" class="form-control" rows="8" placeholder="600410&#10;642511&#10;593812" style="border-radius: 16px; background: #f8fafc; border: 2px solid #e2e8f0;"></textarea>
                 </div>
-                <small class="text-muted"><i class="fas fa-info-circle"></i> ระบบจะคัดกรองเฉพาะเลข 6 หลัก ตัดเลขซ้ำ และเรียงจากน้อยไปมาก (ตามเลข 3 ตัวหลัง) ให้อัตโนมัติ</small>
+                <div class="p-3 bg-light rounded-3 text-secondary" style="font-size: 0.9rem;">
+                    <i class="fas fa-info-circle text-primary me-1"></i> ระบบจะคัดเฉพาะเลข 6 หลัก และ <b>เรียงจาก 2 ตัวท้ายเป็นหลัก</b> ให้อัตโนมัติ (ถ้า 2 ตัวท้ายซ้ำกัน จะเช็คตัวที่ 3 ต่อ)
+                </div>
             </div>
-            <div class="modal-footer border-top-0">
-                <button class="btn btn-success w-100 py-2 fw-bold rounded-btn" onclick="saveNewNumbers()">
-                    <i class="fas fa-save"></i> บันทึกและเริ่มขาย
+            <div class="modal-footer border-top-0 p-4">
+                <button class="btn btn-primary w-100 py-3 fw-bold rounded-btn fs-5 shadow-sm" onclick="saveNewNumbers()">
+                    เริ่มขายหวย <i class="fas fa-arrow-right ms-2"></i>
                 </button>
             </div>
         </div>
@@ -110,17 +255,15 @@
 
 <div class="modal fade" id="confirmClearModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-danger text-white border-bottom-0">
-                <h5 class="modal-title fw-bold"><i class="fas fa-exclamation-triangle"></i> ยืนยันการล้างข้อมูล</h5>
-                <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center py-4">
-                <p class="fs-5 mb-0">คุณต้องการล้างข้อมูล <b>ลูกค้าทั้งหมด</b> <br>และลบเลขหวยใช่หรือไม่?</p>
-            </div>
-            <div class="modal-footer border-top-0 d-flex gap-2">
-                <button class="btn btn-light flex-fill rounded-btn" data-bs-dismiss="modal">ยกเลิก</button>
-                <button class="btn btn-danger flex-fill rounded-btn" onclick="executeClearData()">ล้างข้อมูลและเริ่มใหม่</button>
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+            <div class="modal-body text-center p-5">
+                <div class="text-danger mb-4"><i class="fas fa-exclamation-circle" style="font-size: 4rem;"></i></div>
+                <h4 class="fw-bold mb-3" style="font-family: 'Kanit', sans-serif;">ยืนยันการล้างข้อมูล?</h4>
+                <p class="text-muted fs-5">ข้อมูลลูกค้าและเลขหวยทั้งหมดในงวดนี้จะถูกลบและไม่สามารถกู้คืนได้</p>
+                <div class="d-flex gap-3 mt-4">
+                    <button class="btn btn-light flex-fill rounded-btn py-2 fw-bold" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button class="btn btn-danger flex-fill rounded-btn py-2 fw-bold shadow-sm" onclick="executeClearData()">ล้างเลย</button>
+                </div>
             </div>
         </div>
     </div>
@@ -128,18 +271,18 @@
 
 <div class="modal fade" id="personModal">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-warning bg-opacity-10 border-bottom-0">
-                <h5 class="modal-title fw-bold text-dark"><i class="fas fa-list-check text-warning"></i> สรุปรายคน (ค้างจ่าย)</h5>
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+            <div class="modal-header border-bottom-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold text-dark" style="font-family: 'Kanit', sans-serif;"><i class="fas fa-file-invoice text-warning me-2"></i> บิลเรียกเก็บเงิน</h5>
                 <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <select id="personSelect" class="form-select form-select-lg mb-3 shadow-sm" onchange="renderPersonSummary()"></select>
-                <pre id="personSummaryText" class="p-3 bg-light rounded border border-warning border-opacity-25" style="font-family:'Sarabun'; font-size:15px;"></pre>
+            <div class="modal-body px-4">
+                <select id="personSelect" class="form-select form-select-lg mb-4" onchange="renderPersonSummary()" style="border-radius: 12px; border: 2px solid #e2e8f0; font-family: 'Kanit', sans-serif;"></select>
+                <pre id="personSummaryText" class="p-3 border-0 shadow-sm text-dark"></pre>
             </div>
-            <div class="modal-footer border-top-0">
-                <button class="btn btn-success w-100 py-2 fw-bold rounded-btn" onclick="copyPersonSummary()">
-                    <i class="fas fa-copy"></i> ก๊อปปี้ส่งลูกค้า
+            <div class="modal-footer border-top-0 px-4 pb-4">
+                <button class="btn btn-success w-100 py-3 fw-bold rounded-btn fs-5 shadow-sm" onclick="copyPersonSummary()">
+                    <i class="fas fa-copy me-2"></i> คัดลอกส่งลูกค้า
                 </button>
             </div>
         </div>
@@ -148,25 +291,24 @@
 
 <div class="modal fade" id="summaryModal">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-dark text-white border-bottom-0">
-                <h5 class="modal-title fw-bold"><i class="fas fa-chart-pie"></i> สรุปยอดทั้งหมด</h5>
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; background: #1e293b;">
+            <div class="modal-header border-bottom-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold text-white" style="font-family: 'Kanit', sans-serif;"><i class="fas fa-chart-line text-info me-2"></i> สรุปยอดขายทั้งหมด</h5>
                 <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <pre id="summaryText" class="p-3 bg-light rounded border border-dark border-opacity-25" style="font-family:'Sarabun'; font-size:16px;"></pre>
+            <div class="modal-body px-4 pb-4">
+                <pre id="summaryText" class="p-3 bg-dark bg-opacity-50 text-white border-0 shadow-sm" style="font-size: 17px;"></pre>
             </div>
         </div>
     </div>
 </div>
 
-<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
-    <div id="copyToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body fw-bold">
-                <i class="fas fa-check-circle me-2"></i> ก๊อปปี้ข้อความเรียบร้อยแล้ว!
+<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1055;">
+    <div id="copyToast" class="toast align-items-center text-bg-dark border-0 shadow-lg" style="border-radius: 50px;" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex px-2 py-1">
+            <div class="toast-body fw-bold fs-6 text-center w-100" style="font-family: 'Kanit', sans-serif;">
+                <i class="fas fa-check-circle text-success me-2 fs-5 align-middle"></i> คัดลอกเรียบร้อยแล้ว
             </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
     </div>
 </div>
@@ -178,7 +320,7 @@
 
     let tickets = [];
     let currentFilter = 'all'; 
-    const STORAGE_KEY = "myLottoShop_SimpleData"; 
+    const STORAGE_KEY = "myLottoShop_PremiumData"; 
     
     let setupModalInstance;
     let confirmClearModalInstance;
@@ -198,10 +340,9 @@
     }
 
     function updateHeaderCount() {
-        document.getElementById('shopTitle').innerText = `ระบบเช็คเลข (ขาย ${tickets.length} คู่)`;
+        document.getElementById('shopTitle').innerText = `ร้านหวย (ขาย ${tickets.length} คู่)`;
     }
 
-    // ฟังก์ชันรับค่าจาก Textarea และสร้างชุดตัวเลข
     function saveNewNumbers() {
         const rawText = document.getElementById('rawNumbersInput').value.trim();
 
@@ -210,7 +351,6 @@
             return;
         }
 
-        // ดึงเฉพาะตัวเลข 6 หลัก
         let numList = rawText.split('\n')
             .map(n => n.trim().replace(/\s+/g, ''))
             .filter(n => n.length === 6 && !isNaN(n));
@@ -220,13 +360,20 @@
             return;
         }
 
-        // ลบเลขซ้ำ
         numList = [...new Set(numList)];
 
-        // เรียงจากน้อยไปมาก ตาม 3 ตัวท้าย
+        // เรียงจาก 2 ตัวท้ายเป็นหลัก ถ้าซ้ำกันถึงดูตัวที่ 3
         numList.sort((a, b) => {
-            const last3A = parseInt(a.slice(-3));
-            const last3B = parseInt(b.slice(-3));
+            const last2A = parseInt(a.slice(-2), 10);
+            const last2B = parseInt(b.slice(-2), 10);
+            
+            if (last2A !== last2B) {
+                return last2A - last2B;
+            }
+            
+            // ถ้า 2 ตัวท้ายเท่ากัน ให้เช็คที่ 3 ตัวท้าย
+            const last3A = parseInt(a.slice(-3), 10);
+            const last3B = parseInt(b.slice(-3), 10);
             return last3A - last3B;
         });
 
@@ -235,26 +382,30 @@
         save();
         updateHeaderCount();
         setupModalInstance.hide();
-        document.getElementById('rawNumbersInput').value = ""; // ล้างค่าเผื่อรอบหน้า
+        document.getElementById('rawNumbersInput').value = ""; 
     }
 
     function setFilter(filterType) {
         currentFilter = filterType;
         
-        document.getElementById('btn-filter-all').className = 'filter-btn bg-white text-primary border-primary';
-        document.getElementById('btn-filter-empty').className = 'filter-btn bg-white text-secondary border-secondary';
-        document.getElementById('btn-filter-pending').className = 'filter-btn bg-white text-warning border-warning';
-        document.getElementById('btn-filter-paid').className = 'filter-btn bg-white text-success border-success';
+        const resetBtn = (id, baseClass, textClass, borderClass) => {
+            document.getElementById(id).className = `filter-btn ${baseClass} ${textClass} ${borderClass}`;
+            document.getElementById(id).style.color = '';
+        };
+
+        resetBtn('btn-filter-all', 'bg-white', 'text-primary', 'border-primary');
+        resetBtn('btn-filter-empty', 'bg-white', 'text-secondary', 'border-secondary');
+        resetBtn('btn-filter-pending', 'bg-white', 'text-warning', 'border-warning');
+        resetBtn('btn-filter-paid', 'bg-white', 'text-success', 'border-success');
         
-        if(filterType === 'all') document.getElementById('btn-filter-all').className = 'filter-btn bg-primary text-white border-primary';
-        if(filterType === 'empty') document.getElementById('btn-filter-empty').className = 'filter-btn bg-secondary text-white border-secondary';
+        document.getElementById('btn-filter-pending').style.color = '#d97706';
+        
+        if(filterType === 'all') resetBtn('btn-filter-all', 'bg-primary', 'text-white', 'border-primary shadow-sm');
+        if(filterType === 'empty') resetBtn('btn-filter-empty', 'bg-secondary', 'text-white', 'border-secondary shadow-sm');
         if(filterType === 'pending') {
-            document.getElementById('btn-filter-pending').className = 'filter-btn bg-warning text-dark border-warning';
-            document.getElementById('btn-filter-pending').style.color = '#000 !important'; 
-        } else {
-            document.getElementById('btn-filter-pending').style.color = '#c99700'; 
+            resetBtn('btn-filter-pending', 'bg-warning', 'text-dark', 'border-warning shadow-sm');
         }
-        if(filterType === 'paid') document.getElementById('btn-filter-paid').className = 'filter-btn bg-success text-white border-success';
+        if(filterType === 'paid') resetBtn('btn-filter-paid', 'bg-success', 'text-white', 'border-success shadow-sm');
         
         renderList();
     }
@@ -272,8 +423,7 @@
                 if (t.isPaid) money += PRICE_PER_PAIR;
             }
             
-            const last3 = t.number.slice(-3);
-            const matchSearch = last3.includes(searchValue) || t.number.includes(searchValue) || t.customer.toLowerCase().includes(searchValue);
+            const matchSearch = t.number.includes(searchValue) || t.customer.toLowerCase().includes(searchValue);
             if (!matchSearch) return;
 
             if (currentFilter === 'empty' && t.customer !== "") return;
@@ -281,28 +431,35 @@
             if (currentFilter === 'paid' && (!t.customer || !t.isPaid)) return;
 
             const statusClass = t.customer ? (t.isPaid ? 'status-paid' : 'status-pending') : 'status-free';
-            const badgeClass = t.customer ? (t.isPaid ? 'bg-success' : 'bg-warning text-dark') : 'bg-secondary';
-            const badgeText = t.customer ? (t.isPaid ? '<i class="fas fa-check-circle"></i> จ่ายแล้ว' : '<i class="fas fa-clock"></i> รอโอน') : 'ว่าง';
-            const btnClass = t.isPaid ? 'btn-success' : 'btn-outline-primary';
+            const badgeClass = t.customer ? (t.isPaid ? 'bg-paid-custom' : 'bg-pending-custom') : 'bg-free-custom';
+            const badgeIcon = t.customer ? (t.isPaid ? 'fa-check-circle' : 'fa-clock') : 'fa-ticket-alt';
+            const badgeText = t.customer ? (t.isPaid ? 'จ่ายแล้ว' : 'รอโอน') : 'ว่าง';
             
+            const btnClass = t.isPaid ? 'btn-success shadow-sm' : 'btn-outline-primary';
+            const btnIcon = t.isPaid ? '<i class="fas fa-check"></i> รับแล้ว' : 'รับเงิน';
+            
+            // ไฮไลท์ 2 ตัวท้ายให้ชัดเจน
+            const first4 = t.number.substring(0, 4);
+            const last2 = t.number.substring(4, 6);
+
             htmlContent += `
             <div class="ticket-item ${statusClass}">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="lotto-num">${t.number.substring(0,3)}<span class="text-primary">${t.number.substring(3,6)}</span></span>   
-                    <span class="badge rounded-pill px-3 py-2 ${badgeClass}">${badgeText}</span>
+                    <div class="lotto-num">${first4}<span class="lotto-num-highlight">${last2}</span></div>   
+                    <span class="badge badge-custom ${badgeClass}"><i class="fas ${badgeIcon} me-1"></i>${badgeText}</span>
                 </div>
                 <div class="row g-2 align-items-center">
                     <div class="col-8">
-                        <div class="input-group input-group-sm rounded-input-group">
-                            <span class="input-group-text"><i class="fas fa-user text-muted"></i></span>
-                            <input class="form-control form-control-sm py-2" placeholder="พิมพ์ชื่อลูกค้า..."
+                        <div class="input-group rounded-input-group">
+                            <span class="input-group-text px-3"><i class="fas fa-user-circle text-muted fs-5"></i></span>
+                            <input class="form-control py-2 fw-bold" style="color: #334155;" placeholder="ชื่อลูกค้า..."
                             value="${t.customer}" onchange="updateCustomer(${i}, this.value)">
                         </div>
                     </div>
                     <div class="col-4">
-                        <button class="btn btn-sm w-100 py-2 fw-bold rounded-btn ${btnClass}"
+                        <button class="btn btn-pay-status w-100 fw-bold ${btnClass}"
                         onclick="togglePaid(${i})" ${!t.customer ? 'disabled' : ''}>
-                            ${t.isPaid ? 'รับแล้ว' : 'กดรับเงิน'}
+                            ${btnIcon}
                         </button>
                     </div>
                 </div>
@@ -347,10 +504,10 @@
         const names = [...new Set(tickets.filter(t => t.customer && !t.isPaid).map(t => t.customer))];
         const personSelect = document.getElementById("personSelect");
         
-        personSelect.innerHTML = '<option value="">-- เลือกลูกค้าที่ต้องการสรุปยอด --</option>';
+        personSelect.innerHTML = '<option value="">-- เลือกลูกค้าที่ต้องการเรียกเก็บ --</option>';
         names.forEach(n => personSelect.innerHTML += `<option value="${n}">${n}</option>`);
         
-        document.getElementById("personSummaryText").innerText = "กรุณาเลือกลูกค้าเพื่อดูสรุปยอดครับ...";
+        document.getElementById("personSummaryText").innerText = "กรุณาเลือกลูกค้าจากเมนูด้านบนครับ...";
         new bootstrap.Modal(document.getElementById("personModal")).show();
     }
 
@@ -359,17 +516,19 @@
         const personSummaryText = document.getElementById("personSummaryText");
         
         if (!name) {
-            personSummaryText.innerText = "กรุณาเลือกลูกค้าเพื่อดูสรุปยอดครับ...";
+            personSummaryText.innerText = "กรุณาเลือกลูกค้าจากเมนูด้านบนครับ...";
             return;
         }
         
         const items = tickets.filter(t => t.customer === name && !t.isPaid);
-        let txt = `📌 สรุปยอดคุณ ${name}\n\n`;
+        let txt = `🧾 สรุปยอดคุณ ${name}\n`;
+        txt += `━━━━━━━━━━━━━━━━━━━\n`;
         txt += `เลขที่สั่งซื้อ (ชุดละ 2 ใบ):\n`;
         items.forEach(i => txt += `🎟️ ${i.number}\n`);
-        txt += `\nรวมทั้งหมด ${items.length} ชุด`;
-        txt += `\n💰 ยอดโอนรวม: ${(items.length * PRICE_PER_PAIR).toLocaleString()} บาท\n`;
-        txt += `\n${BANK_INFO}`;
+        txt += `━━━━━━━━━━━━━━━━━━━\n`;
+        txt += `รวมทั้งหมด: ${items.length} ชุด\n`;
+        txt += `💰 ยอดที่ต้องโอน: ${(items.length * PRICE_PER_PAIR).toLocaleString()} บาท\n\n`;
+        txt += `${BANK_INFO}`;
         
         personSummaryText.innerText = txt;
     }
@@ -378,7 +537,7 @@
         const textToCopy = document.getElementById("personSummaryText").innerText;
         navigator.clipboard.writeText(textToCopy).then(() => {
             const toastEl = document.getElementById('copyToast');
-            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            const toast = new bootstrap.Toast(toastEl, { delay: 2000 });
             toast.show();
             bootstrap.Modal.getInstance(document.getElementById("personModal")).hide();
         });
@@ -398,15 +557,16 @@
         const summaryText = document.getElementById("summaryText");
         
         summaryText.innerText = 
-`📊 สรุปยอดขายทั้งหมด
+`📊 สรุปรายงานการขาย
 
-📦 นำมาขาย: ${totalPairs} ชุด (${totalPairs * 2} ใบ)
-🎟️ ขายแล้ว: ${sold} ชุด
-✅ รับเงินแล้ว: ${paid} ชุด
-⏳ ค้างจ่าย: ${pending} ชุด
-❌ เหลือว่าง: ${totalPairs - sold} ชุด
+📦 หวยทั้งหมด: ${totalPairs} ชุด (${totalPairs * 2} ใบ)
+🎟️ ขายออกแล้ว: ${sold} ชุด
+❌ เหลือบนแผง: ${totalPairs - sold} ชุด
 
-💰 เงินที่รับมาแล้ว: ฿ ${money.toLocaleString()}`;
+✅ รับเงินโอนแล้ว: ${paid} ชุด
+⏳ ลูกค้าค้างจ่าย: ${pending} ชุด
+
+💰 รายได้เข้ากระเป๋า: ฿ ${money.toLocaleString()}`;
 
         new bootstrap.Modal(document.getElementById("summaryModal")).show();
     }
