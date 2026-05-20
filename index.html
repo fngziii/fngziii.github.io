@@ -1,7 +1,8 @@
-<!-- ========================================= -->
-<!-- LOTTO SAFE SYSTEM (INDEXEDDB VERSION) -->
-<!-- ใช้งานแทน SCRIPT เดิมทั้งหมดได้เลย -->
-<!-- ========================================= -->
+<!-- ===================================================== -->
+<!-- แทน SCRIPT เดิมทั้งหมดด้วยอันนี้ -->
+<!-- ใช้กับ HTML เดิมของคุณได้เลย -->
+<!-- IndexedDB + Backup/Restore + Auto Save -->
+<!-- ===================================================== -->
 
 <script>
 
@@ -19,22 +20,32 @@ let tickets = [];
 let currentFilter = 'all';
 let currentUnsoldTextToCopy = "";
 
+let setupModalInstance;
+let confirmClearModalInstance;
 
-// =========================================
+
+// =====================================================
 // OPEN DATABASE
-// =========================================
+// =====================================================
 
 function openDB() {
 
     return new Promise((resolve, reject) => {
 
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        const request = indexedDB.open(
+            DB_NAME,
+            DB_VERSION
+        );
 
         request.onupgradeneeded = function(event) {
 
             const db = event.target.result;
 
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
+            if (
+                !db.objectStoreNames.contains(
+                    STORE_NAME
+                )
+            ) {
 
                 db.createObjectStore(STORE_NAME);
             }
@@ -53,9 +64,9 @@ function openDB() {
 }
 
 
-// =========================================
+// =====================================================
 // SAVE DATA
-// =========================================
+// =====================================================
 
 async function saveData() {
 
@@ -63,23 +74,27 @@ async function saveData() {
 
         const db = await openDB();
 
-        const transaction =
-            db.transaction(STORE_NAME, "readwrite");
+        const tx =
+            db.transaction(
+                STORE_NAME,
+                "readwrite"
+            );
 
         const store =
-            transaction.objectStore(STORE_NAME);
+            tx.objectStore(STORE_NAME);
 
-        store.put(tickets, "mainTickets");
+        store.put(
+            tickets,
+            "mainTickets"
+        );
 
-        // emergency backup
+        // backup emergency
         localStorage.setItem(
-            "latestBackup",
+            "lotto_backup",
             JSON.stringify(tickets)
         );
 
-        renderList();
-
-    } catch (e) {
+    } catch(e) {
 
         console.error(e);
 
@@ -88,9 +103,9 @@ async function saveData() {
 }
 
 
-// =========================================
+// =====================================================
 // LOAD DATA
-// =========================================
+// =====================================================
 
 async function loadData() {
 
@@ -98,46 +113,54 @@ async function loadData() {
 
         const db = await openDB();
 
-        const transaction =
-            db.transaction(STORE_NAME, "readonly");
+        const tx =
+            db.transaction(
+                STORE_NAME,
+                "readonly"
+            );
 
         const store =
-            transaction.objectStore(STORE_NAME);
+            tx.objectStore(STORE_NAME);
 
         const request =
             store.get("mainTickets");
 
         request.onsuccess = function() {
 
-            if (request.result) {
+            if(request.result) {
 
                 tickets = request.result;
 
-                renderList();
-
-                updateHeaderCount();
-
             } else {
 
-                // fallback backup
+                // fallback local backup
 
                 const backup =
                     localStorage.getItem(
-                        "latestBackup"
+                        "lotto_backup"
                     );
 
-                if (backup) {
+                if(backup) {
 
-                    tickets = JSON.parse(backup);
-
-                    renderList();
-
-                    updateHeaderCount();
+                    tickets =
+                        JSON.parse(backup);
                 }
+            }
+
+            updateHeaderCount();
+
+            renderList();
+
+            if(
+                !tickets ||
+                tickets.length === 0
+            ) {
+
+                setupModalInstance.show();
             }
         };
 
-    } catch (e) {
+    } catch(e) {
 
         console.error(e);
 
@@ -146,235 +169,107 @@ async function loadData() {
 }
 
 
-// =========================================
+// =====================================================
+// INIT
+// =====================================================
+
+async function init() {
+
+    setupModalInstance =
+        new bootstrap.Modal(
+            document.getElementById(
+                'setupModal'
+            )
+        );
+
+    confirmClearModalInstance =
+        new bootstrap.Modal(
+            document.getElementById(
+                'confirmClearModal'
+            )
+        );
+
+    document
+        .getElementById(
+            'rawNumbersInput'
+        )
+        .addEventListener(
+            'input',
+            updateTextareaCount
+        );
+
+    await loadData();
+}
+
+
+// =====================================================
+// UPDATE TEXTAREA COUNT
+// =====================================================
+
+function updateTextareaCount() {
+
+    const text =
+        document.getElementById(
+            'rawNumbersInput'
+        ).value;
+
+    const validNumbers =
+        text
+        .split('\n')
+        .map(
+            n =>
+            n.trim()
+            .replace(/\s+/g, '')
+        )
+        .filter(
+            n =>
+            n.length === 6 &&
+            !isNaN(n)
+        );
+
+    const uniqueNumbers =
+        [...new Set(validNumbers)];
+
+    document.getElementById(
+        'currentNumberCount'
+    ).innerText =
+        uniqueNumbers.length;
+}
+
+
+// =====================================================
 // UPDATE HEADER
-// =========================================
+// =====================================================
 
 function updateHeaderCount() {
 
-    const el =
-        document.getElementById("shopTitle");
+    const title =
+        document.getElementById(
+            "shopTitle"
+        );
 
-    if (el) {
+    if(title) {
 
-        el.innerText =
+        title.innerText =
             `ร้านหวย (ขาย ${tickets.length} คู่)`;
     }
 }
 
 
-// =========================================
-// UPDATE CUSTOMER
-// =========================================
-
-function updateCustomer(index, value) {
-
-    tickets[index].customer = value.trim();
-
-    if (!tickets[index].customer) {
-
-        tickets[index].isPaid = false;
-    }
-
-    saveData();
-}
-
-
-// =========================================
-// TOGGLE PAID
-// =========================================
-
-function togglePaid(index) {
-
-    if (!tickets[index].customer) return;
-
-    tickets[index].isPaid =
-        !tickets[index].isPaid;
-
-    saveData();
-}
-
-
-// =========================================
-// FILTER
-// =========================================
-
-function setFilter(filterType) {
-
-    currentFilter = filterType;
-
-    renderList();
-}
-
-
-// =========================================
-// RENDER LIST
-// =========================================
-
-function renderList() {
-
-    try {
-
-        const listContainer =
-            document.getElementById("lottoList");
-
-        if (!listContainer) return;
-
-        const searchInput =
-            document.getElementById("searchInput");
-
-        const searchValue =
-            searchInput
-            ? searchInput.value.trim().toLowerCase()
-            : "";
-
-        let sold = 0;
-        let money = 0;
-
-        let html = "";
-
-        tickets.forEach((t, i) => {
-
-            if (t.customer) {
-
-                sold++;
-
-                if (t.isPaid) {
-
-                    money += PRICE_PER_PAIR;
-                }
-            }
-
-            const num =
-                String(t.number || "");
-
-            const matchSearch =
-                num.includes(searchValue) ||
-                (t.customer &&
-                t.customer.toLowerCase()
-                .includes(searchValue));
-
-            if (!matchSearch) return;
-
-            if (
-                currentFilter === 'empty' &&
-                t.customer !== ""
-            ) return;
-
-            if (
-                currentFilter === 'pending' &&
-                (!t.customer || t.isPaid)
-            ) return;
-
-            if (
-                currentFilter === 'paid' &&
-                (!t.customer || !t.isPaid)
-            ) return;
-
-            const statusClass =
-                t.customer
-                ? (t.isPaid
-                    ? 'status-paid'
-                    : 'status-pending')
-                : 'status-free';
-
-            const first4 =
-                num.substring(0, 4);
-
-            const last2 =
-                num.substring(4, 6);
-
-            html += `
-            <div class="ticket-item ${statusClass}">
-
-                <div class="d-flex justify-content-between align-items-center mb-3">
-
-                    <div class="lotto-num">
-                        ${first4}
-                        <span class="lotto-num-highlight">
-                            ${last2}
-                        </span>
-                    </div>
-
-                </div>
-
-                <div class="row g-2 align-items-center">
-
-                    <div class="col-8">
-
-                        <input
-                            class="form-control"
-                            placeholder="ชื่อลูกค้า..."
-                            value="${t.customer || ""}"
-                            onchange="updateCustomer(${i}, this.value)"
-                        >
-
-                    </div>
-
-                    <div class="col-4">
-
-                        <button
-                            class="btn ${t.isPaid ? 'btn-success' : 'btn-outline-primary'} w-100"
-                            onclick="togglePaid(${i})"
-                            ${!t.customer ? 'disabled' : ''}
-                        >
-
-                            ${t.isPaid ? 'รับแล้ว' : 'รับเงิน'}
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-            `;
-        });
-
-        listContainer.innerHTML = html;
-
-        const soldCount =
-            document.getElementById("soldCount");
-
-        if (soldCount) {
-
-            soldCount.innerText =
-                `${sold} / ${tickets.length}`;
-        }
-
-        const moneyCount =
-            document.getElementById("moneyCount");
-
-        if (moneyCount) {
-
-            moneyCount.innerText =
-                `฿ ${money.toLocaleString()}`;
-        }
-
-    } catch (e) {
-
-        console.error(e);
-    }
-}
-
-
-// =========================================
+// =====================================================
 // SAVE NEW NUMBERS
-// =========================================
+// =====================================================
 
 async function saveNewNumbers() {
 
     try {
 
-        const textarea =
-            document.getElementById(
-                "rawNumbersInput"
-            );
-
-        if (!textarea) return;
-
         const rawText =
-            textarea.value.trim();
+            document.getElementById(
+                'rawNumbersInput'
+            )
+            .value
+            .trim();
 
         if (!rawText) {
 
@@ -385,15 +280,19 @@ async function saveNewNumbers() {
 
         let numList =
             rawText
-            .split("\n")
-            .map(n => n.trim())
+            .split('\n')
+            .map(
+                n =>
+                n.trim()
+                .replace(/\s+/g, '')
+            )
             .filter(
                 n =>
                 n.length === 6 &&
                 !isNaN(n)
             );
 
-        if (numList.length === 0) {
+        if(numList.length === 0) {
 
             alert("ไม่พบเลข 6 หลัก");
 
@@ -427,9 +326,11 @@ async function saveNewNumbers() {
 
         updateHeaderCount();
 
-        alert("✅ เพิ่มเลขสำเร็จ");
+        renderList();
 
-    } catch (e) {
+        setupModalInstance.hide();
+
+    } catch(e) {
 
         console.error(e);
 
@@ -438,20 +339,511 @@ async function saveNewNumbers() {
 }
 
 
-// =========================================
-// BACKUP JSON
-// =========================================
+// =====================================================
+// FILTER
+// =====================================================
+
+function setFilter(filterType) {
+
+    currentFilter = filterType;
+
+    renderList();
+}
+
+
+// =====================================================
+// RENDER LIST
+// =====================================================
+
+function renderList() {
+
+    try {
+
+        const searchValue =
+            document
+            .getElementById(
+                "searchInput"
+            )
+            .value
+            .trim()
+            .toLowerCase();
+
+        const listContainer =
+            document.getElementById(
+                "lottoList"
+            );
+
+        let sold = 0;
+        let money = 0;
+
+        let htmlContent = '';
+
+        tickets.forEach((t, i) => {
+
+            if (t.customer) {
+
+                sold++;
+
+                if (t.isPaid) {
+
+                    money += PRICE_PER_PAIR;
+                }
+            }
+
+            const numStr =
+                String(t.number || "");
+
+            const matchSearch =
+                numStr.includes(searchValue) ||
+                (
+                    t.customer &&
+                    t.customer
+                    .toLowerCase()
+                    .includes(searchValue)
+                );
+
+            if (!matchSearch) return;
+
+            if (
+                currentFilter === 'empty' &&
+                t.customer !== ""
+            ) return;
+
+            if (
+                currentFilter === 'pending' &&
+                (!t.customer || t.isPaid)
+            ) return;
+
+            if (
+                currentFilter === 'paid' &&
+                (!t.customer || !t.isPaid)
+            ) return;
+
+            const statusClass =
+                t.customer
+                ? (
+                    t.isPaid
+                    ? 'status-paid'
+                    : 'status-pending'
+                )
+                : 'status-free';
+
+            const badgeClass =
+                t.customer
+                ? (
+                    t.isPaid
+                    ? 'bg-paid-custom'
+                    : 'bg-pending-custom'
+                )
+                : 'bg-free-custom';
+
+            const badgeText =
+                t.customer
+                ? (
+                    t.isPaid
+                    ? 'จ่ายแล้ว'
+                    : 'รอโอน'
+                )
+                : 'ว่าง';
+
+            const btnClass =
+                t.isPaid
+                ? 'btn-success'
+                : 'btn-outline-primary';
+
+            const btnText =
+                t.isPaid
+                ? 'รับแล้ว'
+                : 'รับเงิน';
+
+            const first4 =
+                numStr.substring(0, 4);
+
+            const last2 =
+                numStr.substring(4, 6);
+
+            htmlContent += `
+            <div class="ticket-item ${statusClass}">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+
+                    <div class="lotto-num">
+                        ${first4}
+                        <span class="lotto-num-highlight">
+                            ${last2}
+                        </span>
+                    </div>
+
+                    <span class="badge badge-custom ${badgeClass}">
+                        ${badgeText}
+                    </span>
+
+                </div>
+
+                <div class="row g-2 align-items-center">
+
+                    <div class="col-8">
+
+                        <div class="input-group rounded-input-group">
+
+                            <span class="input-group-text px-3">
+                                👤
+                            </span>
+
+                            <input
+                                class="form-control py-2 fw-bold"
+                                placeholder="ชื่อลูกค้า..."
+                                value="${t.customer || ""}"
+                                onchange="updateCustomer(${i}, this.value)"
+                            >
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-4">
+
+                        <button
+                            class="btn btn-pay-status w-100 ${btnClass}"
+                            onclick="togglePaid(${i})"
+                            ${!t.customer ? 'disabled' : ''}
+                        >
+
+                            ${btnText}
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+            `;
+        });
+
+        listContainer.innerHTML =
+            htmlContent;
+
+        document.getElementById(
+            "soldCount"
+        ).innerText =
+            `${sold}/${tickets.length}`;
+
+        document.getElementById(
+            "moneyCount"
+        ).innerText =
+            `฿ ${money.toLocaleString()}`;
+
+    } catch(e) {
+
+        console.error(e);
+    }
+}
+
+
+// =====================================================
+// UPDATE CUSTOMER
+// =====================================================
+
+async function updateCustomer(i, value) {
+
+    tickets[i].customer =
+        value.trim();
+
+    if(!tickets[i].customer) {
+
+        tickets[i].isPaid = false;
+    }
+
+    await saveData();
+
+    renderList();
+}
+
+
+// =====================================================
+// TOGGLE PAID
+// =====================================================
+
+async function togglePaid(i) {
+
+    if(!tickets[i].customer) return;
+
+    tickets[i].isPaid =
+        !tickets[i].isPaid;
+
+    await saveData();
+
+    renderList();
+}
+
+
+// =====================================================
+// CLEAR DATA
+// =====================================================
+
+function confirmClearData() {
+
+    confirmClearModalInstance.show();
+}
+
+async function executeClearData() {
+
+    try {
+
+        const db = await openDB();
+
+        const tx =
+            db.transaction(
+                STORE_NAME,
+                "readwrite"
+            );
+
+        const store =
+            tx.objectStore(STORE_NAME);
+
+        store.clear();
+
+        localStorage.removeItem(
+            "lotto_backup"
+        );
+
+        tickets = [];
+
+        renderList();
+
+        updateHeaderCount();
+
+        confirmClearModalInstance.hide();
+
+        setupModalInstance.show();
+
+    } catch(e) {
+
+        console.error(e);
+
+        alert("❌ ล้างข้อมูลไม่สำเร็จ");
+    }
+}
+
+
+// =====================================================
+// SUMMARY
+// =====================================================
+
+function showSummary() {
+
+    let sold = 0;
+    let paid = 0;
+    let pending = 0;
+    let money = 0;
+
+    let unsoldList = [];
+
+    tickets.forEach(t => {
+
+        if(t.customer) {
+
+            sold++;
+
+            if(t.isPaid) {
+
+                paid++;
+
+                money += PRICE_PER_PAIR;
+
+            } else {
+
+                pending++;
+            }
+
+        } else {
+
+            unsoldList.push(t.number);
+        }
+    });
+
+    let txt = `📊 สรุปยอดขาย
+
+📦 ทั้งหมด: ${tickets.length}
+🎟️ ขายแล้ว: ${sold}
+✅ รับเงินแล้ว: ${paid}
+⏳ รอโอน: ${pending}
+
+💰 รายได้:
+฿ ${money.toLocaleString()}
+
+━━━━━━━━━━
+
+🎯 เลขว่าง:
+${unsoldList.join(" , ")}`;
+
+    document.getElementById(
+        "summaryText"
+    ).innerText = txt;
+
+    currentUnsoldTextToCopy =
+        unsoldList.join("\n");
+
+    new bootstrap.Modal(
+        document.getElementById(
+            "summaryModal"
+        )
+    ).show();
+}
+
+
+// =====================================================
+// COPY UNSOLD
+// =====================================================
+
+function copyUnsoldNumbers() {
+
+    navigator.clipboard
+        .writeText(
+            currentUnsoldTextToCopy
+        )
+        .then(() => {
+
+            alert("✅ คัดลอกแล้ว");
+        });
+}
+
+
+// =====================================================
+// PERSON SUMMARY
+// =====================================================
+
+function showPersonSummary() {
+
+    const names =
+        [...new Set(
+
+            tickets
+            .filter(
+                t =>
+                t.customer &&
+                !t.isPaid
+            )
+            .map(t => t.customer)
+
+        )];
+
+    const select =
+        document.getElementById(
+            "personSelect"
+        );
+
+    select.innerHTML =
+        '<option value="">-- เลือก --</option>';
+
+    names.forEach(n => {
+
+        select.innerHTML +=
+            `<option value="${n}">
+                ${n}
+            </option>`;
+    });
+
+    renderPersonSummary();
+
+    new bootstrap.Modal(
+        document.getElementById(
+            "personModal"
+        )
+    ).show();
+}
+
+
+// =====================================================
+// RENDER PERSON SUMMARY
+// =====================================================
+
+function renderPersonSummary() {
+
+    const name =
+        document.getElementById(
+            "personSelect"
+        ).value;
+
+    const el =
+        document.getElementById(
+            "personSummaryText"
+        );
+
+    if(!name) {
+
+        el.innerText =
+            "เลือกลูกค้า";
+
+        return;
+    }
+
+    const items =
+        tickets.filter(
+            t =>
+            t.customer === name &&
+            !t.isPaid
+        );
+
+    let txt =
+`🧾 สรุปยอดคุณ ${name}
+
+━━━━━━━━━━
+
+`;
+
+    items.forEach(i => {
+
+        txt += `🎟️ ${i.number}\n`;
+    });
+
+    txt += `
+━━━━━━━━━━
+
+รวม ${items.length} ชุด
+
+💰 ยอดโอน:
+฿ ${(items.length * PRICE_PER_PAIR).toLocaleString()}
+
+${BANK_INFO}
+`;
+
+    el.innerText = txt;
+}
+
+
+// =====================================================
+// COPY PERSON SUMMARY
+// =====================================================
+
+function copyPersonSummary() {
+
+    const text =
+        document.getElementById(
+            "personSummaryText"
+        ).innerText;
+
+    navigator.clipboard
+        .writeText(text)
+        .then(() => {
+
+            alert("✅ คัดลอกแล้ว");
+        });
+}
+
+
+// =====================================================
+// BACKUP
+// =====================================================
 
 function downloadBackup() {
 
     try {
 
-        const data =
-            JSON.stringify(tickets);
-
         const blob =
             new Blob(
-                [data],
+                [JSON.stringify(tickets)],
                 {
                     type: "application/json"
                 }
@@ -468,7 +860,7 @@ function downloadBackup() {
 
         a.click();
 
-    } catch (e) {
+    } catch(e) {
 
         console.error(e);
 
@@ -477,9 +869,9 @@ function downloadBackup() {
 }
 
 
-// =========================================
+// =====================================================
 // IMPORT BACKUP
-// =========================================
+// =====================================================
 
 function importBackup(event) {
 
@@ -488,7 +880,7 @@ function importBackup(event) {
         const file =
             event.target.files[0];
 
-        if (!file) return;
+        if(!file) return;
 
         const reader =
             new FileReader();
@@ -503,7 +895,7 @@ function importBackup(event) {
                             e.target.result
                         );
 
-                    if (
+                    if(
                         !Array.isArray(imported)
                     ) {
 
@@ -521,10 +913,10 @@ function importBackup(event) {
                     updateHeaderCount();
 
                     alert(
-                        "✅ กู้คืนข้อมูลสำเร็จ"
+                        "✅ กู้คืนสำเร็จ"
                     );
 
-                } catch (err) {
+                } catch(err) {
 
                     console.error(err);
 
@@ -534,132 +926,16 @@ function importBackup(event) {
 
         reader.readAsText(file);
 
-    } catch (e) {
+    } catch(e) {
 
         console.error(e);
     }
 }
 
 
-// =========================================
-// CLEAR DATA
-// =========================================
-
-async function executeClearData() {
-
-    const confirmDelete =
-        confirm("ล้างข้อมูลทั้งหมด?");
-
-    if (!confirmDelete) return;
-
-    try {
-
-        const db = await openDB();
-
-        const transaction =
-            db.transaction(
-                STORE_NAME,
-                "readwrite"
-            );
-
-        const store =
-            transaction.objectStore(STORE_NAME);
-
-        store.clear();
-
-        localStorage.removeItem(
-            "latestBackup"
-        );
-
-        tickets = [];
-
-        renderList();
-
-        updateHeaderCount();
-
-        alert("✅ ล้างข้อมูลสำเร็จ");
-
-    } catch (e) {
-
-        console.error(e);
-
-        alert("❌ ล้างข้อมูลไม่สำเร็จ");
-    }
-}
-
-
-// =========================================
-// COPY UNSOLD
-// =========================================
-
-function copyUnsoldNumbers() {
-
-    const unsold =
-        tickets
-        .filter(t => !t.customer)
-        .map(t => t.number);
-
-    const text =
-`🎯 เลขว่าง (${unsold.length} ชุด)
-
-${unsold.join("\n")}`;
-
-    navigator.clipboard
-        .writeText(text)
-        .then(() => {
-
-            alert("✅ คัดลอกแล้ว");
-        });
-}
-
-
-// =========================================
-// SHOW SUMMARY
-// =========================================
-
-function showSummary() {
-
-    let sold = 0;
-    let paid = 0;
-    let pending = 0;
-    let money = 0;
-
-    tickets.forEach(t => {
-
-        if (t.customer) {
-
-            sold++;
-
-            if (t.isPaid) {
-
-                paid++;
-
-                money += PRICE_PER_PAIR;
-
-            } else {
-
-                pending++;
-            }
-        }
-    });
-
-    alert(
-`📊 สรุปยอด
-
-ทั้งหมด: ${tickets.length}
-ขายแล้ว: ${sold}
-รับเงินแล้ว: ${paid}
-รอโอน: ${pending}
-
-รายได้:
-฿ ${money.toLocaleString()}`
-    );
-}
-
-
-// =========================================
+// =====================================================
 // AUTO SAVE
-// =========================================
+// =====================================================
 
 window.addEventListener(
     "beforeunload",
@@ -670,41 +946,10 @@ window.addEventListener(
 );
 
 
-// =========================================
-// INIT
-// =========================================
-
-async function init() {
-
-    await loadData();
-
-    renderList();
-
-    updateHeaderCount();
-}
-
-
-// =========================================
+// =====================================================
 // START
-// =========================================
+// =====================================================
 
 window.onload = init;
 
 </script>
-
-<!-- ========================================= -->
-<!-- ปุ่ม Backup / Restore -->
-<!-- เอาไปวางตรงไหนใน BODY ก็ได้ -->
-<!-- ========================================= -->
-
-<button
-    class="btn btn-primary"
-    onclick="downloadBackup()"
->
-    Backup
-</button>
-
-<input
-    type="file"
-    onchange="importBackup(event)"
->
