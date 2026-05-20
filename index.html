@@ -1,13 +1,9 @@
-<!-- =========================
-LOTTO PREMIUM SAFE VERSION
-IndexedDB + Auto Backup + Restore
-========================= -->
+<!-- ========================================= -->
+<!-- LOTTO SAFE SYSTEM (INDEXEDDB VERSION) -->
+<!-- ใช้งานแทน SCRIPT เดิมทั้งหมดได้เลย -->
+<!-- ========================================= -->
 
 <script>
-
-// =========================
-// DATABASE CONFIG
-// =========================
 
 const DB_NAME = "LottoDB";
 const STORE_NAME = "ticketsStore";
@@ -15,16 +11,18 @@ const DB_VERSION = 1;
 
 const PRICE_PER_PAIR = 200;
 
-const BANK_INFO = 🏦 ธนาคารออมสิน เลขบัญชี 020-1-25404-630 ชื่อบัญชี นันท์ภสร ขอบรูป;
+const BANK_INFO = `🏦 ธนาคารออมสิน
+เลขบัญชี 020-1-25404-630
+ชื่อบัญชี นันท์ภสร ขอบรูป`;
 
 let tickets = [];
 let currentFilter = 'all';
 let currentUnsoldTextToCopy = "";
 
 
-// =========================
+// =========================================
 // OPEN DATABASE
-// =========================
+// =========================================
 
 function openDB() {
 
@@ -32,7 +30,7 @@ function openDB() {
 
         const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-        request.onupgradeneeded = (event) => {
+        request.onupgradeneeded = function(event) {
 
             const db = event.target.result;
 
@@ -42,12 +40,12 @@ function openDB() {
             }
         };
 
-        request.onsuccess = () => {
+        request.onsuccess = function() {
 
             resolve(request.result);
         };
 
-        request.onerror = () => {
+        request.onerror = function() {
 
             reject(request.error);
         };
@@ -55,9 +53,9 @@ function openDB() {
 }
 
 
-// =========================
+// =========================================
 // SAVE DATA
-// =========================
+// =========================================
 
 async function saveData() {
 
@@ -65,9 +63,11 @@ async function saveData() {
 
         const db = await openDB();
 
-        const tx = db.transaction(STORE_NAME, "readwrite");
+        const transaction =
+            db.transaction(STORE_NAME, "readwrite");
 
-        const store = tx.objectStore(STORE_NAME);
+        const store =
+            transaction.objectStore(STORE_NAME);
 
         store.put(tickets, "mainTickets");
 
@@ -81,16 +81,16 @@ async function saveData() {
 
     } catch (e) {
 
-        console.error("SAVE ERROR:", e);
+        console.error(e);
 
         alert("❌ บันทึกข้อมูลไม่สำเร็จ");
     }
 }
 
 
-// =========================
+// =========================================
 // LOAD DATA
-// =========================
+// =========================================
 
 async function loadData() {
 
@@ -98,13 +98,16 @@ async function loadData() {
 
         const db = await openDB();
 
-        const tx = db.transaction(STORE_NAME, "readonly");
+        const transaction =
+            db.transaction(STORE_NAME, "readonly");
 
-        const store = tx.objectStore(STORE_NAME);
+        const store =
+            transaction.objectStore(STORE_NAME);
 
-        const request = store.get("mainTickets");
+        const request =
+            store.get("mainTickets");
 
-        request.onsuccess = () => {
+        request.onsuccess = function() {
 
             if (request.result) {
 
@@ -116,9 +119,12 @@ async function loadData() {
 
             } else {
 
-                // fallback local backup
+                // fallback backup
 
-                const backup = localStorage.getItem("latestBackup");
+                const backup =
+                    localStorage.getItem(
+                        "latestBackup"
+                    );
 
                 if (backup) {
 
@@ -133,73 +139,65 @@ async function loadData() {
 
     } catch (e) {
 
-        console.error("LOAD ERROR:", e);
+        console.error(e);
 
         alert("❌ โหลดข้อมูลไม่สำเร็จ");
     }
 }
 
 
-// =========================
-// AUTO SAVE BEFORE CLOSE
-// =========================
-
-window.addEventListener("beforeunload", () => {
-
-    saveData();
-});
-
-
-// =========================
+// =========================================
 // UPDATE HEADER
-// =========================
+// =========================================
 
 function updateHeaderCount() {
 
-    const title = document.getElementById("shopTitle");
+    const el =
+        document.getElementById("shopTitle");
 
-    if(title){
+    if (el) {
 
-        title.innerText =
-            ร้านหวย (ขาย ${tickets.length} คู่);
+        el.innerText =
+            `ร้านหวย (ขาย ${tickets.length} คู่)`;
     }
 }
 
 
-// =========================
+// =========================================
 // UPDATE CUSTOMER
-// =========================
+// =========================================
 
-function updateCustomer(i, value) {
+function updateCustomer(index, value) {
 
-    tickets[i].customer = value.trim();
+    tickets[index].customer = value.trim();
 
-    if (!tickets[i].customer) {
+    if (!tickets[index].customer) {
 
-        tickets[i].isPaid = false;
+        tickets[index].isPaid = false;
     }
 
     saveData();
 }
 
 
-// =========================
+// =========================================
 // TOGGLE PAID
-// =========================
+// =========================================
 
-function togglePaid(i) {
+function togglePaid(index) {
 
-    if (!tickets[i].customer) return;
+    if (!tickets[index].customer) return;
 
-    tickets[i].isPaid = !tickets[i].isPaid;
+    tickets[index].isPaid =
+        !tickets[index].isPaid;
 
     saveData();
 }
 
 
-// =========================
-// SET FILTER
-// =========================
+// =========================================
+// FILTER
+// =========================================
 
 function setFilter(filterType) {
 
@@ -209,13 +207,18 @@ function setFilter(filterType) {
 }
 
 
-// =========================
+// =========================================
 // RENDER LIST
-// =========================
+// =========================================
 
 function renderList() {
 
     try {
+
+        const listContainer =
+            document.getElementById("lottoList");
+
+        if (!listContainer) return;
 
         const searchInput =
             document.getElementById("searchInput");
@@ -225,15 +228,10 @@ function renderList() {
             ? searchInput.value.trim().toLowerCase()
             : "";
 
-        const listContainer =
-            document.getElementById("lottoList");
-
-        if(!listContainer) return;
-
         let sold = 0;
         let money = 0;
 
-        let htmlContent = '';
+        let html = "";
 
         tickets.forEach((t, i) => {
 
@@ -247,12 +245,14 @@ function renderList() {
                 }
             }
 
-            const numStr = String(t.number || "");
+            const num =
+                String(t.number || "");
 
             const matchSearch =
-                numStr.includes(searchValue) ||
+                num.includes(searchValue) ||
                 (t.customer &&
-                 t.customer.toLowerCase().includes(searchValue));
+                t.customer.toLowerCase()
+                .includes(searchValue));
 
             if (!matchSearch) return;
 
@@ -279,109 +279,168 @@ function renderList() {
                 : 'status-free';
 
             const first4 =
-                numStr.substring(0, 4);
+                num.substring(0, 4);
 
             const last2 =
-                numStr.substring(4, 6);
+                num.substring(4, 6);
 
-            htmlContent +=             <div class="ticket-item ${statusClass}">                  <div class="d-flex justify-content-between align-items-center mb-3">                      <div class="lotto-num">                         ${first4}                         <span class="lotto-num-highlight">                             ${last2}                         </span>                     </div>                  </div>                  <div class="row g-2 align-items-center">                      <div class="col-8">                          <input                             class="form-control"                             placeholder="ชื่อลูกค้า..."                             value="${t.customer || ""}"                             onchange="updateCustomer(${i}, this.value)"                         >                      </div>                      <div class="col-4">                          <button                             class="btn ${t.isPaid ? 'btn-success' : 'btn-outline-primary'} w-100"                             onclick="togglePaid(${i})"                             ${!t.customer ? 'disabled' : ''}                         >                              ${t.isPaid ? 'รับแล้ว' : 'รับเงิน'}                          </button>                      </div>                  </div>              </div>            ;
+            html += `
+            <div class="ticket-item ${statusClass}">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+
+                    <div class="lotto-num">
+                        ${first4}
+                        <span class="lotto-num-highlight">
+                            ${last2}
+                        </span>
+                    </div>
+
+                </div>
+
+                <div class="row g-2 align-items-center">
+
+                    <div class="col-8">
+
+                        <input
+                            class="form-control"
+                            placeholder="ชื่อลูกค้า..."
+                            value="${t.customer || ""}"
+                            onchange="updateCustomer(${i}, this.value)"
+                        >
+
+                    </div>
+
+                    <div class="col-4">
+
+                        <button
+                            class="btn ${t.isPaid ? 'btn-success' : 'btn-outline-primary'} w-100"
+                            onclick="togglePaid(${i})"
+                            ${!t.customer ? 'disabled' : ''}
+                        >
+
+                            ${t.isPaid ? 'รับแล้ว' : 'รับเงิน'}
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+            `;
         });
 
-        listContainer.innerHTML = htmlContent;
+        listContainer.innerHTML = html;
 
         const soldCount =
             document.getElementById("soldCount");
 
+        if (soldCount) {
+
+            soldCount.innerText =
+                `${sold} / ${tickets.length}`;
+        }
+
         const moneyCount =
             document.getElementById("moneyCount");
 
-        if(soldCount){
-
-            soldCount.innerText =
-                ${sold} / ${tickets.length};
-        }
-
-        if(moneyCount){
+        if (moneyCount) {
 
             moneyCount.innerText =
-                ฿ ${money.toLocaleString()};
+                `฿ ${money.toLocaleString()}`;
         }
 
-    } catch (error) {
+    } catch (e) {
 
-        console.error("RENDER ERROR:", error);
+        console.error(e);
     }
 }
 
 
-// =========================
+// =========================================
 // SAVE NEW NUMBERS
-// =========================
+// =========================================
 
 async function saveNewNumbers() {
 
-    const rawText =
-        document.getElementById(
-            'rawNumbersInput'
-        ).value.trim();
+    try {
 
-    if (!rawText) {
+        const textarea =
+            document.getElementById(
+                "rawNumbersInput"
+            );
 
-        alert("กรุณาใส่หมายเลข");
+        if (!textarea) return;
 
-        return;
+        const rawText =
+            textarea.value.trim();
+
+        if (!rawText) {
+
+            alert("กรุณาใส่เลข");
+
+            return;
+        }
+
+        let numList =
+            rawText
+            .split("\n")
+            .map(n => n.trim())
+            .filter(
+                n =>
+                n.length === 6 &&
+                !isNaN(n)
+            );
+
+        if (numList.length === 0) {
+
+            alert("ไม่พบเลข 6 หลัก");
+
+            return;
+        }
+
+        numList =
+            [...new Set(numList)];
+
+        numList.sort((a, b) => {
+
+            const last2A =
+                parseInt(a.slice(-2));
+
+            const last2B =
+                parseInt(b.slice(-2));
+
+            return last2A - last2B;
+        });
+
+        tickets = numList.map(n => ({
+
+            number: String(n),
+            price: PRICE_PER_PAIR,
+            customer: "",
+            isPaid: false
+
+        }));
+
+        await saveData();
+
+        updateHeaderCount();
+
+        alert("✅ เพิ่มเลขสำเร็จ");
+
+    } catch (e) {
+
+        console.error(e);
+
+        alert("❌ เพิ่มเลขไม่สำเร็จ");
     }
-
-    let numList =
-        rawText
-        .split('\n')
-        .map(n => n.trim())
-        .filter(
-            n =>
-            n.length === 6 &&
-            !isNaN(n)
-        );
-
-    if (numList.length === 0) {
-
-        alert("ไม่พบเลข 6 หลัก");
-
-        return;
-    }
-
-    numList = [...new Set(numList)];
-
-    numList.sort((a, b) => {
-
-        const last2A =
-            parseInt(a.slice(-2)) || 0;
-
-        const last2B =
-            parseInt(b.slice(-2)) || 0;
-
-        return last2A - last2B;
-    });
-
-    tickets = numList.map(n => ({
-
-        number: String(n),
-        price: PRICE_PER_PAIR,
-        customer: "",
-        isPaid: false
-
-    }));
-
-    await saveData();
-
-    updateHeaderCount();
-
-    alert("✅ เพิ่มเลขสำเร็จ");
 }
 
 
-// =========================
+// =========================================
 // BACKUP JSON
-// =========================
+// =========================================
 
 function downloadBackup() {
 
@@ -405,11 +464,11 @@ function downloadBackup() {
             URL.createObjectURL(blob);
 
         a.download =
-            lotto_backup_${Date.now()}.json;
+            `lotto_backup_${Date.now()}.json`;
 
         a.click();
 
-    } catch(e){
+    } catch (e) {
 
         console.error(e);
 
@@ -418,9 +477,9 @@ function downloadBackup() {
 }
 
 
-// =========================
+// =========================================
 // IMPORT BACKUP
-// =========================
+// =========================================
 
 function importBackup(event) {
 
@@ -437,68 +496,74 @@ function importBackup(event) {
         reader.onload =
             async function(e) {
 
-            try {
+                try {
 
-                const imported =
-                    JSON.parse(e.target.result);
+                    const imported =
+                        JSON.parse(
+                            e.target.result
+                        );
 
-                if(!Array.isArray(imported)){
+                    if (
+                        !Array.isArray(imported)
+                    ) {
 
-                    alert("ไฟล์ไม่ถูกต้อง");
+                        alert("ไฟล์ไม่ถูกต้อง");
 
-                    return;
+                        return;
+                    }
+
+                    tickets = imported;
+
+                    await saveData();
+
+                    renderList();
+
+                    updateHeaderCount();
+
+                    alert(
+                        "✅ กู้คืนข้อมูลสำเร็จ"
+                    );
+
+                } catch (err) {
+
+                    console.error(err);
+
+                    alert("❌ ไฟล์เสีย");
                 }
-
-                tickets = imported;
-
-                await saveData();
-
-                renderList();
-
-                updateHeaderCount();
-
-                alert("✅ กู้คืนข้อมูลสำเร็จ");
-
-            } catch(err) {
-
-                console.error(err);
-
-                alert("❌ ไฟล์เสีย");
-            }
-        };
+            };
 
         reader.readAsText(file);
 
-    } catch(e){
+    } catch (e) {
 
         console.error(e);
     }
 }
 
 
-// =========================
+// =========================================
 // CLEAR DATA
-// =========================
+// =========================================
 
-async function clearAllData() {
+async function executeClearData() {
 
-    const confirmClear =
+    const confirmDelete =
         confirm("ล้างข้อมูลทั้งหมด?");
 
-    if(!confirmClear) return;
+    if (!confirmDelete) return;
 
     try {
 
         const db = await openDB();
 
-        const tx =
+        const transaction =
             db.transaction(
                 STORE_NAME,
                 "readwrite"
             );
 
         const store =
-            tx.objectStore(STORE_NAME);
+            transaction.objectStore(STORE_NAME);
 
         store.clear();
 
@@ -512,9 +577,9 @@ async function clearAllData() {
 
         updateHeaderCount();
 
-        alert("✅ ล้างข้อมูลแล้ว");
+        alert("✅ ล้างข้อมูลสำเร็จ");
 
-    } catch(e){
+    } catch (e) {
 
         console.error(e);
 
@@ -523,9 +588,9 @@ async function clearAllData() {
 }
 
 
-// =========================
+// =========================================
 // COPY UNSOLD
-// =========================
+// =========================================
 
 function copyUnsoldNumbers() {
 
@@ -535,7 +600,9 @@ function copyUnsoldNumbers() {
         .map(t => t.number);
 
     const text =
-🎯 เลขว่าง (${unsold.length} ชุด)  ${unsold.join('\n')};
+`🎯 เลขว่าง (${unsold.length} ชุด)
+
+${unsold.join("\n")}`;
 
     navigator.clipboard
         .writeText(text)
@@ -546,9 +613,9 @@ function copyUnsoldNumbers() {
 }
 
 
-// =========================
+// =========================================
 // SHOW SUMMARY
-// =========================
+// =========================================
 
 function showSummary() {
 
@@ -577,14 +644,35 @@ function showSummary() {
     });
 
     alert(
-📊 สรุปยอด  ทั้งหมด: ${tickets.length} ขายแล้ว: ${sold} รับเงินแล้ว: ${paid} รอโอน: ${pending}  รายได้: ฿ ${money.toLocaleString()}
+`📊 สรุปยอด
+
+ทั้งหมด: ${tickets.length}
+ขายแล้ว: ${sold}
+รับเงินแล้ว: ${paid}
+รอโอน: ${pending}
+
+รายได้:
+฿ ${money.toLocaleString()}`
     );
 }
 
 
-// =========================
+// =========================================
+// AUTO SAVE
+// =========================================
+
+window.addEventListener(
+    "beforeunload",
+    function() {
+
+        saveData();
+    }
+);
+
+
+// =========================================
 // INIT
-// =========================
+// =========================================
 
 async function init() {
 
@@ -596,4 +684,27 @@ async function init() {
 }
 
 
-// ==============
+// =========================================
+// START
+// =========================================
+
+window.onload = init;
+
+</script>
+
+<!-- ========================================= -->
+<!-- ปุ่ม Backup / Restore -->
+<!-- เอาไปวางตรงไหนใน BODY ก็ได้ -->
+<!-- ========================================= -->
+
+<button
+    class="btn btn-primary"
+    onclick="downloadBackup()"
+>
+    Backup
+</button>
+
+<input
+    type="file"
+    onchange="importBackup(event)"
+>
