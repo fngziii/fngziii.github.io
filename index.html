@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ระบบเช็คหวย - พรีเมียม</title>
+    <title>ระบบเช็คหวย - พรีเมียม (Cloud Sync)</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-   
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
 
     <style>
@@ -17,220 +16,329 @@
             --accent-blue: #2563eb;
             --status-paid: #10b981;
             --status-pending: #f59e0b;
+            --status-winner: #eab308;
         }
 
         body { background-color: var(--primary-bg); font-family: 'Sarabun', sans-serif; padding-bottom: 90px; color: #2d3436; }
-        .sticky-header { position: sticky; top: 0; background: rgba(243, 246, 250, 0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 1000; padding-top: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.5); }
+        .sticky-header { position: sticky; top: 0; background: rgba(243, 246, 250, 0.94); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 1000; padding-top: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.6); }
         .container { max-width: 600px; }
-       
-        .shop-header-card { background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid rgba(255,255,255,0.8); }
-        .shop-icon { width: 55px; height: 55px; background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%); color: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); }
+
+        .shop-header-card { background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid rgba(255,255,255,0.9); }
+        .shop-icon { width: 52px; height: 52px; background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%); color: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); }
+
+        /* Cloud Status Pill */
+        .sync-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+        .sync-online { background-color: #d1fae5; color: #065f46; }
+        .sync-connecting { background-color: #fef3c7; color: #92400e; }
+        .sync-offline { background-color: #fee2e2; color: #991b1b; }
+        .dot-pulse { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .sync-online .dot-pulse { background-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25); }
+        .sync-connecting .dot-pulse { background-color: #f59e0b; }
+        .sync-offline .dot-pulse { background-color: #ef4444; }
 
         /* Stats Cards */
-        .stat-card { border-radius: 18px; padding: 15px 10px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.02); position: relative; overflow: hidden; transition: transform 0.2s; }
+        .stat-card { border-radius: 18px; padding: 12px 10px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.02); position: relative; overflow: hidden; transition: transform 0.2s; }
         .stat-card.sold-card { background-color: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.25); }
         .stat-card.money-card { background-color: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); }
         .stat-value { font-weight: 800; letter-spacing: 0.5px; }
 
         /* Ticket Item */
-        .ticket-item { background: var(--card-bg); border-radius: 20px; margin-bottom: 16px; padding: 22px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .ticket-item { background: var(--card-bg); border-radius: 20px; margin-bottom: 14px; padding: 18px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.25s ease; position: relative; overflow: hidden; }
         .status-free { border: 1px solid rgba(99, 102, 241, 0.2); }
-        .status-pending { border: 1px solid rgba(245, 158, 11, 0.3); background: linear-gradient(to right, #fffdf8, #ffffff); }
-        .status-paid { border: 1px solid rgba(16, 185, 129, 0.3); background: linear-gradient(to right, #f2fbf7, #ffffff); }
+        .status-pending { border: 1px solid rgba(245, 158, 11, 0.35); background: linear-gradient(to right, #fffdf8, #ffffff); }
+        .status-paid { border: 1px solid rgba(16, 185, 129, 0.35); background: linear-gradient(to right, #f2fbf7, #ffffff); }
+        .status-winner { border: 2px solid #f59e0b !important; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 45%, #ffffff 100%) !important; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.22) !important; }
+        
         .ticket-item::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 6px; }
         .status-free::before { background: linear-gradient(180deg, #818cf8, #60a5fa); }
         .status-pending::before { background: linear-gradient(180deg, #fbbf24, #f59e0b); }
         .status-paid::before { background: linear-gradient(180deg, #34d399, #10b981); }
+        .status-winner::before { width: 8px; background: linear-gradient(180deg, #f59e0b, #d97706, #b45309) !important; }
 
-        .lotto-num { font-size: 1.8rem; font-weight: 800; letter-spacing: 3px; color: #2c3e50; text-shadow: 1px 1px 0px rgba(0,0,0,0.05); }
+        .lotto-num { font-size: 1.75rem; font-weight: 800; letter-spacing: 3px; color: #2c3e50; text-shadow: 1px 1px 0px rgba(0,0,0,0.05); line-height: 1.1; }
         .lotto-num-highlight { color: var(--accent-blue); font-weight: 800; }
 
+        .winner-banner { background: linear-gradient(90deg, #f59e0b, #d97706); color: #fff; border-radius: 12px; padding: 8px 12px; font-weight: 700; font-size: 0.9rem; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(217, 119, 6, 0.25); }
+
+        .ticket-action-btn { width: 32px; height: 32px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: all 0.15s; }
+        .ticket-action-btn:hover { background: #e2e8f0; color: #1e293b; }
+        .ticket-action-btn.delete-btn:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+
         .rounded-input-group { border-radius: 12px; overflow: hidden; background: #f8fafc; border: 1px solid #e2e8f0; transition: border-color 0.2s; }
-        .rounded-input-group:focus-within { border-color: var(--accent-blue); background: #ffffff;}
+        .rounded-input-group:focus-within { border-color: var(--accent-blue); background: #ffffff; }
         .rounded-input-group .input-group-text, .rounded-input-group .form-control { border: none; background: transparent; box-shadow: none; font-size: 16px; }
-       
+
         .btn { font-weight: 600; letter-spacing: 0.3px; }
         .rounded-btn { border-radius: 12px !important; }
         .btn-pay-status { border-radius: 12px; font-size: 0.9rem; padding: 10px 0; transition: all 0.2s; }
 
-        .search-container { background: var(--card-bg); border-radius: 20px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #edf2f7; }
+        .search-container { background: var(--card-bg); border-radius: 20px; padding: 14px 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #edf2f7; }
         .search-input { border: none; background: transparent; width: 100%; outline: none; font-size: 16px; }
-       
-        .main-menu-btn { border-radius: 14px; font-size: 0.9rem; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .filter-btn { border-radius: 30px; padding: 6px 18px; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; border: 2px solid transparent; }
 
-        .badge-custom { padding: 8px 14px; font-size: 0.8rem; font-weight: 600; border-radius: 30px; }
+        .main-menu-btn { border-radius: 14px; font-size: 0.85rem; padding: 9px 6px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); white-space: nowrap; }
+        .filter-btn { border-radius: 30px; padding: 5px 14px; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; border: 2px solid transparent; }
+
+        .badge-custom { padding: 6px 12px; font-size: 0.78rem; font-weight: 600; border-radius: 30px; }
         .bg-pending-custom { background-color: #fef3c7; color: #b45309; }
         .bg-paid-custom { background-color: #d1fae5; color: #047857; }
         .bg-free-custom { background-color: #eff6ff; color: #3b82f6; }
 
-        .modal-body pre { white-space: pre-wrap; word-wrap: break-word; font-size: 16px; background: #f8fafc; border-radius: 12px; }
+        .modal-body pre { white-space: pre-wrap; word-wrap: break-word; font-size: 15px; background: #f8fafc; border-radius: 12px; }
         textarea.form-control { font-size: 1.1rem; letter-spacing: 2px; }
+
+        .history-card { border-radius: 16px; border: 1px solid #e2e8f0; background: #ffffff; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .period-badge { cursor: pointer; background: #eff6ff; color: #1d4ed8; border: 1px dashed #93c5fd; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+        .period-badge:hover { background: #dbeafe; }
     </style>
 </head>
 
 <body>
 <div class="container mt-2">
-   
+
     <div class="sticky-header">
-        <div class="d-flex align-items-center mb-3 p-3 shop-header-card">
-            <div class="shop-icon me-3">
-                <i class="fas fa-store"></i>
-            </div>
-            <div>
-                <h5 class="fw-bold m-0 text-dark" id="shopTitle">ระบบเช็คเลข</h5>
-                <small class="text-muted"><i class="fas fa-gem text-primary me-1"></i> พุทธังโหม ธัมมังโหม สังฆังล้อม</small>
+        <!-- Header Card -->
+        <div class="d-flex align-items-center justify-content-between mb-2 p-3 shop-header-card">
+            <div class="d-flex align-items-center">
+                <div class="shop-icon me-3">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <h5 class="fw-bold m-0 text-dark" id="shopTitle">ร้านหวย (0 คู่)</h5>
+                    </div>
+                    <div class="mt-1 d-flex align-items-center gap-2 flex-wrap">
+                        <span class="period-badge" onclick="promptEditPeriod()" title="คลิกเพื่อเปลี่ยนชื่องวด">
+                            <i class="fas fa-calendar-alt"></i> <span id="periodLabel">งวดปัจจุบัน</span> <i class="fas fa-pen" style="font-size: 0.65rem;"></i>
+                        </span>
+                        <span id="cloudStatusBadge" class="sync-badge sync-connecting">
+                            <span class="dot-pulse"></span> <span id="cloudStatusText">กำลังซิงค์...</span>
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="row g-2 mb-3">
-            <div class="col-6">
+        <!-- Menu Buttons (Row 1 & Row 2) -->
+        <div class="row g-2 mb-2">
+            <div class="col-4">
+                <button class="btn btn-primary w-100 main-menu-btn shadow-sm" onclick="openAddNumbersModal('append')">
+                    <i class="fas fa-plus-circle"></i> เพิ่มเลข
+                </button>
+            </div>
+            <div class="col-4">
                 <button class="btn btn-outline-primary w-100 main-menu-btn bg-white" onclick="showPersonSummary()">
                     <i class="fas fa-user-clock text-primary"></i> ค้างจ่าย
                 </button>
             </div>
-            <div class="col-6">
+            <div class="col-4">
                 <button class="btn btn-dark w-100 main-menu-btn shadow-sm" onclick="showSummary()">
                     <i class="fas fa-chart-pie text-white"></i> ยอดรวม
                 </button>
             </div>
-            <div class="col-6">
-                <button class="btn btn-info w-100 main-menu-btn shadow-sm text-white" style="background-color: #0ea5e9; border-color: #0ea5e9;" onclick="showBackupModal()">
-                    <i class="fas fa-cloud-download-alt"></i> แบคอัพ
+            <div class="col-4">
+                <button class="btn btn-warning w-100 main-menu-btn shadow-sm text-dark fw-bold" style="background-color: #fbbf24; border-color: #f59e0b;" onclick="openPrizeCheckModal()">
+                    <i class="fas fa-trophy text-dark"></i> ตรวจหวย
                 </button>
             </div>
-            <div class="col-6">
-                <button class="btn btn-danger w-100 main-menu-btn shadow-sm" onclick="confirmClearData()">
-                    <i class="fas fa-trash-alt text-white"></i> ล้างข้อมูล
+            <div class="col-4">
+                <button class="btn btn-outline-primary w-100 main-menu-btn bg-white text-dark fw-bold" style="border-color: #6366f1; color: #4f46e5 !important;" onclick="openLottoImageModal()">
+                    <i class="fas fa-image" style="color: #4f46e5;"></i> สร้างรูปหวย
                 </button>
+            </div>
+            <div class="col-4">
+                <div class="btn-group w-100">
+                    <button class="btn btn-info main-menu-btn text-white" style="background-color: #0ea5e9; border-color: #0ea5e9; border-top-right-radius: 0; border-bottom-right-radius: 0;" onclick="showBackupModal()" title="แบคอัพและกู้คืนข้อมูล">
+                        <i class="fas fa-cloud-download-alt"></i>
+                    </button>
+                    <button class="btn btn-danger main-menu-btn shadow-sm flex-grow-1" style="border-top-left-radius: 0; border-bottom-left-radius: 0;" onclick="confirmNewPeriod()">
+                        <i class="fas fa-sync-alt text-white"></i> เริ่มงวดใหม่
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div class="row g-2 mb-3">
+        <!-- Stats Cards -->
+        <div class="row g-2 mb-2">
             <div class="col-6">
                 <div class="stat-card sold-card">
-                    <div class="text-primary fw-bold mb-1" style="font-size: 0.85rem;"><i class="fas fa-shopping-cart"></i> ขายแล้ว (คู่)</div>
-                    <div class="text-primary fs-3 stat-value" id="soldCount">0/0</div>
+                    <div class="text-primary fw-bold mb-1" style="font-size: 0.82rem;"><i class="fas fa-shopping-cart"></i> ขายแล้ว (ชุดคู่)</div>
+                    <div class="text-primary fs-4 stat-value" id="soldCount">0 / 0</div>
                 </div>
             </div>
             <div class="col-6">
                 <div class="stat-card money-card">
-                    <div class="text-success fw-bold mb-1" style="font-size: 0.85rem;"><i class="fas fa-wallet"></i> รับเงินแล้ว</div>
-                    <div class="text-success fs-3 stat-value" id="moneyCount">฿ 0</div>
+                    <div class="text-success fw-bold mb-1" style="font-size: 0.82rem;"><i class="fas fa-wallet"></i> รับเงินแล้ว</div>
+                    <div class="text-success fs-4 stat-value" id="moneyCount">฿ 0</div>
                 </div>
             </div>
         </div>
 
-        <div class="search-container mb-2">
-            <div class="d-flex align-items-center border-bottom pb-3 mb-3">
-                <i class="fas fa-search text-muted me-3 fs-5"></i>
-                <input id="searchInput" class="search-input" placeholder="ค้นหาเลขท้าย หรือ ชื่อลูกค้า..." onkeyup="renderList()">
+        <!-- Search & Filter -->
+        <div class="search-container mb-1">
+            <div class="d-flex align-items-center border-bottom pb-2 mb-2">
+                <i class="fas fa-search text-muted me-2 fs-6"></i>
+                <input id="searchInput" class="search-input" placeholder="ค้นหาเลขหวย หรือ ชื่อลูกค้า..." oninput="renderList()">
+                <button id="clearSearchBtn" class="btn btn-sm text-muted p-0 d-none" onclick="clearSearch()"><i class="fas fa-times-circle"></i></button>
             </div>
-            <div class="d-flex justify-content-center gap-2 flex-wrap">
+            <div class="d-flex justify-content-center gap-1 flex-wrap">
                 <button class="filter-btn bg-primary text-white shadow-sm" id="btn-filter-all" onclick="setFilter('all')">ทั้งหมด</button>
                 <button class="filter-btn bg-white text-secondary border-secondary" id="btn-filter-empty" onclick="setFilter('empty')">ว่าง</button>
                 <button class="filter-btn bg-white text-warning border-warning" style="color: #d97706 !important;" id="btn-filter-pending" onclick="setFilter('pending')">รอโอน</button>
                 <button class="filter-btn bg-white text-success border-success" id="btn-filter-paid" onclick="setFilter('paid')">จ่ายแล้ว</button>
+                <button class="filter-btn bg-white text-dark border-warning d-none" id="btn-filter-winner" onclick="setFilter('winner')">🏆 ถูกรางวัล <span id="winnerFilterCount" class="badge bg-danger rounded-pill ms-1">0</span></button>
             </div>
         </div>
     </div>
 
-    <div id="lottoList"></div>
+    <!-- Datalist for Customer Auto-complete -->
+    <datalist id="customerSuggestions"></datalist>
+
+    <!-- Ticket List Container -->
+    <div id="lottoList" class="mt-2"></div>
 </div>
 
-<div class="modal fade" id="setupModal" data-bs-backdrop="static" tabindex="-1">
+<!-- 1. Modal: เพิ่มเลขหวย (ใช้ทั้งเริ่มงวดใหม่ & เพิ่มเลขระหว่างงวด) -->
+<div class="modal fade" id="setupModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
             <div class="modal-header bg-white border-bottom-0 pt-4 px-4">
-                <h5 class="modal-title fw-bold text-dark"><i class="fas fa-magic text-primary me-2"></i> เพิ่มเลขหวยงวดนี้</h5>
+                <h5 class="modal-title fw-bold text-dark" id="setupModalTitle"><i class="fas fa-magic text-primary me-2"></i> เพิ่มเลขหวย</h5>
+                <button type="button" class="btn-close" id="setupModalCloseBtn" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body px-4 pb-2">
-                <div class="mb-3">
-                    <label class="form-label fw-bold text-muted">วางตัวเลขทั้งหมดที่นี่ (1 บรรทัด = 1 คู่)</label>
-                    <textarea id="rawNumbersInput" class="form-control" rows="8" placeholder="600410&#10;642511&#10;593812" style="border-radius: 16px; background: #f8fafc; border: 2px solid #e2e8f0;"></textarea>
+                <div class="mb-3" id="periodInputWrapper">
+                    <label class="form-label fw-bold text-muted small mb-1"><i class="fas fa-calendar-check text-primary me-1"></i> ชื่องวดสลากกินแบ่ง</label>
+                    <input type="text" id="setupPeriodInput" class="form-control fw-bold" placeholder="เช่น งวด 16 พ.ย. 69" style="border-radius: 12px; border: 2px solid #e2e8f0;">
                 </div>
-               
+
+                <!-- กล่องอัปโหลดรูปแผงหวยให้ AI อ่านเลขให้อัตโนมัติ -->
+                <div class="p-3 rounded-4 mb-3" style="background: linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%); border: 1.5px dashed #38bdf8;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold text-dark small"><i class="fas fa-camera-retro text-primary me-1"></i> อัปโหลดรูปใบหวย (AI อ่านเลขให้อัตโนมัติ)</span>
+                        <span class="badge bg-primary rounded-pill" style="font-size: 0.7rem;">ไม่ต้องก๊อปเอง</span>
+                    </div>
+                    <button type="button" class="btn btn-primary w-100 py-2 fw-bold rounded-btn shadow-sm" id="btnAiScanLotto" onclick="document.getElementById('aiLottoPhotoInput').click()">
+                        <i class="fas fa-images me-1"></i> เลือกรูปใบหวย (แปลงเป็นเลขทันที)
+                    </button>
+                    <input type="file" id="aiLottoPhotoInput" accept="image/*" multiple class="d-none" onchange="handleAiLottoPhotoUpload(event)">
+                    <div id="aiScanStatusBox" class="small mt-2 text-center d-none"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-muted small mb-1">วางตัวเลข 6 หลักที่นี่ (1 บรรทัด = 1 ชุดคู่)</label>
+                    <textarea id="rawNumbersInput" class="form-control" rows="7" placeholder="600410&#10;642511&#10;593812" style="border-radius: 16px; background: #f8fafc; border: 2px solid #e2e8f0;"></textarea>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="allowDuplicateCheck" onchange="updateTextareaCount()">
+                    <label class="form-check-label small text-muted" for="allowDuplicateCheck">
+                        อนุญาตให้ใส่เลขซ้ำกันได้ (ติ๊กเมื่อมีเลข 6 หลักเดียวกันมากกว่า 1 ชุด)
+                    </label>
+                </div>
+
                 <div class="p-3 bg-light rounded-3 text-secondary" style="font-size: 0.9rem;">
                     <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
                         <span class="fw-bold text-dark"><i class="fas fa-calculator text-primary me-1"></i> เช็คยอดหวยที่วาง:</span>
-                        <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill shadow-sm">นับได้: <span id="currentNumberCount">0</span> คู่</span>
+                        <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill shadow-sm">นับได้: <span id="currentNumberCount">0</span> ชุด</span>
                     </div>
-                    <i class="fas fa-info-circle text-primary me-1"></i> ระบบจะคัดเฉพาะเลข 6 หลัก และ <b>เรียงจาก 2 ตัวท้ายเป็นหลัก</b> ให้อัตโนมัติ
+                    <i class="fas fa-info-circle text-primary me-1"></i> ระบบจะคัดเฉพาะเลข 6 หลัก และ <b>เรียงจาก 2 ตัวท้ายเป็นหลัก</b> ให้อัตโนมัติ (ข้อมูลลูกค้าเดิมไม่หาย)
                 </div>
             </div>
             <div class="modal-footer border-top-0 p-4">
-                <button class="btn btn-primary w-100 py-3 fw-bold rounded-btn fs-5 shadow-sm" onclick="saveNewNumbers()">
-                    เริ่มขายหวย <i class="fas fa-arrow-right ms-2"></i>
+                <button class="btn btn-primary w-100 py-3 fw-bold rounded-btn fs-5 shadow-sm" id="saveNumbersBtn" onclick="saveNewNumbers()">
+                    บันทึกเลขหวย <i class="fas fa-arrow-right ms-2"></i>
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="backupModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+<!-- 2. Modal: แก้ไขเลขหวยรายใบ -->
+<div class="modal fade" id="editTicketModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
-            <div class="modal-header border-bottom-0 px-4 pt-4">
-                <h5 class="modal-title fw-bold text-dark"><i class="fas fa-cloud text-info me-2"></i> จัดการแบคอัพข้อมูล</h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body px-4 pb-4">
-                <p class="text-muted mb-4">ป้องกันข้อมูลหายเมื่อเมมมือถือเต็ม แนะนำให้กดดาวน์โหลดแบคอัพเก็บไว้ในเครื่องเป็นประจำครับ</p>
-               
-                <div class="d-grid gap-3">
-                    <button class="btn btn-primary py-3 fw-bold rounded-btn fs-6 shadow-sm" onclick="exportBackup()">
-                        <i class="fas fa-download me-2"></i> 1. ดาวน์โหลดข้อมูลเก็บไว้
-                    </button>
-                   
-                    <hr class="text-muted my-1">
-                   
-                    <button class="btn btn-outline-success py-3 fw-bold rounded-btn fs-6" onclick="triggerRestore()">
-                        <i class="fas fa-upload me-2"></i> 2. กู้คืนข้อมูลจากไฟล์เดิม
-                    </button>
-                    <input type="file" id="restoreFileInput" accept=".json" style="display: none;" onchange="importBackup(event)">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="confirmClearModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
-            <div class="modal-body text-center p-5">
-                <div class="text-danger mb-4"><i class="fas fa-exclamation-circle" style="font-size: 4rem;"></i></div>
-                <h4 class="fw-bold mb-3">ยืนยันการล้างข้อมูล?</h4>
-                <p class="text-muted fs-5">ข้อมูลลูกค้าและเลขหวยทั้งหมดในงวดนี้จะถูกลบและไม่สามารถกู้คืนได้ (หากไม่ได้แบคอัพไว้)</p>
-                <div class="d-flex gap-3 mt-4">
-                    <button class="btn btn-light flex-fill rounded-btn py-2 fw-bold" data-bs-dismiss="modal">ยกเลิก</button>
-                    <button class="btn btn-danger flex-fill rounded-btn py-2 fw-bold shadow-sm" onclick="executeClearData()">ล้างเลย</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="personModal">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
-            <div class="modal-header border-bottom-0 px-4 pt-4">
-                <h5 class="modal-title fw-bold text-dark"><i class="fas fa-file-invoice text-warning me-2"></i> บิลเรียกเก็บเงิน</h5>
+            <div class="modal-header border-bottom-0 pt-4 px-4 pb-1">
+                <h5 class="modal-title fw-bold text-dark"><i class="fas fa-edit text-primary me-2"></i> แก้ไขเลขหวย</h5>
                 <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body px-4">
-                <select id="personSelect" class="form-select form-select-lg mb-4" onchange="renderPersonSummary()" style="border-radius: 12px; border: 2px solid #e2e8f0;"></select>
-                <pre id="personSummaryText" class="p-3 border-0 shadow-sm text-dark"></pre>
+                <input type="hidden" id="editTicketIndex">
+                <label class="form-label text-muted small">หมายเลขสลาก 6 หลัก</label>
+                <input type="text" id="editTicketNumberInput" maxlength="6" inputmode="numeric" class="form-control form-control-lg text-center fw-bold fs-3" style="letter-spacing: 4px; border-radius: 14px; border: 2px solid #cbd5e1;">
+                <div class="small text-muted mt-2 text-center" id="editTicketCustomerInfo"></div>
             </div>
-            <div class="modal-footer border-top-0 px-4 pb-4">
-                <button class="btn btn-success w-100 py-3 fw-bold rounded-btn fs-5 shadow-sm" onclick="copyPersonSummary()">
-                    <i class="fas fa-copy me-2"></i> คัดลอกส่งลูกค้า
+            <div class="modal-footer border-top-0 px-4 pb-4 pt-2">
+                <button class="btn btn-primary w-100 py-2 fw-bold rounded-btn shadow-sm" onclick="saveEditedTicket()">
+                    <i class="fas fa-save me-1"></i> บันทึกการแก้ไข
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="summaryModal">
+<!-- 3. Modal: เริ่มงวดใหม่ (พร้อมบันทึกประวัติคนถูกหวยอัตโนมัติ) -->
+<div class="modal fade" id="confirmClearModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+            <div class="modal-header border-bottom-0 pt-4 px-4 pb-0">
+                <h5 class="modal-title fw-bold text-danger"><i class="fas fa-sync-alt me-2"></i> เริ่มงวดใหม่ / เคลียร์แผงเดิม</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4 py-3">
+                <p class="text-muted mb-3">เมื่อเริ่มงวดใหม่ ข้อมูลแผงหวยใน <b><span id="clearModalPeriodName">งวดนี้</span></b> จะถูกล้างเพื่อเตรียมใส่เลขงวดถัดไป</p>
+
+                <!-- Preview Winners to Archive -->
+                <div id="archiveWinnerPreviewBox" class="p-3 rounded-3 mb-3" style="background: #fffbeb; border: 1px solid #fde68a;">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="archiveWinnersCheckbox" checked>
+                        <label class="form-check-label fw-bold text-dark" for="archiveWinnersCheckbox">
+                            🏆 บันทึกสรุปผู้ถูกรางวัลเก็บเข้าประวัติย้อนหลัง
+                        </label>
+                    </div>
+                    <div id="archiveWinnerPreviewText" class="small text-muted mt-1 ps-4"></div>
+                </div>
+
+                <button class="btn btn-outline-info w-100 py-2 rounded-btn fw-bold mb-2" onclick="exportBackup()">
+                    <i class="fas fa-download me-1"></i> ดาวน์โหลดไฟล์ Backup งวดนี้เก็บไว้ก่อน
+                </button>
+
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-light flex-fill rounded-btn py-3 fw-bold" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button class="btn btn-danger flex-fill rounded-btn py-3 fw-bold shadow-sm" onclick="executeClearData()">
+                        <i class="fas fa-check-circle me-1"></i> ยืนยันเริ่มงวดใหม่
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 4. Modal: บิลเรียกเก็บเงินรายคน + ปุ่มรับเงินครบทั้งบิล -->
+<div class="modal fade" id="personModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+            <div class="modal-header border-bottom-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold text-dark"><i class="fas fa-file-invoice text-warning me-2"></i> บิลเรียกเก็บเงิน (ค้างจ่าย)</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4">
+                <select id="personSelect" class="form-select form-select-lg mb-3" onchange="renderPersonSummary()" style="border-radius: 12px; border: 2px solid #e2e8f0;"></select>
+                <pre id="personSummaryText" class="p-3 border-0 shadow-sm text-dark mb-0"></pre>
+            </div>
+            <div class="modal-footer border-top-0 px-4 pb-4 d-grid gap-2">
+                <button class="btn btn-primary w-100 py-3 fw-bold rounded-btn fs-6 shadow-sm" id="btnCopyPersonBill" onclick="copyPersonSummary()">
+                    <i class="fas fa-copy me-2"></i> 1. คัดลอกบิลส่งลูกค้า
+                </button>
+                <button class="btn btn-success w-100 py-3 fw-bold rounded-btn fs-6 shadow-sm d-none" id="btnMarkPersonPaid" onclick="markPersonAllPaid()">
+                    <i class="fas fa-check-double me-2"></i> 2. รับเงินครบแล้ว (เปลี่ยนเป็นจ่ายแล้วทั้งบิล)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 5. Modal: สรุปยอดขายทั้งหมด -->
+<div class="modal fade" id="summaryModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; background: #1e293b;">
             <div class="modal-header border-bottom-0 px-4 pt-4">
@@ -238,8 +346,8 @@
                 <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body px-4 pb-4">
-                <pre id="summaryText" class="p-3 bg-dark bg-opacity-50 text-white border-0 shadow-sm mb-3" style="font-size: 17px;"></pre>
-               
+                <pre id="summaryText" class="p-3 bg-dark bg-opacity-50 text-white border-0 shadow-sm mb-3" style="font-size: 16px;"></pre>
+
                 <button class="btn btn-outline-info w-100 py-3 fw-bold rounded-btn fs-6" onclick="copyUnsoldNumbers()">
                     <i class="fas fa-bullhorn me-2"></i> คัดลอก "เลขที่เหลือ" ไปโพสต์ขาย
                 </button>
@@ -248,7 +356,164 @@
     </div>
 </div>
 
-<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1055;">
+<!-- 6. Modal: ระบบตรวจหวย (ดึงผลออนไลน์อัตโนมัติ + กรอกเองได้) -->
+<div class="modal fade" id="prizeCheckModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+            <div class="modal-header border-bottom-0 px-4 pt-4 pb-2">
+                <h5 class="modal-title fw-bold text-dark"><i class="fas fa-trophy text-warning me-2"></i> ตรวจผลสลากกินแบ่งรัฐบาล</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4 pb-4">
+                <!-- ปุ่มดึงผลออนไลน์ -->
+                <div class="p-3 rounded-4 mb-3" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #bfdbfe;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold text-primary small"><i class="fas fa-globe me-1"></i> ดึงผลสลากฯ ออนไลน์ (ครบทุกรางวัล)</span>
+                        <span id="apiDrawDateBadge" class="badge bg-primary rounded-pill"></span>
+                    </div>
+                    <button class="btn btn-primary w-100 py-2 fw-bold rounded-btn shadow-sm" id="btnFetchGloApi" onclick="fetchLatestLotteryOnline()">
+                        <i class="fas fa-cloud-download-alt me-1"></i> ดึงผลรางวัลงวดล่าสุดอัตโนมัติ
+                    </button>
+                    <div class="small text-muted mt-1 text-center" style="font-size: 0.78rem;">
+                        *ตรวจครบทุกรางวัล: รางวัลที่ 1–5, ข้างเคียงที่ 1, เลขหน้า 3 ตัว, เลขท้าย 3 ตัว และ 2 ตัว
+                    </div>
+                </div>
+
+                <!-- กรอกหรือแก้ไขเลขรางวัลหลักด้วยตัวเอง -->
+                <div class="card border rounded-4 p-3 mb-3 bg-light">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold text-dark small"><i class="fas fa-keyboard text-secondary me-1"></i> เลขรางวัลหลัก (กรอกเองหรือแก้ไขได้)</span>
+                        <button class="btn btn-sm btn-link text-danger text-decoration-none p-0 small" onclick="clearPrizeResults()">ล้างผลตรวจ</button>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label small text-muted mb-1">รางวัลที่ 1 (6 หลัก)</label>
+                            <input type="text" id="prizeFirstInput" maxlength="6" inputmode="numeric" class="form-control fw-bold text-center" placeholder="xxxxxx">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-muted mb-1">เลขท้าย 2 ตัว</label>
+                            <input type="text" id="prizeLast2Input" maxlength="2" inputmode="numeric" class="form-control fw-bold text-center text-primary" placeholder="xx">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-muted mb-1">เลขหน้า 3 ตัว (เว้นวรรค)</label>
+                            <input type="text" id="prizeFront3Input" class="form-control fw-bold text-center" placeholder="xxx xxx">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-muted mb-1">เลขท้าย 3 ตัว (เว้นวรรค)</label>
+                            <input type="text" id="prizeBack3Input" class="form-control fw-bold text-center" placeholder="xxx xxx">
+                        </div>
+                    </div>
+                    <button class="btn btn-warning w-100 mt-3 py-2 fw-bold rounded-btn shadow-sm" onclick="checkPrizesFromInputs()">
+                        <i class="fas fa-search-dollar me-1"></i> ตรวจรางวัลกับแผงหวยทันที
+                    </button>
+                </div>
+
+                <!-- ปุ่มเปิดดูประวัติถูกรางวัลย้อนหลัง -->
+                <button class="btn btn-outline-dark w-100 py-2 mb-3 fw-bold rounded-btn d-flex justify-content-center align-items-center gap-2 shadow-sm" style="background: #fffbeb; border-color: #f59e0b;" onclick="openHistoryFromPrizeModal()">
+                    <i class="fas fa-history text-warning fs-5"></i> ดูประวัติถูกหวยย้อนหลัง
+                </button>
+
+                <!-- ผลลัพธ์การตรวจรางวัลในงวดนี้ -->
+                <div id="prizeCheckResultBox"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 6.5 Modal: สร้างรูปใบหวย (สำหรับเซฟไปโพสต์ขาย) -->
+<div class="modal fade" id="lottoImageModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+            <div class="modal-header border-bottom-0 px-4 pt-4 pb-2">
+                <div>
+                    <h5 class="modal-title fw-bold text-dark"><i class="fas fa-image text-primary me-2"></i> สร้างรูปแผงหวย (คงเหลือ <span id="lottoImgRemainCount" class="text-primary">0</span> คู่)</h5>
+                    <small class="text-muted" id="lottoImgLayoutDesc">ระบบจัดเรียงแถวและใส่วันที่ตามงวดให้อัตโนมัติ</small>
+                </div>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4 pb-4">
+                <div class="d-flex gap-2 mb-3 flex-wrap">
+                    <button class="btn btn-primary flex-grow-1 py-2 fw-bold rounded-btn shadow-sm" id="btnDownloadLottoImg" onclick="downloadLottoImage()">
+                        <i class="fas fa-download me-1"></i> ดาวน์โหลดรูปใบหวย (.png)
+                    </button>
+                </div>
+                <div class="text-center small text-muted mb-2">
+                    <i class="fas fa-hand-pointer me-1"></i> บนมือถือสามารถ <b>กดค้างที่รูปภาพด้านล่าง</b> เพื่อบันทึกรูปหรือแชร์เข้า LINE ได้ทันที
+                </div>
+                <div id="lottoImageEmptyState" class="text-center py-5 d-none bg-light rounded-4">
+                    <i class="fas fa-check-circle text-success mb-2" style="font-size: 2.8rem;"></i>
+                    <h6 class="fw-bold text-dark mb-1">ไม่มีหวยคงเหลือให้สร้างรูป</h6>
+                    <p class="text-muted small mb-0">หวยในงวดนี้ถูกจอง/ขายหมดทุกคู่แล้ว หรือยังไม่ได้เพิ่มเลขหวยครับ</p>
+                </div>
+                <div id="lottoImagePreviewWrap" class="text-center bg-light p-2 rounded-4 border" style="overflow-x: auto;">
+                    <canvas id="lottoRenderCanvas" class="d-none"></canvas>
+                    <img id="lottoRenderedImg" alt="รูปแผงหวยคงเหลือ" class="img-fluid rounded-3 shadow-sm" style="max-height: 72vh; width: auto;" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 7. Modal: ประวัติถูกรางวัลย้อนหลัง (Archive) -->
+<div class="modal fade" id="historyModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+            <div class="modal-header border-bottom-0 px-4 pt-4 pb-2">
+                <div>
+                    <h5 class="modal-title fw-bold text-dark"><i class="fas fa-history text-warning me-2"></i> ประวัติถูกรางวัลย้อนหลัง</h5>
+                    <small class="text-muted">บันทึกเฉพาะรายการที่ถูกรางวัลในแต่ละงวด</small>
+                </div>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4 pb-4">
+                <div class="mb-3">
+                    <button class="btn btn-outline-warning text-dark w-100 py-2 fw-bold rounded-btn small" onclick="saveCurrentWinnersToHistoryManual()">
+                        <i class="fas fa-bookmark text-warning me-1"></i> บันทึกผู้ถูกรางวัลงวดปัจจุบันเข้าประวัติทันที
+                    </button>
+                </div>
+                <div id="historyListContainer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 8. Modal: แบคอัพและกู้คืนข้อมูล -->
+<div class="modal fade" id="backupModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+            <div class="modal-header border-bottom-0 px-4 pt-4 pb-2">
+                <h5 class="modal-title fw-bold text-dark"><i class="fas fa-cloud text-info me-2"></i> แบคอัพ & กู้คืนข้อมูล</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4 pb-4">
+                <div class="d-grid gap-2 mb-3">
+                    <button class="btn btn-primary py-2 fw-bold rounded-btn shadow-sm" onclick="exportBackup()">
+                        <i class="fas fa-download me-2"></i> ดาวน์โหลดไฟล์แบคอัพ (.json)
+                    </button>
+                    <button class="btn btn-outline-primary py-2 fw-bold rounded-btn" onclick="copyBackupText()">
+                        <i class="fas fa-copy me-2"></i> คัดลอกโค้ดข้อมูลเก็บไว้ (ใช้แทนไฟล์ได้)
+                    </button>
+                    <button class="btn btn-outline-success py-2 fw-bold rounded-btn" onclick="triggerRestore()">
+                        <i class="fas fa-upload me-2"></i> กู้คืนจากไฟล์แบคอัพ (.json)
+                    </button>
+                    <input type="file" id="restoreFileInput" accept=".json" style="display: none;" onchange="importBackup(event)">
+                </div>
+
+                <!-- กล่องวางข้อความ JSON สำหรับกรณีดาวน์โหลดไฟล์จากมือถือ/LINE ไม่ได้ -->
+                <div class="border-top pt-3">
+                    <label class="form-label fw-bold text-dark small mb-1"><i class="fas fa-paste text-primary me-1"></i> กู้คืนด้วยการวางข้อความ (กรณีโหลดไฟล์ไม่ได้)</label>
+                    <textarea id="pasteBackupTextarea" class="form-control form-control-sm mb-2" rows="3" placeholder='วางข้อความโค้ด JSON แบคอัพที่นี่...' style="font-size: 0.85rem; letter-spacing: 0px; border-radius: 12px;"></textarea>
+                    <button class="btn btn-dark w-100 py-2 fw-bold rounded-btn small" onclick="restoreFromPastedText()">
+                        <i class="fas fa-file-import me-1"></i> นำเข้าข้อมูลจากข้อความที่วาง
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast แจ้งเตือน -->
+<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1080;">
     <div id="copyToast" class="toast align-items-center text-bg-dark border-0 shadow-lg" style="border-radius: 50px;" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex px-2 py-1">
             <div class="toast-body fw-bold fs-6 text-center w-100" id="toastMessage">
@@ -259,144 +524,617 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- ใช้ Firebase Compat SDK เพื่อให้เปิดได้ทั้งจากไฟล์ในเครื่อง (file://) บน GitHub Pages (https://) และทำงานต่อได้แม้เน็ตหลุด -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
 <script>
+    // ตั้งค่า Firebase Realtime Database (โปรเจกต์แยกเฉพาะระบบหวย)
+    const firebaseConfig = {
+        apiKey: "AIzaSyBnfCY-XZ4n5tolvZeE5K2zfTFFDXLMxso",
+        authDomain: "my-lotto-system-8b897.firebaseapp.com",
+        databaseURL: "https://my-lotto-system-8b897-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "my-lotto-system-8b897",
+        storageBucket: "my-lotto-system-8b897.firebasestorage.app",
+        messagingSenderId: "698684735182",
+        appId: "1:698684735182:web:e544694fc00780067c9a9f"
+    };
+
+    let lottoDbRef = null;
+    try {
+        if (typeof firebase !== "undefined") {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            lottoDbRef = firebase.database().ref("lottoShopData");
+        }
+    } catch (err) {
+        console.error("Firebase Init Error:", err);
+    }
+
     const PRICE_PER_PAIR = 200;
     const BANK_INFO = `🏦 ธนาคารออมสิน\nเลขบัญชี 020-1-25404-630\nชื่อบัญชี นันท์ภสร ขอบรูป`;
+    const STORAGE_KEY = "myLottoShop_DataStorage_v2";
 
+    // สถานะข้อมูลหลักของแอป
+    let periodName = getDefaultPeriodName();
     let tickets = [];
+    let drawResult = null;       // เก็บผลสลากกินแบ่งของงวดปัจจุบัน
+    let winningHistory = [];     // เก็บประวัติถูกรางวัลย้อนหลังรายงวด
+    let savedCustomers = [];     // รายชื่อลูกค้าสะสมสำหรับ Auto-complete
+
     let currentFilter = 'all';
-    const STORAGE_KEY = "myLottoShop_DataStorage";
-   
+    let setupMode = 'replace';   // 'replace' (เริ่มงวดใหม่) หรือ 'append' (เพิ่มเลขระหว่างงวด)
+    let currentUnsoldTextToCopy = "";
+    let isInitialCloudLoadDone = false;
+    let lastLocalUpdateStamp = "";
+
+    // Bootstrap Modal Instances
     let setupModalInstance;
+    let editTicketModalInstance;
     let confirmClearModalInstance;
     let backupModalInstance;
-    let currentUnsoldTextToCopy = "";
+    let personModalInstance;
+    let summaryModalInstance;
+    let prizeCheckModalInstance;
+    let historyModalInstance;
+    let lottoImageModalInstance;
 
-    function init() {
+    function getDefaultPeriodName() {
+        const d = new Date();
+        const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+        const day = d.getDate() <= 16 ? "16" : "1";
+        const monthIdx = d.getDate() <= 16 ? d.getMonth() : (d.getMonth() + 1) % 12;
+        const yearBE = (d.getFullYear() + 543).toString().slice(-2);
+        return `งวด ${day} ${months[monthIdx]} ${yearBE}`;
+    }
+
+    function updateCloudBadge(status, text) {
+        const badge = document.getElementById("cloudStatusBadge");
+        const label = document.getElementById("cloudStatusText");
+        if (!badge || !label) return;
+        badge.className = `sync-badge sync-${status}`;
+        label.innerText = text;
+    }
+
+    // โหลดข้อมูลสำรองในเครื่อง
+    function loadFromLocalStorage() {
         try {
-            setupModalInstance = new bootstrap.Modal(document.getElementById('setupModal'));
-            confirmClearModalInstance = new bootstrap.Modal(document.getElementById('confirmClearModal'));
-            backupModalInstance = new bootstrap.Modal(document.getElementById('backupModal'));
-
-            document.getElementById('rawNumbersInput').addEventListener('input', updateTextareaCount);
-
-            let savedData = localStorage.getItem(STORAGE_KEY) ||
-                            localStorage.getItem("myLottoShop_PremiumData") ||
-                            localStorage.getItem("myLottoShop_SimpleData") ||
-                            localStorage.getItem("myLottoShop_Data") ||
-                            localStorage.getItem("myLottoShop_1Mar69");
-
-            if (savedData) {
-                let parsed = JSON.parse(savedData);
-                if (parsed && parsed.tickets && Array.isArray(parsed.tickets)) {
-                    tickets = parsed.tickets;
-                } else if (Array.isArray(parsed)) {
-                    tickets = parsed;
-                } else {
-                    tickets = [];
+            const v2Raw = localStorage.getItem(STORAGE_KEY);
+            if (v2Raw) {
+                const parsed = JSON.parse(v2Raw);
+                if (parsed && typeof parsed === 'object') {
+                    periodName = parsed.periodName || periodName;
+                    tickets = Array.isArray(parsed.tickets) ? parsed.tickets : [];
+                    drawResult = parsed.drawResult || null;
+                    winningHistory = Array.isArray(parsed.winningHistory) ? parsed.winningHistory : [];
+                    savedCustomers = Array.isArray(parsed.savedCustomers) ? parsed.savedCustomers : [];
+                    return;
                 }
             }
         } catch (e) {
-            console.error("Error loading data:", e);
-            tickets = [];
-        }
-
-        if (tickets && tickets.length > 0) {
-            updateHeaderCount();
-            renderList();
-        } else {
-            setupModalInstance.show();
+            console.error("Local load error:", e);
         }
     }
 
+    function saveToLocalStorage(stamp) {
+        const payload = {
+            periodName,
+            tickets,
+            drawResult,
+            winningHistory,
+            savedCustomers,
+            updatedAt: stamp || new Date().toISOString()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    }
+
+    async function save() {
+        const stamp = new Date().toISOString() + "_" + Math.random().toString(36).slice(2, 6);
+        lastLocalUpdateStamp = stamp;
+
+        collectCustomerNames();
+        saveToLocalStorage(stamp);
+        updateHeaderCount();
+        updateCustomerDatalist();
+        renderList();
+
+        if (!lottoDbRef) {
+            updateCloudBadge("offline", "ออฟไลน์ (บันทึกในเครื่อง)");
+            return;
+        }
+
+        try {
+            updateCloudBadge("connecting", "กำลังบันทึก...");
+            await lottoDbRef.set({
+                periodName: periodName || getDefaultPeriodName(),
+                tickets: tickets || [],
+                drawResult: drawResult || null,
+                winningHistory: winningHistory || [],
+                savedCustomers: savedCustomers || [],
+                updatedAt: stamp
+            });
+            updateCloudBadge("online", "ออนไลน์");
+        } catch (err) {
+            console.error("Firebase save error:", err);
+            updateCloudBadge("offline", "ออฟไลน์ (บันทึกในเครื่อง)");
+        }
+    }
+
+    function startRealtimeSync() {
+        if (!lottoDbRef) {
+            updateCloudBadge("offline", "โหมดออฟไลน์");
+            if (tickets.length === 0) openAddNumbersModal('replace');
+            return;
+        }
+
+        lottoDbRef.on("value", (snapshot) => {
+            const cloudData = snapshot.val();
+            const cloudHasTickets = cloudData && Array.isArray(cloudData.tickets) && cloudData.tickets.length > 0;
+
+            if (cloudData && (cloudHasTickets || isInitialCloudLoadDone || tickets.length === 0)) {
+                // หากเป็นการอัปเดตที่เพิ่งถูกส่งจากเครื่องเราเอง ไม่ต้องเรนเดอร์ซ้ำเพื่อไม่ให้แป้นพิมพ์มือถือสะดุด
+                if (cloudData.updatedAt && cloudData.updatedAt === lastLocalUpdateStamp && isInitialCloudLoadDone) {
+                    updateCloudBadge("online", "ออนไลน์");
+                    return;
+                }
+
+                periodName = cloudData.periodName || getDefaultPeriodName();
+                tickets = Array.isArray(cloudData.tickets) ? cloudData.tickets : [];
+                drawResult = cloudData.drawResult || null;
+                winningHistory = Array.isArray(cloudData.winningHistory) ? cloudData.winningHistory : [];
+                savedCustomers = Array.isArray(cloudData.savedCustomers) ? cloudData.savedCustomers : [];
+
+                saveToLocalStorage(cloudData.updatedAt);
+                updateHeaderCount();
+                updateCustomerDatalist();
+                syncPrizeInputsFromState();
+                renderList();
+                updateCloudBadge("online", "ออนไลน์");
+            } else {
+                // ถ้าบน Cloud ยังไม่มีข้อมูล แต่ในเครื่องมีข้อมูลที่บันทึกไว้ (เช่น ช่วงออฟไลน์) ให้ซิงค์ขึ้น Cloud
+                if (tickets && tickets.length > 0) {
+                    save();
+                    showToast(`ซิงค์ข้อมูล ${tickets.length} คู่ ขึ้น Cloud เรียบร้อยแล้ว!`);
+                } else {
+                    updateCloudBadge("online", "ออนไลน์ (พร้อมใช้งาน)");
+                    if (!isInitialCloudLoadDone) {
+                        openAddNumbersModal('replace');
+                    }
+                }
+            }
+            isInitialCloudLoadDone = true;
+        }, (error) => {
+            console.error("Firebase Realtime Listener Error:", error);
+            updateCloudBadge("offline", "ออฟไลน์");
+        });
+    }
+
+    function sortTicketsArray(arr) {
+        arr.sort((a, b) => {
+            const strA = String(a.number || "");
+            const strB = String(b.number || "");
+            const last2A = parseInt(strA.slice(-2), 10) || 0;
+            const last2B = parseInt(strB.slice(-2), 10) || 0;
+            if (last2A !== last2B) return last2A - last2B;
+
+            const last3A = parseInt(strA.slice(-3), 10) || 0;
+            const last3B = parseInt(strB.slice(-3), 10) || 0;
+            if (last3A !== last3B) return last3A - last3B;
+
+            return strA.localeCompare(strB);
+        });
+    }
+
+    function collectCustomerNames() {
+        const setNames = new Set(savedCustomers);
+        tickets.forEach(t => {
+            if (t.customer && t.customer.trim()) {
+                setNames.add(t.customer.trim());
+            }
+        });
+        savedCustomers = [...setNames];
+    }
+
+    function updateCustomerDatalist() {
+        collectCustomerNames();
+        const dl = document.getElementById("customerSuggestions");
+        if (!dl) return;
+        dl.innerHTML = savedCustomers.map(name => `<option value="${escapeHtml(name)}">`).join("");
+    }
+
+    function escapeHtml(str) {
+        if (!str) return "";
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
+
     function updateHeaderCount() {
-        document.getElementById('shopTitle').innerText = `ร้านหวย (ขาย ${tickets.length} คู่)`;
+        document.getElementById('shopTitle').innerText = `ร้านหวย (${tickets.length} คู่)`;
+        document.getElementById('periodLabel').innerText = periodName || "งวดปัจจุบัน";
+    }
+
+    // แยกตัวเลข 6 หลักออกจากข้อความที่วาง (รองรับทั้งขึ้นบรรทัดใหม่ คอมม่า หรือเว้นวรรค)
+    function parseSixDigitNumbers(rawText) {
+        if (!rawText) return [];
+        return rawText
+            .split(/[\n,]+/)
+            .map(s => s.trim().replace(/[\s\-]/g, ''))
+            .filter(s => /^\d{6}$/.test(s));
+    }
+
+    // ย่อขนาดและบีบอัดรูปใบหวยให้เหมาะสม (คมชัดสูงและขนาดไฟล์พอดีกับ AI Gateway)
+    function compressLottoPhotoForAi(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    let w = img.width;
+                    let h = img.height;
+                    const maxDim = 1280;
+                    if (w > maxDim || h > maxDim) {
+                        if (w >= h) {
+                            h = Math.round((h * maxDim) / w);
+                            w = maxDim;
+                        } else {
+                            w = Math.round((w * maxDim) / h);
+                            h = maxDim;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, w, h);
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const b64 = canvas.toDataURL('image/jpeg', 0.72).replace(/^data:image\/jpeg;base64,/, '');
+                    resolve(b64);
+                };
+                img.onerror = reject;
+                img.src = e.target.result;
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // อัปโหลดรูปใบหวยให้ AI อ่านเลข 6 หลักและชื่องวดให้อัตโนมัติ (รองรับเลือก 1 ถึง 4 รูปพร้อมกัน)
+    async function handleAiLottoPhotoUpload(event) {
+        const files = Array.from(event.target.files || []);
+        if (files.length === 0) return;
+
+        const btn = document.getElementById('btnAiScanLotto');
+        const statusBox = document.getElementById('aiScanStatusBox');
+        const textarea = document.getElementById('rawNumbersInput');
+        const periodInput = document.getElementById('setupPeriodInput');
+
+        btn.disabled = true;
+        statusBox.classList.remove('d-none');
+
+        const apiUrl = window.location.hostname.includes('netlify.app')
+            ? '/api/scan-lotto'
+            : 'https://lotto-manage-system.netlify.app/api/scan-lotto';
+
+        let allReadNumbers = [];
+        let detectedPeriod = "";
+        let errorPhotos = [];
+
+        try {
+            for (let i = 0; i < files.length; i++) {
+                statusBox.innerHTML = `<span class="text-primary fw-bold"><i class="fas fa-spinner fa-spin me-1"></i> AI กำลังอ่านรูปที่ ${i + 1}/${files.length} (อ่านได้แล้ว ${allReadNumbers.length} คู่)... รอสักครู่ครับ</span>`;
+                try {
+                    const b64 = await compressLottoPhotoForAi(files[i]);
+                    const resp = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            imageBase64: b64,
+                            mimeType: 'image/jpeg'
+                        })
+                    });
+                    const data = await resp.json();
+                    if (!resp.ok || data.error) {
+                        throw new Error(data.error || `HTTP ${resp.status}`);
+                    }
+                    if (Array.isArray(data.numbers) && data.numbers.length > 0) {
+                        allReadNumbers.push(...data.numbers);
+                    }
+                    if (data.periodName && !detectedPeriod) {
+                        detectedPeriod = data.periodName;
+                    }
+                } catch (subErr) {
+                    console.error(`Error scanning photo ${i + 1}:`, subErr);
+                    errorPhotos.push(i + 1);
+                }
+            }
+
+            if (allReadNumbers.length === 0) {
+                statusBox.innerHTML = `<span class="text-danger fw-bold"><i class="fas fa-exclamation-circle me-1"></i> ไม่พบตัวเลข 6 หลักในรูปภาพ กรุณาตรวจสอบรูปถ่ายอีกครั้งครับ</span>`;
+            } else {
+                const existing = textarea.value.trim();
+                const joined = allReadNumbers.join('\n');
+                textarea.value = existing ? `${existing}\n${joined}` : joined;
+                updateTextareaCount();
+
+                if (detectedPeriod && setupMode === 'replace') {
+                    periodInput.value = detectedPeriod;
+                }
+
+                let warningMsg = '';
+                if (errorPhotos.length > 0) {
+                    warningMsg = `<div class="text-warning small mt-1"><i class="fas fa-exclamation-triangle me-1"></i> มีรูปที่ ${errorPhotos.join(', ')} อ่านไม่ผ่าน กรุณาลองอัปโหลดรูปนั้นอีกครั้งครับ</div>`;
+                }
+
+                statusBox.innerHTML = `
+                    <div class="text-success fw-bold mb-1">
+                        <i class="fas fa-check-circle me-1"></i> AI อ่านเลขสำเร็จ ${allReadNumbers.length} คู่! ${detectedPeriod ? `(${detectedPeriod})` : ''}
+                    </div>
+                    <div class="text-muted" style="font-size: 0.78rem;">ตรวจสอบตัวเลขด้านล่าง หรือกดปุ่ม <b>"บันทึกเลขหวย"</b> ได้เลยครับ</div>
+                    ${warningMsg}
+                `;
+                showToast(`AI อ่านเลขหวยสำเร็จ ${allReadNumbers.length} คู่!`);
+            }
+        } catch (err) {
+            console.error('AI Scan error:', err);
+            statusBox.innerHTML = `<span class="text-danger fw-bold"><i class="fas fa-exclamation-triangle me-1"></i> เกิดข้อผิดพลาดในการอ่านรูป: ${escapeHtml(err.message || 'กรุณาลองใหม่อีกครั้ง')}</span>`;
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fas fa-images me-1"></i> เลือกรูปใบหวยเพิ่ม (AI อ่านเลขให้อัตโนมัติ)`;
+            event.target.value = "";
+        }
+    }
+
+    // แก้ไขชื่องวดด่วน
+    function promptEditPeriod() {
+        const nextName = prompt("ตั้งชื่องวดสลากกินแบ่ง:", periodName || getDefaultPeriodName());
+        if (nextName !== null && nextName.trim() !== "") {
+            periodName = nextName.trim();
+            save();
+            showToast("อัปเดตชื่องวดเรียบร้อยแล้ว");
+        }
+    }
+
+    // เปิดหน้าต่างเพิ่มเลข (โหมดเพิ่มระหว่างงวด หรือ โหมดเริ่มงวดใหม่)
+    function openAddNumbersModal(mode = 'append') {
+        setupMode = (tickets.length === 0) ? 'replace' : mode;
+        const titleEl = document.getElementById('setupModalTitle');
+        const btnEl = document.getElementById('saveNumbersBtn');
+        const periodInput = document.getElementById('setupPeriodInput');
+        const periodWrapper = document.getElementById('periodInputWrapper');
+
+        periodInput.value = periodName || getDefaultPeriodName();
+        document.getElementById('rawNumbersInput').value = "";
+        document.getElementById('currentNumberCount').innerText = "0";
+        const aiStatusBox = document.getElementById('aiScanStatusBox');
+        if (aiStatusBox) {
+            aiStatusBox.classList.add('d-none');
+            aiStatusBox.innerHTML = "";
+        }
+        const aiInput = document.getElementById('aiLottoPhotoInput');
+        if (aiInput) aiInput.value = "";
+
+        if (setupMode === 'append') {
+            titleEl.innerHTML = `<i class="fas fa-plus-circle text-primary me-2"></i> เพิ่มเลขหวยเข้าแผง (ระหว่างงวด)`;
+            btnEl.innerHTML = `<i class="fas fa-plus me-2"></i> เพิ่มเลขเข้าแผงเดิม`;
+            periodWrapper.classList.add('d-none');
+        } else {
+            titleEl.innerHTML = `<i class="fas fa-magic text-primary me-2"></i> ตั้งค่าเลขหวยงวดใหม่`;
+            btnEl.innerHTML = `เริ่มขายหวยงวดนี้ <i class="fas fa-arrow-right ms-2"></i>`;
+            periodWrapper.classList.remove('d-none');
+        }
+
+        setupModalInstance.show();
     }
 
     function updateTextareaCount() {
         const text = document.getElementById('rawNumbersInput').value;
-        const validNumbers = text.split('\n')
-            .map(n => n.trim().replace(/\s+/g, ''))
-            .filter(n => n.length === 6 && !isNaN(n));
-       
-        const uniqueNumbers = [...new Set(validNumbers)];
-        document.getElementById('currentNumberCount').innerText = uniqueNumbers.length;
+        const allowDup = document.getElementById('allowDuplicateCheck').checked;
+        const validNumbers = parseSixDigitNumbers(text);
+
+        const list = allowDup ? validNumbers : [...new Set(validNumbers)];
+        document.getElementById('currentNumberCount').innerText = list.length;
     }
 
     function saveNewNumbers() {
         const rawText = document.getElementById('rawNumbersInput').value.trim();
+        const allowDup = document.getElementById('allowDuplicateCheck').checked;
+        const periodVal = document.getElementById('setupPeriodInput').value.trim();
+
+        if (setupMode === 'replace' && periodVal) {
+            periodName = periodVal;
+        }
 
         if (!rawText) {
-            alert("กรุณาใส่หมายเลขอย่างน้อย 1 คู่ครับ");
+            alert("กรุณาใส่หมายเลข 6 หลักอย่างน้อย 1 คู่ครับ");
             return;
         }
 
-        let numList = rawText.split('\n')
-            .map(n => n.trim().replace(/\s+/g, ''))
-            .filter(n => n.length === 6 && !isNaN(n));
+        let numList = parseSixDigitNumbers(rawText);
 
         if (numList.length === 0) {
             alert("ไม่พบหมายเลข 6 หลัก กรุณาตรวจสอบการพิมพ์อีกครั้งครับ");
             return;
         }
 
-        numList = [...new Set(numList)];
+        if (!allowDup) {
+            numList = [...new Set(numList)];
+        }
 
-        numList.sort((a, b) => {
-            const strA = String(a);
-            const strB = String(b);
-            const last2A = parseInt(strA.slice(-2), 10) || 0;
-            const last2B = parseInt(strB.slice(-2), 10) || 0;
-           
-            if (last2A !== last2B) {
-                return last2A - last2B;
-            }
-           
-            const last3A = parseInt(strA.slice(-3), 10) || 0;
-            const last3B = parseInt(strB.slice(-3), 10) || 0;
-            return last3A - last3B;
-        });
+        if (setupMode === 'append') {
+            const existingSet = new Set(tickets.map(t => String(t.number)));
+            let addedCount = 0;
+            numList.forEach(n => {
+                if (allowDup || !existingSet.has(String(n))) {
+                    tickets.push({
+                        number: String(n),
+                        price: PRICE_PER_PAIR,
+                        customer: "",
+                        isPaid: false
+                    });
+                    existingSet.add(String(n));
+                    addedCount++;
+                }
+            });
+            sortTicketsArray(tickets);
+            save();
+            setupModalInstance.hide();
+            showToast(`เพิ่มเลขหวยใหม่ ${addedCount} คู่ เรียบร้อยแล้ว`);
+        } else {
+            tickets = numList.map(n => ({
+                number: String(n),
+                price: PRICE_PER_PAIR,
+                customer: "",
+                isPaid: false
+            }));
+            sortTicketsArray(tickets);
+            drawResult = null;
+            save();
+            setupModalInstance.hide();
+            showToast(`เริ่มแผงหวย ${periodName} (${tickets.length} คู่) เรียบร้อย!`);
+        }
 
-        tickets = numList.map(n => ({ number: String(n), price: PRICE_PER_PAIR, customer: "", isPaid: false }));
-       
-        save();
-        updateHeaderCount();
-        setupModalInstance.hide();
         document.getElementById('rawNumbersInput').value = "";
         document.getElementById('currentNumberCount').innerText = "0";
     }
 
+    // แก้ไข & ลบเลขหวยรายใบ
+    function openEditTicketModal(index) {
+        const t = tickets[index];
+        if (!t) return;
+        document.getElementById('editTicketIndex').value = index;
+        document.getElementById('editTicketNumberInput').value = t.number;
+        document.getElementById('editTicketCustomerInfo').innerText = t.customer
+            ? `ลูกค้าที่จอง: ${t.customer} (${t.isPaid ? 'จ่ายแล้ว' : 'รอโอน'})`
+            : `สถานะ: ว่าง (ยังไม่มีคนจอง)`;
+        editTicketModalInstance.show();
+    }
+
+    function saveEditedTicket() {
+        const idx = parseInt(document.getElementById('editTicketIndex').value, 10);
+        const newNum = document.getElementById('editTicketNumberInput').value.trim().replace(/\s+/g, '');
+
+        if (!/^\d{6}$/.test(newNum)) {
+            alert("กรุณากรอกเลขหวยเป็นตัวเลขให้ครบ 6 หลักครับ");
+            return;
+        }
+
+        if (tickets[idx]) {
+            tickets[idx].number = newNum;
+            sortTicketsArray(tickets);
+            save();
+            editTicketModalInstance.hide();
+            showToast(`แก้ไขเลขเป็น ${newNum} เรียบร้อยแล้ว`);
+        }
+    }
+
+    function deleteSingleTicket(index) {
+        const t = tickets[index];
+        if (!t) return;
+        const msg = t.customer
+            ? `ต้องการลบเลข ${t.number} (ของคุณ ${t.customer}) ออกจากแผงใช่หรือไม่?`
+            : `ต้องการลบเลข ${t.number} ออกจากแผงใช่หรือไม่?`;
+        if (!confirm(msg)) return;
+
+        tickets.splice(index, 1);
+        save();
+        showToast(`ลบเลข ${t.number} ออกจากแผงแล้ว`);
+    }
+
+    function clearSearch() {
+        document.getElementById("searchInput").value = "";
+        renderList();
+    }
+
     function setFilter(filterType) {
         currentFilter = filterType;
-       
+
         const resetBtn = (id, baseClass, textClass, borderClass) => {
-            document.getElementById(id).className = `filter-btn ${baseClass} ${textClass} ${borderClass}`;
-            document.getElementById(id).style.color = '';
+            const el = document.getElementById(id);
+            if (!el) return;
+            const isHidden = el.classList.contains('d-none');
+            el.className = `filter-btn ${baseClass} ${textClass} ${borderClass}${isHidden ? ' d-none' : ''}`;
+            el.style.color = '';
         };
 
         resetBtn('btn-filter-all', 'bg-white', 'text-primary', 'border-primary');
         resetBtn('btn-filter-empty', 'bg-white', 'text-secondary', 'border-secondary');
         resetBtn('btn-filter-pending', 'bg-white', 'text-warning', 'border-warning');
         resetBtn('btn-filter-paid', 'bg-white', 'text-success', 'border-success');
-       
+        resetBtn('btn-filter-winner', 'bg-white', 'text-dark', 'border-warning');
+
         document.getElementById('btn-filter-pending').style.color = '#d97706';
-       
-        if(filterType === 'all') resetBtn('btn-filter-all', 'bg-primary', 'text-white', 'border-primary shadow-sm');
-        if(filterType === 'empty') resetBtn('btn-filter-empty', 'bg-secondary', 'text-white', 'border-secondary shadow-sm');
-        if(filterType === 'pending') {
-            resetBtn('btn-filter-pending', 'bg-warning', 'text-dark', 'border-warning shadow-sm');
-        }
-        if(filterType === 'paid') resetBtn('btn-filter-paid', 'bg-success', 'text-white', 'border-success shadow-sm');
-       
+
+        if (filterType === 'all') resetBtn('btn-filter-all', 'bg-primary', 'text-white', 'border-primary shadow-sm');
+        if (filterType === 'empty') resetBtn('btn-filter-empty', 'bg-secondary', 'text-white', 'border-secondary shadow-sm');
+        if (filterType === 'pending') resetBtn('btn-filter-pending', 'bg-warning', 'text-dark', 'border-warning shadow-sm');
+        if (filterType === 'paid') resetBtn('btn-filter-paid', 'bg-success', 'text-white', 'border-success shadow-sm');
+        if (filterType === 'winner') resetBtn('btn-filter-winner', 'bg-warning', 'text-dark', 'border-warning shadow-sm');
+
         renderList();
+    }
+
+    // ฟังก์ชันตรวจว่าเลข 6 หลักนี้ถูกรางวัลอะไรบ้าง (คูณ 2 ใบต่อ 1 ชุด)
+    function evaluateTicketPrizes(numStr) {
+        if (!drawResult || !numStr || numStr.length !== 6) return [];
+        const wins = [];
+
+        if (drawResult.first && drawResult.first.includes(numStr)) {
+            wins.push({ name: "รางวัลที่ 1", rewardPerPair: 12000000 });
+        }
+        if (drawResult.near1 && drawResult.near1.includes(numStr)) {
+            wins.push({ name: "ข้างเคียงรางวัลที่ 1", rewardPerPair: 200000 });
+        }
+        if (drawResult.second && drawResult.second.includes(numStr)) {
+            wins.push({ name: "รางวัลที่ 2", rewardPerPair: 400000 });
+        }
+        if (drawResult.third && drawResult.third.includes(numStr)) {
+            wins.push({ name: "รางวัลที่ 3", rewardPerPair: 160000 });
+        }
+        if (drawResult.fourth && drawResult.fourth.includes(numStr)) {
+            wins.push({ name: "รางวัลที่ 4", rewardPerPair: 80000 });
+        }
+        if (drawResult.fifth && drawResult.fifth.includes(numStr)) {
+            wins.push({ name: "รางวัลที่ 5", rewardPerPair: 40000 });
+        }
+        const front3 = numStr.slice(0, 3);
+        if (drawResult.front3 && drawResult.front3.includes(front3)) {
+            wins.push({ name: "เลขหน้า 3 ตัว", rewardPerPair: 8000 });
+        }
+        const back3 = numStr.slice(-3);
+        if (drawResult.back3 && drawResult.back3.includes(back3)) {
+            wins.push({ name: "เลขท้าย 3 ตัว", rewardPerPair: 8000 });
+        }
+        const last2 = numStr.slice(-2);
+        if (drawResult.last2 && drawResult.last2.includes(last2)) {
+            wins.push({ name: "เลขท้าย 2 ตัว", rewardPerPair: 4000 });
+        }
+
+        return wins;
     }
 
     function renderList() {
         try {
-            const searchValue = document.getElementById("searchInput").value.trim().toLowerCase();
+            let focusedTicketIdx = null;
+            let focusedValue = null;
+            if (document.activeElement && document.activeElement.classList.contains("customer-input")) {
+                focusedTicketIdx = document.activeElement.getAttribute("data-ticket-idx");
+                focusedValue = document.activeElement.value;
+            }
+
+            const searchInputEl = document.getElementById("searchInput");
+            const searchValue = searchInputEl ? searchInputEl.value.trim().toLowerCase() : "";
+            const clearBtn = document.getElementById("clearSearchBtn");
+            if (clearBtn) {
+                clearBtn.classList.toggle("d-none", !searchValue);
+            }
+
             const listContainer = document.getElementById("lottoList");
-           
-            let sold = 0, money = 0;
+            let sold = 0, money = 0, totalWinners = 0;
             let htmlContent = '';
 
             tickets.forEach((t, i) => {
@@ -404,38 +1142,65 @@
                     sold++;
                     if (t.isPaid) money += PRICE_PER_PAIR;
                 }
-               
+
                 const numStr = String(t.number || "");
+                const wins = evaluateTicketPrizes(numStr);
+                const isWinner = wins.length > 0;
+                if (isWinner) totalWinners++;
+
                 const matchSearch = numStr.includes(searchValue) || (t.customer && t.customer.toLowerCase().includes(searchValue));
                 if (!matchSearch) return;
 
                 if (currentFilter === 'empty' && t.customer !== "") return;
                 if (currentFilter === 'pending' && (!t.customer || t.isPaid)) return;
                 if (currentFilter === 'paid' && (!t.customer || !t.isPaid)) return;
+                if (currentFilter === 'winner' && !isWinner) return;
 
-                const statusClass = t.customer ? (t.isPaid ? 'status-paid' : 'status-pending') : 'status-free';
+                let statusClass = t.customer ? (t.isPaid ? 'status-paid' : 'status-pending') : 'status-free';
+                if (isWinner) statusClass += ' status-winner';
+
                 const badgeClass = t.customer ? (t.isPaid ? 'bg-paid-custom' : 'bg-pending-custom') : 'bg-free-custom';
                 const badgeIcon = t.customer ? (t.isPaid ? 'fa-check-circle' : 'fa-clock') : 'fa-ticket-alt';
                 const badgeText = t.customer ? (t.isPaid ? 'จ่ายแล้ว' : 'รอโอน') : 'ว่าง';
-               
+
                 const btnClass = t.isPaid ? 'btn-success shadow-sm' : 'btn-outline-primary';
                 const btnIcon = t.isPaid ? '<i class="fas fa-check"></i> รับแล้ว' : 'รับเงิน';
-               
+
                 const first4 = numStr.substring(0, 4);
                 const last2 = numStr.substring(4, 6);
 
+                let winnerBannerHtml = '';
+                if (isWinner) {
+                    const totalReward = wins.reduce((sum, w) => sum + w.rewardPerPair, 0);
+                    const prizeNames = wins.map(w => w.name).join(" + ");
+                    winnerBannerHtml = `
+                    <div class="winner-banner">
+                        <span><i class="fas fa-trophy me-1"></i> ถูก${prizeNames}</span>
+                        <span>รับ ฿${totalReward.toLocaleString()}</span>
+                    </div>`;
+                }
+
                 htmlContent += `
                 <div class="ticket-item ${statusClass}">
+                    ${winnerBannerHtml}
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="lotto-num">${first4}<span class="lotto-num-highlight">${last2}</span></div>  
-                        <span class="badge badge-custom ${badgeClass}"><i class="fas ${badgeIcon} me-1"></i>${badgeText}</span>
+                        <div class="lotto-num">${first4}<span class="lotto-num-highlight">${last2}</span></div>
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="badge badge-custom ${badgeClass}"><i class="fas ${badgeIcon} me-1"></i>${badgeText}</span>
+                            <button class="ticket-action-btn ms-1" onclick="openEditTicketModal(${i})" title="แก้ไขเลขหวย">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button class="ticket-action-btn delete-btn" onclick="deleteSingleTicket(${i})" title="ลบใบนี้">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="row g-2 align-items-center">
                         <div class="col-8">
                             <div class="input-group rounded-input-group">
                                 <span class="input-group-text px-3"><i class="fas fa-user-circle text-muted fs-5"></i></span>
-                                <input class="form-control py-2 fw-bold" style="color: #334155;" placeholder="ชื่อลูกค้า..."
-                                value="${t.customer || ""}" onchange="updateCustomer(${i}, this.value)">
+                                <input class="form-control py-2 fw-bold customer-input" data-ticket-idx="${i}" list="customerSuggestions" style="color: #334155;" placeholder="ชื่อลูกค้า..."
+                                value="${escapeHtml(t.customer || "")}" onchange="updateCustomer(${i}, this.value)">
                             </div>
                         </div>
                         <div class="col-4">
@@ -448,14 +1213,48 @@
                 </div>`;
             });
 
+            if (tickets.length === 0) {
+                htmlContent = `
+                <div class="text-center py-5 my-3 bg-white rounded-4 shadow-sm p-4">
+                    <i class="fas fa-ticket-alt text-primary mb-3" style="font-size: 3rem; opacity: 0.4;"></i>
+                    <h5 class="fw-bold text-dark">ยังไม่มีเลขหวยในงวดนี้</h5>
+                    <p class="text-muted small mb-3">กดปุ่มด้านล่างเพื่อวางเลขหวย 6 หลักได้เลยครับ</p>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <button class="btn btn-primary px-4 py-2 rounded-btn fw-bold shadow-sm" onclick="openAddNumbersModal('replace')">
+                            <i class="fas fa-plus-circle me-1"></i> เพิ่มเลขหวยงวดนี้
+                        </button>
+                    </div>
+                </div>`;
+            } else if (!htmlContent) {
+                htmlContent = `<div class="text-center py-4 text-muted">ไม่พบรายการที่ค้นหา</div>`;
+            }
+
             listContainer.innerHTML = htmlContent;
+
+            if (focusedTicketIdx !== null) {
+                const targetInput = listContainer.querySelector(`.customer-input[data-ticket-idx="${focusedTicketIdx}"]`);
+                if (targetInput) {
+                    if (focusedValue !== null) targetInput.value = focusedValue;
+                    targetInput.focus();
+                }
+            }
 
             document.getElementById("soldCount").innerText = `${sold} / ${tickets.length}`;
             document.getElementById("moneyCount").innerText = `฿ ${money.toLocaleString()}`;
-           
+
+            const winnerFilterBtn = document.getElementById("btn-filter-winner");
+            const winnerFilterCount = document.getElementById("winnerFilterCount");
+            if (drawResult) {
+                winnerFilterBtn.classList.remove("d-none");
+                winnerFilterCount.innerText = totalWinners;
+            } else {
+                winnerFilterBtn.classList.add("d-none");
+                if (currentFilter === 'winner') setFilter('all');
+            }
+
         } catch (error) {
             console.error("Render Error:", error);
-            document.getElementById("lottoList").innerHTML = `<div class="alert alert-danger text-center">เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณากดปุ่มล้างข้อมูลแล้วเริ่มใหม่ครับ</div>`;
+            document.getElementById("lottoList").innerHTML = `<div class="alert alert-danger text-center">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>`;
         }
     }
 
@@ -471,118 +1270,34 @@
         save();
     }
 
-    function save() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(tickets));
-        renderList();
-    }
-
-    function confirmClearData() {
-        confirmClearModalInstance.show();
-    }
-
-    function executeClearData() {
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem("myLottoShop_PremiumData");
-        localStorage.removeItem("myLottoShop_SimpleData");
-        localStorage.removeItem("myLottoShop_Data");
-        localStorage.removeItem("myLottoShop_1Mar69");
-       
-        tickets = [];
-        document.getElementById('currentNumberCount').innerText = "0";
-        confirmClearModalInstance.hide();
-        setupModalInstance.show();
-    }
-
-    // --- ระบบแบคอัพและกู้คืน (Backup & Restore) ---
-    function showBackupModal() {
-        backupModalInstance.show();
-    }
-
-    function exportBackup() {
-        if (!tickets || tickets.length === 0) {
-            alert("ยังไม่มีข้อมูลในระบบให้แบคอัพครับ");
-            return;
-        }
-       
-        // สร้างข้อมูล JSON
-        const dataStr = JSON.stringify(tickets);
-        // แปลงเป็น URI ให้บราวเซอร์ดาวน์โหลดได้
-        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-       
-        // สร้างวันที่สำหรับตั้งชื่อไฟล์
-        const date = new Date();
-        const dateString = `${date.getFullYear()}${(date.getMonth()+1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}`;
-        const exportFileDefaultName = `LottoBackup_${dateString}.json`;
-
-        let linkElement = document.createElement('a');
-        linkElement.setAttribute('href', dataUri);
-        linkElement.setAttribute('download', exportFileDefaultName);
-        linkElement.click();
-       
-        showToast("ดาวน์โหลดไฟล์แบคอัพเรียบร้อยแล้ว");
-    }
-
-    function triggerRestore() {
-        // จำลองการคลิกไปที่ input file ที่ซ่อนอยู่
-        document.getElementById('restoreFileInput').click();
-    }
-
-    function importBackup(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const importedTickets = JSON.parse(e.target.result);
-                if (Array.isArray(importedTickets) && importedTickets.length > 0) {
-                    tickets = importedTickets;
-                    save();
-                    updateHeaderCount();
-                    showToast("กู้คืนข้อมูลสำเร็จแล้ว!");
-                    backupModalInstance.hide();
-                } else {
-                    alert("รูปแบบไฟล์ไม่ถูกต้อง หรือไม่มีข้อมูลในไฟล์ครับ");
-                }
-            } catch (err) {
-                alert("เกิดข้อผิดพลาดในการอ่านไฟล์ กรุณาตรวจสอบว่าเป็นไฟล์แบคอัพที่ถูกต้องครับ");
-            }
-            // รีเซ็ตค่า input เพื่อให้สามารถเลือกไฟล์เดิมได้อีกในอนาคต
-            event.target.value = '';
-        };
-        reader.readAsText(file);
-    }
-    // ------------------------------------------
-
-    function showToast(message) {
-        const toastEl = document.getElementById('copyToast');
-        document.getElementById('toastMessage').innerHTML = `<i class="fas fa-check-circle text-success me-2 fs-5 align-middle"></i> ${message}`;
-        const toast = new bootstrap.Toast(toastEl, { delay: 2000 });
-        toast.show();
-    }
-
+    // --- ระบบบิลเรียกเก็บเงิน & ปุ่มรับเงินครบทั้งบิล ---
     function showPersonSummary() {
         const names = [...new Set(tickets.filter(t => t.customer && !t.isPaid).map(t => t.customer))];
         const personSelect = document.getElementById("personSelect");
-       
-        personSelect.innerHTML = '<option value="">-- เลือกลูกค้าที่ต้องการเรียกเก็บ --</option>';
-        names.forEach(n => personSelect.innerHTML += `<option value="${n}">${n}</option>`);
-       
-        document.getElementById("personSummaryText").innerText = "กรุณาเลือกลูกค้าจากเมนูด้านบนครับ...";
-        new bootstrap.Modal(document.getElementById("personModal")).show();
+
+        personSelect.innerHTML = `<option value="">-- เลือกลูกค้าที่ต้องการเรียกเก็บ (${names.length} คน) --</option>`;
+        names.forEach(n => personSelect.innerHTML += `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`);
+
+        document.getElementById("personSummaryText").innerText = names.length > 0
+            ? "กรุณาเลือกลูกค้าจากเมนูด้านบนครับ..."
+            : "🎉 ไม่มีลูกค้าค้างจ่ายในขณะนี้ครับ!";
+        document.getElementById("btnMarkPersonPaid").classList.add("d-none");
+        personModalInstance.show();
     }
 
     function renderPersonSummary() {
         const name = document.getElementById("personSelect").value;
         const personSummaryText = document.getElementById("personSummaryText");
-       
+        const btnMarkPaid = document.getElementById("btnMarkPersonPaid");
+
         if (!name) {
             personSummaryText.innerText = "กรุณาเลือกลูกค้าจากเมนูด้านบนครับ...";
+            btnMarkPaid.classList.add("d-none");
             return;
         }
-       
+
         const items = tickets.filter(t => t.customer === name && !t.isPaid);
-        let txt = `🧾 สรุปยอดคุณ ${name}\n`;
+        let txt = `🧾 สรุปยอดคุณ ${name} (${periodName})\n`;
         txt += `━━━━━━━━━━━━━━━━━━━\n`;
         txt += `เลขที่สั่งซื้อ (ชุดละ 2 ใบ):\n`;
         items.forEach(i => txt += `🎟️ ${i.number}\n`);
@@ -590,18 +1305,44 @@
         txt += `รวมทั้งหมด: ${items.length} ชุด\n`;
         txt += `💰 ยอดที่ต้องโอน: ${(items.length * PRICE_PER_PAIR).toLocaleString()} บาท\n\n`;
         txt += `${BANK_INFO}`;
-       
+
         personSummaryText.innerText = txt;
+        btnMarkPaid.classList.remove("d-none");
+        btnMarkPaid.innerHTML = `<i class="fas fa-check-double me-2"></i> รับเงินคุณ "${name}" ครบแล้ว (${items.length} ชุด = ฿${(items.length * PRICE_PER_PAIR).toLocaleString()})`;
     }
 
     function copyPersonSummary() {
+        const name = document.getElementById("personSelect").value;
+        if (!name) {
+            alert("กรุณาเลือกลูกค้าก่อนคัดลอกบิลครับ");
+            return;
+        }
         const textToCopy = document.getElementById("personSummaryText").innerText;
         navigator.clipboard.writeText(textToCopy).then(() => {
-            showToast("คัดลอกส่งลูกค้าเรียบร้อยแล้ว");
-            bootstrap.Modal.getInstance(document.getElementById("personModal")).hide();
+            showToast("คัดลอกบิลส่งลูกค้าเรียบร้อยแล้ว");
         });
     }
 
+    function markPersonAllPaid() {
+        const name = document.getElementById("personSelect").value;
+        if (!name) return;
+
+        let count = 0;
+        tickets.forEach(t => {
+            if (t.customer === name && !t.isPaid) {
+                t.isPaid = true;
+                count++;
+            }
+        });
+
+        if (count > 0) {
+            save();
+            personModalInstance.hide();
+            showToast(`รับเงินคุณ ${name} ครบ ${count} ชุด เรียบร้อยแล้ว!`);
+        }
+    }
+
+    // --- สรุปยอดขายทั้งหมด ---
     function showSummary() {
         let sold = 0, paid = 0, pending = 0, money = 0;
         let unsoldList = [];
@@ -618,32 +1359,846 @@
 
         const totalPairs = tickets.length;
         const summaryText = document.getElementById("summaryText");
-       
-        let txt = `📊 สรุปรายงานการขาย\n\n`;
+
+        let txt = `📊 สรุปรายงานการขาย (${periodName})\n\n`;
         txt += `📦 หวยทั้งหมด: ${totalPairs} ชุด\n`;
         txt += `🎟️ ขายออกแล้ว: ${sold} ชุด\n`;
-        txt += `✅ รับเงินแล้ว: ${paid} ชุด\n`;
-        txt += `⏳ รอโอนเงิน: ${pending} ชุด\n`;
-        txt += `💰 รายได้: ฿ ${money.toLocaleString()}\n`;
+        txt += `✅ รับเงินแล้ว: ${paid} ชุด (฿ ${money.toLocaleString()})\n`;
+        txt += `⏳ รอโอนเงิน: ${pending} ชุด (฿ ${(pending * PRICE_PER_PAIR).toLocaleString()})\n`;
+        txt += `💵 ยอดขายรวมทั้งสิ้น: ฿ ${(sold * PRICE_PER_PAIR).toLocaleString()}\n`;
         txt += `━━━━━━━━━━━━━━━━━━━\n`;
         txt += `🎯 เลขที่เหลือบนแผง (${unsoldList.length} ชุด):\n`;
-       
-        if(unsoldList.length > 0) {
+
+        if (unsoldList.length > 0) {
             txt += unsoldList.join(' , ');
         } else {
             txt += `- ขายหมดเกลี้ยงแล้วจ้า! 🎉 -`;
         }
 
-        currentUnsoldTextToCopy = `🎯 อัปเดตเลขว่างจ้า (เหลือ ${unsoldList.length} ชุด)\n${unsoldList.join('\n')}\n\nรีบจับจองกันได้เลยจ้า!`;
+        currentUnsoldTextToCopy = `🎯 อัปเดตเลขว่างจ้า (${periodName} เหลือ ${unsoldList.length} ชุด)\n${unsoldList.join('\n')}\n\nชุดละ 2 ใบ 200 บาท รีบจับจองกันได้เลยจ้า!`;
 
         summaryText.innerText = txt;
-        new bootstrap.Modal(document.getElementById("summaryModal")).show();
+        summaryModalInstance.show();
     }
 
     function copyUnsoldNumbers() {
         navigator.clipboard.writeText(currentUnsoldTextToCopy).then(() => {
             showToast("คัดลอกเลขว่างไปโพสต์ได้เลย!");
         });
+    }
+
+    // --- ระบบตรวจหวย (ดึงผลสลากฯ ออนไลน์ผ่าน CORS Reader + GLO API + กรอกเอง) ---
+    function openPrizeCheckModal() {
+        syncPrizeInputsFromState();
+        renderPrizeCheckSummary();
+        prizeCheckModalInstance.show();
+    }
+
+    function syncPrizeInputsFromState() {
+        document.getElementById("prizeFirstInput").value = (drawResult && drawResult.first && drawResult.first[0]) ? drawResult.first[0] : "";
+        document.getElementById("prizeLast2Input").value = (drawResult && drawResult.last2 && drawResult.last2[0]) ? drawResult.last2[0] : "";
+        document.getElementById("prizeFront3Input").value = (drawResult && drawResult.front3) ? drawResult.front3.join(" ") : "";
+        document.getElementById("prizeBack3Input").value = (drawResult && drawResult.back3) ? drawResult.back3.join(" ") : "";
+        document.getElementById("apiDrawDateBadge").innerText = (drawResult && drawResult.drawDateLabel) ? drawResult.drawDateLabel : "";
+    }
+
+    function parseSanookCheckMarkdown(md, defaultDateLabel) {
+        const clean = md.replace(/\*/g, " ");
+        const sliceBetween = (startKw, endKw) => {
+            const sIdx = clean.indexOf(startKw);
+            if (sIdx === -1) return "";
+            const afterStart = clean.slice(sIdx + startKw.length);
+            const bahtIdx = afterStart.indexOf("บาท");
+            const body = bahtIdx !== -1 ? afterStart.slice(bahtIdx + 3) : afterStart;
+            const eIdx = endKw ? body.indexOf(endKw) : -1;
+            return eIdx !== -1 ? body.slice(0, eIdx) : body.slice(0, 1500);
+        };
+
+        const first = (sliceBetween("รางวัลที่ 1", "เลขหน้า 3 ตัว").match(/\b\d{6}\b/g) || []).slice(0, 1);
+        const front3 = (sliceBetween("เลขหน้า 3 ตัว", "เลขท้าย 3 ตัว").match(/\b\d{3}\b/g) || []).slice(0, 2);
+        const back3 = (sliceBetween("เลขท้าย 3 ตัว", "เลขท้าย 2 ตัว").match(/\b\d{3}\b/g) || []).slice(0, 2);
+        const last2 = (sliceBetween("เลขท้าย 2 ตัว", "รางวัลข้างเคียง").match(/\b\d{2}\b/g) || []).slice(0, 1);
+        const near1 = (sliceBetween("รางวัลข้างเคียงรางวัลที่ 1", "รางวัลที่ 2").match(/\b\d{6}\b/g) || []).slice(0, 2);
+        const second = (sliceBetween("รางวัลที่ 2", "รางวัลที่ 3").match(/\b\d{6}\b/g) || []).slice(0, 5);
+        const third = (sliceBetween("รางวัลที่ 3", "รางวัลที่ 4").match(/\b\d{6}\b/g) || []).slice(0, 10);
+        const fourth = (sliceBetween("รางวัลที่ 4", "รางวัลที่ 5").match(/\b\d{6}\b/g) || []).slice(0, 50);
+        const fifth = (sliceBetween("รางวัลที่ 5", "ตรวจหวยย้อนหลัง").match(/\b\d{6}\b/g) || []).slice(0, 100);
+
+        return {
+            drawDateLabel: defaultDateLabel || "งวดล่าสุด",
+            first,
+            near1,
+            second,
+            third,
+            fourth,
+            fifth,
+            front3,
+            back3,
+            last2
+        };
+    }
+
+    async function fetchLatestLotteryOnline() {
+        const btn = document.getElementById("btnFetchGloApi");
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> กำลังดึงผลรางวัลงวดล่าสุด...`;
+
+        try {
+            let parsedResult = null;
+
+            try {
+                const archiveRes = await fetch("https://r.jina.ai/https://news.sanook.com/lotto/archive/", {
+                    headers: { "Accept": "application/json" }
+                });
+                if (archiveRes.ok) {
+                    const archiveJson = await archiveRes.json();
+                    const content = (archiveJson && archiveJson.data && archiveJson.data.content) ? archiveJson.data.content : "";
+
+                    const entryRegex = /ตรวจหวย\s+([^\*\n\]]+?)\s+\*\s+_ผลสลากกินแบ่งรัฐบาล\s+รางวัลที่\s+1_\*\*(\d{6})\*\*[\s\S]*?\(https:\/\/news\.sanook\.com\/lotto\/check\/(\d{8})\//;
+                    const match = content.match(entryRegex);
+
+                    if (match) {
+                        const dateLabel = "งวด " + match[1].trim();
+                        const drawId = match[3];
+
+                        const detailRes = await fetch(`https://r.jina.ai/https://news.sanook.com/lotto/check/${drawId}/`, {
+                            headers: { "Accept": "application/json" }
+                        });
+                        if (detailRes.ok) {
+                            const detailJson = await detailRes.json();
+                            const detailMd = (detailJson && detailJson.data && detailJson.data.content) ? detailJson.data.content : "";
+                            if (detailMd) {
+                                parsedResult = parseSanookCheckMarkdown(detailMd, dateLabel);
+                            }
+                        }
+                    }
+                }
+            } catch (errJina) {
+                console.warn("Jina Reader fallback warning:", errJina);
+            }
+
+            if (!parsedResult || !parsedResult.first || parsedResult.first.length === 0) {
+                const res = await fetch("https://www.glo.or.th/api/lottery/getLatestLottery", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: "{}"
+                });
+                if (res.ok) {
+                    const gloJson = await res.json();
+                    if (gloJson && gloJson.response && gloJson.response.data) {
+                        const d = gloJson.response.data;
+                        const disp = gloJson.response.displayDate || {};
+                        const thaiMonths = ["", "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+                        const mIdx = parseInt(disp.month, 10) || 0;
+                        const yBE = disp.year ? (parseInt(disp.year, 10) + 543) : "";
+                        const dateLabel = disp.date ? `งวด ${parseInt(disp.date, 10)} ${thaiMonths[mIdx]} ${yBE}` : "งวดล่าสุด";
+                        const extractVals = (obj) => (obj && Array.isArray(obj.number)) ? obj.number.map(x => String(x.value).trim()) : [];
+
+                        parsedResult = {
+                            drawDateLabel: dateLabel,
+                            first: extractVals(d.first),
+                            near1: extractVals(d.near1),
+                            second: extractVals(d.second),
+                            third: extractVals(d.third),
+                            fourth: extractVals(d.fourth),
+                            fifth: extractVals(d.fifth),
+                            front3: extractVals(d.last3f),
+                            back3: extractVals(d.last3b),
+                            last2: extractVals(d.last2)
+                        };
+                    }
+                }
+            }
+
+            if (!parsedResult || !parsedResult.first || parsedResult.first.length === 0) {
+                throw new Error("ไม่สามารถดึงข้อมูลผลรางวัลอัตโนมัติได้");
+            }
+
+            drawResult = parsedResult;
+            syncPrizeInputsFromState();
+            await save();
+            renderPrizeCheckSummary();
+            showToast(`ดึงผลสลากฯ (${drawResult.drawDateLabel}) สำเร็จ!`);
+        } catch (err) {
+            console.error("Fetch Lottery Error:", err);
+            alert("ไม่สามารถดึงผลอัตโนมัติได้ในขณะนี้ คุณสามารถพิมพ์เลขรางวัลในช่องด้านล่างเพื่อตรวจได้ทันทีครับ");
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+        }
+    }
+
+    function checkPrizesFromInputs() {
+        const firstVal = document.getElementById("prizeFirstInput").value.trim();
+        const last2Val = document.getElementById("prizeLast2Input").value.trim();
+        const front3Vals = document.getElementById("prizeFront3Input").value.trim().split(/[\s,]+/).filter(Boolean);
+        const back3Vals = document.getElementById("prizeBack3Input").value.trim().split(/[\s,]+/).filter(Boolean);
+
+        if (!firstVal && !last2Val && front3Vals.length === 0 && back3Vals.length === 0) {
+            alert("กรุณากรอกเลขรางวัลอย่างน้อย 1 รางวัล หรือกดปุ่มดึงผลอัตโนมัติครับ");
+            return;
+        }
+
+        let near1 = (drawResult && drawResult.near1) ? drawResult.near1 : [];
+        if (/^\d{6}$/.test(firstVal)) {
+            const n = parseInt(firstVal, 10);
+            near1 = [
+                String((n - 1 + 1000000) % 1000000).padStart(6, '0'),
+                String((n + 1) % 1000000).padStart(6, '0')
+            ];
+        }
+
+        drawResult = {
+            drawDateLabel: (drawResult && drawResult.drawDateLabel) ? drawResult.drawDateLabel : periodName,
+            first: firstVal ? [firstVal] : [],
+            near1: near1,
+            second: (drawResult && drawResult.second) ? drawResult.second : [],
+            third: (drawResult && drawResult.third) ? drawResult.third : [],
+            fourth: (drawResult && drawResult.fourth) ? drawResult.fourth : [],
+            fifth: (drawResult && drawResult.fifth) ? drawResult.fifth : [],
+            front3: front3Vals,
+            back3: back3Vals,
+            last2: last2Val ? [last2Val] : []
+        };
+
+        save();
+        renderPrizeCheckSummary();
+        showToast("ตรวจผลรางวัลกับแผงหวยเรียบร้อย!");
+    }
+
+    function clearPrizeResults() {
+        drawResult = null;
+        syncPrizeInputsFromState();
+        save();
+        renderPrizeCheckSummary();
+        showToast("ล้างผลการตรวจรางวัลแล้ว");
+    }
+
+    function getWinningTicketsSummary() {
+        const winners = [];
+        let totalPrizeMoney = 0;
+
+        tickets.forEach(t => {
+            const wins = evaluateTicketPrizes(String(t.number || ""));
+            if (wins.length > 0) {
+                const reward = wins.reduce((s, w) => s + w.rewardPerPair, 0);
+                totalPrizeMoney += reward;
+                winners.push({
+                    number: t.number,
+                    customer: t.customer || "ยังไม่ขาย (อยู่บนแผง)",
+                    isPaid: !!t.isPaid,
+                    prizes: wins.map(w => w.name),
+                    totalReward: reward
+                });
+            }
+        });
+
+        return { winners, totalPrizeMoney };
+    }
+
+    function renderPrizeCheckSummary() {
+        const box = document.getElementById("prizeCheckResultBox");
+        if (!drawResult) {
+            box.innerHTML = `<div class="text-center text-muted small py-2">กดปุ่มดึงผลรางวัลอัตโนมัติ หรือกรอกเลขเพื่อเริ่มตรวจได้เลยครับ</div>`;
+            return;
+        }
+
+        const { winners, totalPrizeMoney } = getWinningTicketsSummary();
+
+        if (winners.length === 0) {
+            box.innerHTML = `
+            <div class="alert alert-secondary text-center rounded-4 mb-0">
+                <i class="fas fa-info-circle me-1"></i> ตรวจแล้ว: ไม่มีสลากใบไหนในแผงที่ถูกรางวัลในงวดนี้ครับ
+            </div>`;
+            return;
+        }
+
+        let html = `
+        <div class="p-3 rounded-4" style="background: #fffbeb; border: 2px solid #f59e0b;">
+            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-warning">
+                <span class="fw-bold text-dark"><i class="fas fa-crown text-warning me-1"></i> พบสลากถูกรางวัล ${winners.length} ชุด!</span>
+                <span class="badge bg-success fs-6">รวม ฿${totalPrizeMoney.toLocaleString()}</span>
+            </div>
+            <div class="mb-2">`;
+
+        winners.forEach(w => {
+            html += `
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <div>
+                    <span class="fw-bold fs-5 text-dark" style="letter-spacing: 1.5px;">🎟️ ${w.number}</span>
+                    <div class="small text-primary fw-bold"><i class="fas fa-user me-1"></i>${escapeHtml(w.customer)}</div>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-warning text-dark">${w.prizes.join(" + ")}</span>
+                    <div class="fw-bold text-success">฿${w.totalReward.toLocaleString()}</div>
+                </div>
+            </div>`;
+        });
+
+        html += `
+            </div>
+            <button class="btn btn-success w-100 py-2 fw-bold rounded-btn shadow-sm mt-1" onclick="copyWinnersAnnouncement()">
+                <i class="fas fa-copy me-1"></i> คัดลอกผลผู้โชคดีไปแจ้งลูกค้า
+            </button>
+        </div>`;
+
+        box.innerHTML = html;
+    }
+
+    function copyWinnersAnnouncement() {
+        const { winners, totalPrizeMoney } = getWinningTicketsSummary();
+        if (winners.length === 0) return;
+
+        let txt = `🎉 ขอแสดงความยินดีกับผู้โชคดี (${periodName}) 🎉\n`;
+        txt += `━━━━━━━━━━━━━━━━━━━\n`;
+        winners.forEach(w => {
+            txt += `🎟️ เลข ${w.number} (ชุด 2 ใบ)\n`;
+            txt += `🏆 ถูก${w.prizes.join(" + ")} รับเงิน ฿${w.totalReward.toLocaleString()}\n`;
+            txt += `👤 ผู้โชคดี: ${w.customer}\n`;
+            txt += `───────────────────\n`;
+        });
+        txt += `💰 รวมเงินรางวัลทั้งสิ้น: ฿${totalPrizeMoney.toLocaleString()} บาท`;
+
+        navigator.clipboard.writeText(txt).then(() => {
+            showToast("คัดลอกรายชื่อผู้โชคดีเรียบร้อยแล้ว!");
+        });
+    }
+
+    // --- ระบบเริ่มงวดใหม่ & ประวัติถูกรางวัลย้อนหลัง (Archive) ---
+    function confirmNewPeriod() {
+        document.getElementById("clearModalPeriodName").innerText = periodName || "งวดปัจจุบัน";
+        const { winners, totalPrizeMoney } = getWinningTicketsSummary();
+        const previewText = document.getElementById("archiveWinnerPreviewText");
+
+        if (winners.length > 0) {
+            previewText.innerHTML = `งวดนี้มีสลากถูกรางวัล <b>${winners.length} ชุด</b> (รวมเงินรางวัล <b>฿${totalPrizeMoney.toLocaleString()}</b>) ระบบจะบันทึกเฉพาะรายการที่ถูกรางวัลเก็บไว้ในเมนู "ประวัติถูกหวย"`;
+        } else {
+            previewText.innerHTML = `งวดนี้ยังไม่มีรายการที่ถูกรางวัล (หากยังไม่ได้ตรวจหวย แนะนำให้กดเมนู "ตรวจหวย" ก่อนเริ่มงวดใหม่ครับ)`;
+        }
+
+        confirmClearModalInstance.show();
+    }
+
+    function archiveCurrentPeriodWinners(forceArchiveEvenIfEmpty = false) {
+        const { winners, totalPrizeMoney } = getWinningTicketsSummary();
+        if (winners.length === 0 && !forceArchiveEvenIfEmpty) return false;
+
+        const record = {
+            id: "hist_" + Date.now(),
+            periodName: periodName || getDefaultPeriodName(),
+            archivedAt: new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }),
+            totalPairsSold: tickets.filter(t => t.customer).length,
+            totalPairs: tickets.length,
+            winnersCount: winners.length,
+            totalPrizeMoney: totalPrizeMoney,
+            winners: winners
+        };
+
+        const existingIdx = winningHistory.findIndex(h => h.periodName === record.periodName);
+        if (existingIdx >= 0) {
+            winningHistory[existingIdx] = record;
+        } else {
+            winningHistory.unshift(record);
+        }
+        return true;
+    }
+
+    function saveCurrentWinnersToHistoryManual() {
+        const { winners } = getWinningTicketsSummary();
+        if (winners.length === 0) {
+            alert("ยังไม่มีรายการที่ถูกรางวัลในงวดนี้ครับ (กรุณากดเมนู 'ตรวจหวย' ก่อนครับ)");
+            return;
+        }
+        archiveCurrentPeriodWinners(true);
+        save();
+        renderHistoryList();
+        showToast(`บันทึกผู้ถูกรางวัล ${periodName} ลงประวัติเรียบร้อย!`);
+    }
+
+    function executeClearData() {
+        const shouldArchive = document.getElementById("archiveWinnersCheckbox").checked;
+        if (shouldArchive && tickets.length > 0) {
+            const { winners } = getWinningTicketsSummary();
+            if (winners.length > 0) {
+                archiveCurrentPeriodWinners(true);
+            }
+        }
+
+        tickets = [];
+        drawResult = null;
+        periodName = getDefaultPeriodName();
+
+        save();
+        confirmClearModalInstance.hide();
+        openAddNumbersModal('replace');
+    }
+
+    function openHistoryModal() {
+        renderHistoryList();
+        historyModalInstance.show();
+    }
+
+    function renderHistoryList() {
+        const container = document.getElementById("historyListContainer");
+        if (!winningHistory || winningHistory.length === 0) {
+            container.innerHTML = `
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-award fs-1 mb-2 text-secondary opacity-50"></i>
+                <p class="mb-0">ยังไม่มีประวัติการถูกรางวัลที่บันทึกไว้ครับ</p>
+                <small>ระบบจะบันทึกให้อัตโนมัติเมื่อตรวจหวยและกดเริ่มงวดใหม่</small>
+            </div>`;
+            return;
+        }
+
+        let html = '';
+        winningHistory.forEach((h, idx) => {
+            html += `
+            <div class="history-card">
+                <div class="d-flex justify-content-between align-items-start mb-2 pb-2 border-bottom">
+                    <div>
+                        <span class="fw-bold text-primary fs-6"><i class="fas fa-calendar-check me-1"></i> ${escapeHtml(h.periodName)}</span>
+                        <div class="text-muted" style="font-size: 0.75rem;">บันทึกเมื่อ: ${escapeHtml(h.archivedAt || "-")} | ขายได้ ${h.totalPairsSold || 0}/${h.totalPairs || 0} ชุด</div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-warning text-dark">ถูก ${h.winnersCount || 0} ชุด (฿${(h.totalPrizeMoney || 0).toLocaleString()})</span>
+                        <button class="btn btn-sm text-danger p-0" onclick="deleteHistoryItem(${idx})" title="ลบประวัตินี้">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>`;
+
+            if (h.winners && h.winners.length > 0) {
+                h.winners.forEach(w => {
+                    html += `
+                    <div class="d-flex justify-content-between align-items-center py-1 small">
+                        <div>
+                            <span class="fw-bold text-dark">🎟️ ${w.number}</span>
+                            <span class="text-secondary ms-2"><i class="fas fa-user me-1"></i>${escapeHtml(w.customer)}</span>
+                        </div>
+                        <div class="text-end">
+                            <span class="text-warning-emphasis fw-bold">${(w.prizes || []).join("+")}</span>
+                            <span class="text-success fw-bold ms-1">(฿${(w.totalReward || 0).toLocaleString()})</span>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                html += `<div class="small text-muted">ไม่มีรายการถูกรางวัลในงวดนี้</div>`;
+            }
+
+            html += `</div>`;
+        });
+
+        container.innerHTML = html;
+    }
+
+    function deleteHistoryItem(idx) {
+        if (!confirm("ต้องการลบประวัติของงวดนี้ใช่หรือไม่?")) return;
+        winningHistory.splice(idx, 1);
+        save();
+        renderHistoryList();
+    }
+
+    // --- ระบบแบคอัพและกู้คืนข้อมูล ---
+    function showBackupModal() {
+        backupModalInstance.show();
+    }
+
+    function exportBackup() {
+        if ((!tickets || tickets.length === 0) && (!winningHistory || winningHistory.length === 0)) {
+            alert("ยังไม่มีข้อมูลในระบบให้แบคอัพครับ");
+            return;
+        }
+
+        const backupPayload = {
+            periodName,
+            tickets,
+            drawResult,
+            winningHistory,
+            savedCustomers,
+            exportedAt: new Date().toISOString()
+        };
+
+        const dataStr = JSON.stringify(backupPayload, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+
+        const date = new Date();
+        const dateString = `${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}`;
+        const exportFileDefaultName = `LottoBackup_${dateString}.json`;
+
+        const linkElement = document.createElement('a');
+        linkElement.href = url;
+        linkElement.download = exportFileDefaultName;
+        document.body.appendChild(linkElement);
+        linkElement.click();
+        document.body.removeChild(linkElement);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+
+        showToast("ดาวน์โหลดไฟล์แบคอัพเรียบร้อยแล้ว");
+    }
+
+    function copyBackupText() {
+        if (!tickets || tickets.length === 0) {
+            alert("ยังไม่มีข้อมูลในระบบให้คัดลอกครับ");
+            return;
+        }
+        const dataStr = JSON.stringify(tickets);
+        navigator.clipboard.writeText(dataStr).then(() => {
+            showToast("คัดลอกโค้ดข้อมูลแล้ว ส่งเก็บใน LINE ได้เลย!");
+        });
+    }
+
+    function restoreFromPastedText() {
+        const raw = document.getElementById("pasteBackupTextarea").value.trim();
+        if (!raw) {
+            alert("กรุณาวางข้อความข้อมูลก่อนกดนำเข้าครับ");
+            return;
+        }
+
+        try {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                tickets = parsed;
+            } else if (parsed && Array.isArray(parsed.tickets) && parsed.tickets.length > 0) {
+                tickets = parsed.tickets;
+                if (parsed.periodName) periodName = parsed.periodName;
+            } else {
+                throw new Error("Invalid JSON array");
+            }
+            sortTicketsArray(tickets);
+            save();
+            document.getElementById("pasteBackupTextarea").value = "";
+            backupModalInstance.hide();
+            showToast(`นำเข้าข้อมูลสำเร็จ (${tickets.length} คู่)!`);
+            return;
+        } catch (err) {
+            // หากไม่ใช่ JSON ลองดึงตัวเลข 6 หลักทั้งหมดจากข้อความที่วาง
+            const nums = parseSixDigitNumbers(raw);
+            if (nums.length > 0) {
+                tickets = [...new Set(nums)].map(n => ({
+                    number: String(n),
+                    price: PRICE_PER_PAIR,
+                    customer: "",
+                    isPaid: false
+                }));
+                sortTicketsArray(tickets);
+                save();
+                document.getElementById("pasteBackupTextarea").value = "";
+                backupModalInstance.hide();
+                showToast(`ดึงเลขหวย 6 หลักได้ ${tickets.length} คู่!`);
+                return;
+            }
+            alert("ไม่พบข้อมูลที่ถูกต้อง กรุณาตรวจสอบข้อความที่วางอีกครั้งครับ");
+        }
+    }
+
+    function triggerRestore() {
+        document.getElementById('restoreFileInput').click();
+    }
+
+    function importBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (Array.isArray(imported)) {
+                    tickets = imported;
+                } else if (imported && Array.isArray(imported.tickets)) {
+                    tickets = imported.tickets;
+                    if (imported.periodName) periodName = imported.periodName;
+                    if (imported.drawResult) drawResult = imported.drawResult;
+                    if (Array.isArray(imported.winningHistory)) winningHistory = imported.winningHistory;
+                    if (Array.isArray(imported.savedCustomers)) savedCustomers = imported.savedCustomers;
+                } else {
+                    alert("รูปแบบไฟล์ไม่ถูกต้อง หรือไม่มีข้อมูลในไฟล์ครับ");
+                    return;
+                }
+
+                sortTicketsArray(tickets);
+                save();
+                showToast("กู้คืนข้อมูลและซิงค์ขึ้น Cloud สำเร็จ!");
+                backupModalInstance.hide();
+            } catch (err) {
+                alert("เกิดข้อผิดพลาดในการอ่านไฟล์ กรุณาตรวจสอบว่าเป็นไฟล์แบคอัพที่ถูกต้องครับ");
+            }
+            event.target.value = '';
+        };
+        reader.readAsText(file);
+    }
+
+    function showToast(message) {
+        const toastEl = document.getElementById('copyToast');
+        document.getElementById('toastMessage').innerHTML = `<i class="fas fa-check-circle text-success me-2 fs-5 align-middle"></i> ${message}`;
+        const toast = new bootstrap.Toast(toastEl, { delay: 2200 });
+        toast.show();
+    }
+
+    // --- ระบบสร้างรูปแผงหวยจากเลขที่ยังว่าง ---
+    const LOTTO_BG_URI = "data:image/jpeg;base64,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";
+    const LOTTO_DIGITS_URI = "data:image/png;base64,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";
+    let cachedLottoBgImg = null;
+    let cachedLottoDigitsImg = null;
+
+    function loadLottoTemplateAssets() {
+        return new Promise((resolve, reject) => {
+            if (cachedLottoBgImg && cachedLottoDigitsImg) {
+                resolve({ bg: cachedLottoBgImg, digits: cachedLottoDigitsImg });
+                return;
+            }
+            let loaded = 0;
+            const bgImg = new Image();
+            const digImg = new Image();
+            const checkDone = () => {
+                loaded++;
+                if (loaded === 2) {
+                    cachedLottoBgImg = bgImg;
+                    cachedLottoDigitsImg = digImg;
+                    resolve({ bg: bgImg, digits: digImg });
+                }
+            };
+            bgImg.onload = checkDone;
+            digImg.onload = checkDone;
+            bgImg.onerror = reject;
+            digImg.onerror = reject;
+            bgImg.src = LOTTO_BG_URI;
+            digImg.src = LOTTO_DIGITS_URI;
+        });
+    }
+
+    function parsePeriodToDrawDates(periodStr) {
+        const fullMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+        const shortMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+        const shortMonthsNoDot = ["มค", "กพ", "มีค", "เมย", "พค", "มิย", "กค", "สค", "กย", "ตค", "พย", "ธค"];
+        const engMonths = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+
+        const now = new Date();
+        let day = now.getDate() <= 16 ? 16 : 1;
+        let monthIdx = now.getDate() <= 16 ? now.getMonth() : (now.getMonth() + 1) % 12;
+        let yearBE4 = now.getFullYear() + 543 + (now.getDate() > 16 && now.getMonth() === 11 ? 1 : 0);
+
+        const s = String(periodStr || "").trim();
+        if (s) {
+            let foundMonth = -1;
+            for (let i = 0; i < 12; i++) {
+                if (s.includes(fullMonths[i]) || s.includes(shortMonths[i])) {
+                    foundMonth = i;
+                    break;
+                }
+            }
+            if (foundMonth === -1) {
+                const sClean = s.replace(/\./g, "");
+                for (let i = 0; i < 12; i++) {
+                    if (sClean.includes(shortMonthsNoDot[i])) {
+                        foundMonth = i;
+                        break;
+                    }
+                }
+            }
+            if (foundMonth !== -1) monthIdx = foundMonth;
+
+            const numMatches = s.match(/\d+/g);
+            if (numMatches && numMatches.length > 0) {
+                const firstNum = parseInt(numMatches[0], 10);
+                if (firstNum >= 1 && firstNum <= 31) {
+                    day = firstNum;
+                }
+                if (numMatches.length >= 2) {
+                    const lastNum = parseInt(numMatches[numMatches.length - 1], 10);
+                    if (lastNum >= 2500) {
+                        yearBE4 = lastNum;
+                    } else if (lastNum >= 50 && lastNum <= 99) {
+                        yearBE4 = 2500 + lastNum;
+                    }
+                }
+            }
+        }
+
+        const yearBE2 = String(yearBE4).slice(-2);
+        const yearCE4 = yearBE4 - 543;
+        return {
+            thaiFull: `${day} ${fullMonths[monthIdx]} ${yearBE4}`,
+            engFull: `${day} ${engMonths[monthIdx]} ${yearCE4}`,
+            thaiPink: `${day} ${fullMonths[monthIdx]} ${yearBE2}`
+        };
+    }
+
+    function openHistoryFromPrizeModal() {
+        prizeCheckModalInstance.hide();
+        setTimeout(() => {
+            openHistoryModal();
+        }, 200);
+    }
+
+    async function openLottoImageModal() {
+        const unsold = tickets.filter(t => !t.customer || t.customer.trim() === "").map(t => String(t.number).padStart(6, '0'));
+        const count = unsold.length;
+
+        document.getElementById("lottoImgRemainCount").innerText = count;
+        const emptyState = document.getElementById("lottoImageEmptyState");
+        const previewWrap = document.getElementById("lottoImagePreviewWrap");
+        const downloadBtn = document.getElementById("btnDownloadLottoImg");
+        const descEl = document.getElementById("lottoImgLayoutDesc");
+
+        if (count === 0) {
+            emptyState.classList.remove("d-none");
+            previewWrap.classList.add("d-none");
+            downloadBtn.disabled = true;
+            descEl.innerText = "ไม่มีหวยคงเหลือในขณะนี้";
+            lottoImageModalInstance.show();
+            return;
+        }
+
+        emptyState.classList.add("d-none");
+        previewWrap.classList.remove("d-none");
+        downloadBtn.disabled = false;
+
+        const dates = parsePeriodToDrawDates(periodName);
+        let columns = [];
+        if (count < 10) {
+            columns = [unsold];
+            descEl.innerText = `แสดง 1 แถว (${count} คู่) • งวดวันที่ ${dates.thaiFull}`;
+        } else {
+            const leftCount = Math.ceil(count / 2);
+            const rightCount = count - leftCount;
+            columns = [unsold.slice(0, leftCount), unsold.slice(leftCount)];
+            descEl.innerText = `แบ่ง 2 แถว (แถวแรก ${leftCount} คู่ / แถวสอง ${rightCount} คู่) • งวดวันที่ ${dates.thaiFull}`;
+        }
+
+        lottoImageModalInstance.show();
+        await renderLottoColumnsToCanvas(columns, dates);
+    }
+
+    async function renderLottoColumnsToCanvas(columns, dates) {
+        const { bg, digits } = await loadLottoTemplateAssets();
+        const colW = 400;
+        const pad = 24;
+        const gap = 18;
+        const numCols = columns.length;
+
+        const colHeights = columns.map(col => 6 + ((col.length - 1) * 50) + 180);
+        const maxColH = Math.max(...colHeights);
+
+        const canvasW = pad * 2 + (numCols * colW) + ((numCols - 1) * gap);
+        const canvasH = pad * 2 + maxColH;
+
+        const canvas = document.getElementById("lottoRenderCanvas");
+        canvas.width = canvasW;
+        canvas.height = canvasH;
+        const ctx = canvas.getContext("2d");
+
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvasW, canvasH);
+
+        for (let cIdx = 0; cIdx < numCols; cIdx++) {
+            const col = columns[cIdx];
+            const colX = pad + cIdx * (colW + gap);
+            const n = col.length;
+
+            // วาดขอบเงาด้านบนสุดของตั้งหวย (h=6)
+            ctx.drawImage(bg, 0, 0, colW, 6, colX, pad, colW, 6);
+
+            for (let i = 0; i < n; i++) {
+                const ty = pad + 6 + (i * 50);
+                const isLast = (i === n - 1);
+
+                if (isLast) {
+                    ctx.drawImage(bg, 0, 56, colW, 180, colX, ty, colW, 180);
+                } else {
+                    ctx.drawImage(bg, 0, 6, colW, 50, colX, ty, colW, 50);
+                }
+
+                // วาดตัวเลข 6 หลัก + คำอ่านภาษาอังกฤษ (ระยะห่างเท่ากันทุกใบที่ dy = 11)
+                const numStr = col[i];
+                for (let d = 0; d < 6; d++) {
+                    const digVal = parseInt(numStr[d], 10) || 0;
+                    const dx = colX + 211 + (d * 22);
+                    const dy = ty + 11;
+                    ctx.drawImage(digits, digVal * 22, 0, 22, 34, dx, dy, 22, 34);
+                }
+
+                // วาดวันที่แนวตั้งบนแถบสีชมพูด้านขวา
+                ctx.save();
+                ctx.translate(colX + 375, ty + 28);
+                ctx.rotate(Math.PI / 2);
+                ctx.scale(0.82, 1.0);
+                ctx.fillStyle = "rgba(55, 25, 45, 0.85)";
+                ctx.font = "bold 7.2px Tahoma, 'Sarabun', sans-serif";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(dates.thaiPink, 0, 0);
+                ctx.restore();
+
+                // หากเป็นใบล่างสุดของแถว ให้วาดวันที่งวดภาษาไทยและอังกฤษ
+                if (isLast) {
+                    ctx.save();
+                    ctx.fillStyle = "rgba(30, 27, 85, 0.96)";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.font = "bold 13.5px Tahoma, 'Sarabun', sans-serif";
+                    ctx.fillText(dates.thaiFull, colX + 278, ty + 57);
+                    ctx.font = "bold 10.5px 'Arial Narrow', Arial, sans-serif";
+                    ctx.fillText(dates.engFull, colX + 278, ty + 72);
+                    ctx.restore();
+
+                    [86, 142].forEach(extraOffset => {
+                        ctx.save();
+                        ctx.translate(colX + 375, ty + extraOffset);
+                        ctx.rotate(Math.PI / 2);
+                        ctx.scale(0.82, 1.0);
+                        ctx.fillStyle = "rgba(55, 25, 45, 0.85)";
+                        ctx.font = "bold 7.2px Tahoma, 'Sarabun', sans-serif";
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "middle";
+                        ctx.fillText(dates.thaiPink, 0, 0);
+                        ctx.restore();
+                    });
+                }
+            }
+        }
+
+        const dataUrl = canvas.toDataURL("image/png");
+        document.getElementById("lottoRenderedImg").src = dataUrl;
+    }
+
+    function downloadLottoImage() {
+        const canvas = document.getElementById("lottoRenderCanvas");
+        if (!canvas || !canvas.width) return;
+        const unsoldCount = tickets.filter(t => !t.customer || t.customer.trim() === "").length;
+        const safePeriod = (periodName || "lotto").replace(/\s+/g, "_");
+        const link = document.createElement("a");
+        link.download = `หวยคงเหลือ_${unsoldCount}คู่_${safePeriod}.png`;
+        link.href = canvas.toDataURL("image/png");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast("ดาวน์โหลดรูปใบหวยเรียบร้อยแล้ว!");
+    }
+
+    function init() {
+        setupModalInstance = new bootstrap.Modal(document.getElementById('setupModal'));
+        editTicketModalInstance = new bootstrap.Modal(document.getElementById('editTicketModal'));
+        confirmClearModalInstance = new bootstrap.Modal(document.getElementById('confirmClearModal'));
+        backupModalInstance = new bootstrap.Modal(document.getElementById('backupModal'));
+        personModalInstance = new bootstrap.Modal(document.getElementById('personModal'));
+        summaryModalInstance = new bootstrap.Modal(document.getElementById('summaryModal'));
+        prizeCheckModalInstance = new bootstrap.Modal(document.getElementById('prizeCheckModal'));
+        historyModalInstance = new bootstrap.Modal(document.getElementById('historyModal'));
+        lottoImageModalInstance = new bootstrap.Modal(document.getElementById('lottoImageModal'));
+
+        document.getElementById('rawNumbersInput').addEventListener('input', updateTextareaCount);
+
+        // 1. โหลดข้อมูลในเครื่องขึ้นแสดงก่อนทันทีเพื่อความไว
+        loadFromLocalStorage();
+        updateHeaderCount();
+        updateCustomerDatalist();
+        renderList();
+
+        // 2. เชื่อมต่อ Firebase Realtime Database เพื่อซิงค์ข้อมูลข้ามเครื่องแบบเรียลไทม์
+        startRealtimeSync();
     }
 
     window.onload = init;
