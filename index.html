@@ -2271,7 +2271,7 @@
         const gap = 18;
         const numCols = columns.length;
 
-        const colHeights = columns.map(col => 6 + ((col.length - 1) * 50) + 180);
+        const colHeights = columns.map(col => 6 + ((col.length - 1) * 50) + 173);
         const maxColH = Math.max(...colHeights);
 
         const canvasW = pad * 2 + (numCols * colW) + ((numCols - 1) * gap);
@@ -2298,7 +2298,7 @@
                 const isLast = (i === n - 1);
 
                 if (isLast) {
-                    ctx.drawImage(bg, 0, 56, colW, 180, colX, ty, colW, 180);
+                    ctx.drawImage(bg, 0, 63, colW, 173, colX, ty, colW, 173);
                 } else {
                     ctx.drawImage(bg, 0, 6, colW, 50, colX, ty, colW, 50);
                 }
@@ -2326,21 +2326,21 @@
 
                 // หากเป็นใบล่างสุดของแถว ให้ล้างคราบข้อความเก่าบนแถบชมพูด้านขวาก่อน แล้ววาดวันที่งวดภาษาไทยและอังกฤษ
                 if (isLast) {
-                    ctx.drawImage(bg, 366, 6, 20, 50, colX + 366, ty + 56, 20, 50);
-                    ctx.drawImage(bg, 366, 6, 20, 50, colX + 366, ty + 106, 20, 50);
-                    ctx.drawImage(bg, 366, 6, 20, 20, colX + 366, ty + 156, 20, 20);
+                    ctx.drawImage(bg, 366, 6, 20, 50, colX + 366, ty + 50, 20, 50);
+                    ctx.drawImage(bg, 366, 6, 20, 50, colX + 366, ty + 100, 20, 50);
+                    ctx.drawImage(bg, 366, 6, 20, 20, colX + 366, ty + 150, 20, 20);
 
                     ctx.save();
                     ctx.fillStyle = "rgba(30, 27, 85, 0.96)";
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
                     ctx.font = "bold 13.5px Tahoma, 'Sarabun', sans-serif";
-                    ctx.fillText(dates.thaiFull, colX + 278, ty + 57);
+                    ctx.fillText(dates.thaiFull, colX + 278, ty + 50);
                     ctx.font = "bold 10.5px 'Arial Narrow', Arial, sans-serif";
-                    ctx.fillText(dates.engFull, colX + 278, ty + 72);
+                    ctx.fillText(dates.engFull, colX + 278, ty + 65);
                     ctx.restore();
 
-                    [86, 142].forEach(extraOffset => {
+                    [79, 135].forEach(extraOffset => {
                         ctx.save();
                         ctx.translate(colX + 375, ty + extraOffset);
                         ctx.rotate(Math.PI / 2);
