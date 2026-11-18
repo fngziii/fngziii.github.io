@@ -89,6 +89,17 @@
         .history-card { border-radius: 16px; border: 1px solid #e2e8f0; background: #ffffff; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
         .period-badge { cursor: pointer; background: #eff6ff; color: #1d4ed8; border: 1px dashed #93c5fd; padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
         .period-badge:hover { background: #dbeafe; }
+
+        /* Quick Multi-Buy Grid */
+        .quick-buy-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        @media (min-width: 576px) { .quick-buy-grid { grid-template-columns: repeat(5, 1fr); } }
+        .quick-tile { border: 1.5px solid #cbd5e1; border-radius: 14px; background: #ffffff; padding: 8px 4px; text-align: center; cursor: pointer; transition: all 0.15s; user-select: none; position: relative; }
+        .quick-tile:hover { border-color: #3b82f6; background: #f8fafc; }
+        .quick-tile.selected { border-color: #2563eb; background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%); color: #ffffff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); transform: translateY(-1px); }
+        .quick-tile-full { font-size: 0.7rem; letter-spacing: 0.5px; color: #64748b; font-weight: 600; line-height: 1.1; }
+        .quick-tile.selected .quick-tile-full { color: rgba(255,255,255,0.85); }
+        .quick-tile-last2 { font-size: 1.35rem; font-weight: 800; line-height: 1.15; color: #1e293b; }
+        .quick-tile.selected .quick-tile-last2 { color: #ffffff; }
     </style>
 </head>
 
@@ -121,8 +132,8 @@
         <!-- Menu Buttons (Row 1 & Row 2) -->
         <div class="row g-2 mb-2">
             <div class="col-4">
-                <button class="btn btn-primary w-100 main-menu-btn shadow-sm" onclick="openAddNumbersModal('append')">
-                    <i class="fas fa-plus-circle"></i> เพิ่มเลข
+                <button class="btn btn-primary w-100 main-menu-btn shadow-sm" onclick="openQuickBuyModal()">
+                    <i class="fas fa-bolt text-warning"></i> ซื้อหลายใบ
                 </button>
             </div>
             <div class="col-4">
@@ -285,6 +296,13 @@
                 <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body px-4 py-3">
+                <div class="p-3 rounded-3 mb-3" style="background: #eff6ff; border: 1px solid #bfdbfe;">
+                    <div class="fw-bold text-dark small mb-2"><i class="fas fa-plus-circle text-primary me-1"></i> ต้องการเพิ่มเลขในงวดปัจจุบัน?</div>
+                    <button class="btn btn-primary w-100 py-2 rounded-btn fw-bold shadow-sm" onclick="confirmClearModalInstance.hide(); openAddNumbersModal('append');">
+                        <i class="fas fa-plus-circle me-1"></i> เพิ่มเลขหวยระหว่างงวด (ข้อมูลเดิมไม่หาย)
+                    </button>
+                </div>
+
                 <p class="text-muted mb-3">เมื่อเริ่มงวดใหม่ ข้อมูลแผงหวยใน <b><span id="clearModalPeriodName">งวดนี้</span></b> จะถูกล้างเพื่อเตรียมใส่เลขงวดถัดไป</p>
 
                 <!-- Preview Winners to Archive -->
@@ -512,6 +530,61 @@
     </div>
 </div>
 
+<!-- แผงตารางจิ้มซื้อหลายใบด่วน -->
+<div class="modal fade" id="quickBuyModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+            <div class="modal-header border-bottom-0 px-4 pt-3 pb-2">
+                <div>
+                    <h5 class="modal-title fw-bold text-dark"><i class="fas fa-bolt text-warning me-1"></i> ซื้อหลายใบด่วน</h5>
+                    <small class="text-muted">แตะเลือกเลขที่ต้องการได้หลายใบพร้อมกัน (ว่าง <span id="quickModalEmptyCount" class="fw-bold text-primary">0</span> คู่)</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-3 pt-1 pb-3">
+                <div class="input-group input-group-sm mb-2 rounded-input-group">
+                    <span class="input-group-text px-2"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" id="quickBuySearchInput" class="form-control" inputmode="numeric" placeholder="พิมพ์ค้นหาเลข (เช่น 05 หรือ 84)..." oninput="renderQuickBuyGrid()">
+                    <button class="btn btn-sm text-muted d-none" id="quickBuyClearSearchBtn" onclick="document.getElementById('quickBuySearchInput').value=''; renderQuickBuyGrid();">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
+                <div id="quickBuyGridContainer" class="quick-buy-grid"></div>
+                <div id="quickBuyEmptyMsg" class="text-center py-4 text-muted d-none">
+                    ไม่พบเลขว่างที่ตรงกับคำค้นหา
+                </div>
+            </div>
+            <div class="modal-footer border-top bg-light px-3 py-3 d-block" style="border-bottom-left-radius: 24px; border-bottom-right-radius: 24px;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <span class="fw-bold text-dark">เลือกอยู่: <span id="quickModalSelectedCount" class="text-primary">0</span> คู่</span>
+                        <span class="text-success fw-bold ms-2" id="quickModalTotalPrice">(฿0)</span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0" onclick="clearBulkSelection()">
+                        ล้างที่เลือก
+                    </button>
+                </div>
+                <div class="input-group rounded-input-group mb-2 bg-white">
+                    <span class="input-group-text px-2"><i class="fas fa-user-circle text-primary"></i></span>
+                    <input type="text" id="quickModalCustomerInput" class="form-control py-2 fw-bold" list="customerSuggestions" placeholder="ใส่ชื่อลูกค้า...">
+                </div>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <button type="button" class="btn btn-warning w-100 py-2 fw-bold rounded-btn text-dark shadow-sm" onclick="saveQuickBuyModal(false)">
+                            <i class="fas fa-clock me-1"></i> จอง (รอโอน)
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button type="button" class="btn btn-success w-100 py-2 fw-bold rounded-btn shadow-sm" onclick="saveQuickBuyModal(true)">
+                            <i class="fas fa-check-circle me-1"></i> รับเงินแล้ว
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Toast แจ้งเตือน -->
 <div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1080;">
     <div id="copyToast" class="toast align-items-center text-bg-dark border-0 shadow-lg" style="border-radius: 50px;" role="alert" aria-live="assertive" aria-atomic="true">
@@ -568,6 +641,7 @@
     let currentUnsoldTextToCopy = "";
     let isInitialCloudLoadDone = false;
     let lastLocalUpdateStamp = "";
+    let selectedTicketIndices = new Set();
 
     // Bootstrap Modal Instances
     let setupModalInstance;
@@ -579,6 +653,7 @@
     let prizeCheckModalInstance;
     let historyModalInstance;
     let lottoImageModalInstance;
+    let quickBuyModalInstance;
 
     function getDefaultPeriodName() {
         const d = new Date();
@@ -1133,6 +1208,13 @@
                 clearBtn.classList.toggle("d-none", !searchValue);
             }
 
+            // ล้างรายการที่เลือกไว้หากใบนั้นถูกขายไปแล้วหรือถูกลบ
+            for (const idx of [...selectedTicketIndices]) {
+                if (!tickets[idx] || tickets[idx].customer) {
+                    selectedTicketIndices.delete(idx);
+                }
+            }
+
             const listContainer = document.getElementById("lottoList");
             let sold = 0, money = 0, totalWinners = 0;
             let htmlContent = '';
@@ -1242,6 +1324,11 @@
             document.getElementById("soldCount").innerText = `${sold} / ${tickets.length}`;
             document.getElementById("moneyCount").innerText = `฿ ${money.toLocaleString()}`;
 
+            const quickModalEl = document.getElementById("quickBuyModal");
+            if (quickModalEl && quickModalEl.classList.contains("show")) {
+                renderQuickBuyGrid();
+            }
+
             const winnerFilterBtn = document.getElementById("btn-filter-winner");
             const winnerFilterCount = document.getElementById("winnerFilterCount");
             if (drawResult) {
@@ -1268,6 +1355,111 @@
         if (!tickets[i].customer) return;
         tickets[i].isPaid = !tickets[i].isPaid;
         save();
+    }
+
+    // --- ระบบซื้อหลายใบด่วน (แผงจิ้มเลือกหลายใบในจอเดียว) ---
+    function toggleTicketSelection(i) {
+        if (!tickets[i] || tickets[i].customer) return;
+        if (selectedTicketIndices.has(i)) {
+            selectedTicketIndices.delete(i);
+        } else {
+            selectedTicketIndices.add(i);
+        }
+        renderQuickBuyGrid();
+    }
+
+    function clearBulkSelection() {
+        selectedTicketIndices.clear();
+        renderQuickBuyGrid();
+    }
+
+    function openQuickBuyModal() {
+        const searchEl = document.getElementById("quickBuySearchInput");
+        if (searchEl) searchEl.value = "";
+        renderQuickBuyGrid();
+        quickBuyModalInstance.show();
+    }
+
+    function renderQuickBuyGrid() {
+        const container = document.getElementById("quickBuyGridContainer");
+        const emptyMsg = document.getElementById("quickBuyEmptyMsg");
+        const searchEl = document.getElementById("quickBuySearchInput");
+        const clearBtn = document.getElementById("quickBuyClearSearchBtn");
+        if (!container) return;
+
+        for (const idx of [...selectedTicketIndices]) {
+            if (!tickets[idx] || tickets[idx].customer) {
+                selectedTicketIndices.delete(idx);
+            }
+        }
+
+        const keyword = searchEl ? searchEl.value.trim() : "";
+        if (clearBtn) clearBtn.classList.toggle("d-none", !keyword);
+
+        const unsoldItems = [];
+        tickets.forEach((t, idx) => {
+            if (!t.customer) {
+                unsoldItems.push({ idx, number: String(t.number || "") });
+            }
+        });
+
+        document.getElementById("quickModalEmptyCount").innerText = unsoldItems.length;
+
+        const filtered = keyword
+            ? unsoldItems.filter(item => item.number.includes(keyword))
+            : unsoldItems;
+
+        if (filtered.length === 0) {
+            container.innerHTML = "";
+            emptyMsg.classList.remove("d-none");
+        } else {
+            emptyMsg.classList.add("d-none");
+            container.innerHTML = filtered.map(item => {
+                const isSel = selectedTicketIndices.has(item.idx);
+                const first4 = escapeHtml(item.number.slice(0, 4));
+                const last2 = escapeHtml(item.number.slice(-2));
+                return `
+                <div class="quick-tile ${isSel ? 'selected' : ''}" onclick="toggleTicketSelection(${item.idx})">
+                    <div class="quick-tile-full">${first4}${last2}</div>
+                    <div class="quick-tile-last2">${last2}</div>
+                </div>`;
+            }).join("");
+        }
+
+        const selCount = selectedTicketIndices.size;
+        document.getElementById("quickModalSelectedCount").innerText = selCount;
+        document.getElementById("quickModalTotalPrice").innerText = `(฿${(selCount * PRICE_PER_PAIR).toLocaleString()})`;
+    }
+
+    function saveQuickBuyModal(isPaid) {
+        const count = selectedTicketIndices.size;
+        if (count === 0) {
+            alert("กรุณาเลือกเลขหวยอย่างน้อย 1 คู่ก่อนครับ");
+            return;
+        }
+
+        const inputEl = document.getElementById("quickModalCustomerInput");
+        const customerName = inputEl ? inputEl.value.trim() : "";
+        if (!customerName) {
+            alert("กรุณาใส่ชื่อลูกค้าก่อนบันทึกครับ");
+            if (inputEl) inputEl.focus();
+            return;
+        }
+
+        let updatedCount = 0;
+        for (const idx of selectedTicketIndices) {
+            if (tickets[idx] && !tickets[idx].customer) {
+                tickets[idx].customer = customerName;
+                tickets[idx].isPaid = Boolean(isPaid);
+                updatedCount++;
+            }
+        }
+
+        selectedTicketIndices.clear();
+        if (inputEl) inputEl.value = "";
+        save();
+        quickBuyModalInstance.hide();
+        showToast(`บันทึก "${customerName}" จำนวน ${updatedCount} คู่ (${isPaid ? 'รับเงินแล้ว' : 'รอโอน'}) เรียบร้อย!`);
     }
 
     // --- ระบบบิลเรียกเก็บเงิน & ปุ่มรับเงินครบทั้งบิล ---
@@ -2132,8 +2324,12 @@
                 ctx.fillText(dates.thaiPink, 0, 0);
                 ctx.restore();
 
-                // หากเป็นใบล่างสุดของแถว ให้วาดวันที่งวดภาษาไทยและอังกฤษ
+                // หากเป็นใบล่างสุดของแถว ให้ล้างคราบข้อความเก่าบนแถบชมพูด้านขวาก่อน แล้ววาดวันที่งวดภาษาไทยและอังกฤษ
                 if (isLast) {
+                    ctx.drawImage(bg, 366, 6, 20, 50, colX + 366, ty + 56, 20, 50);
+                    ctx.drawImage(bg, 366, 6, 20, 50, colX + 366, ty + 106, 20, 50);
+                    ctx.drawImage(bg, 366, 6, 20, 20, colX + 366, ty + 156, 20, 20);
+
                     ctx.save();
                     ctx.fillStyle = "rgba(30, 27, 85, 0.96)";
                     ctx.textAlign = "center";
@@ -2188,6 +2384,7 @@
         prizeCheckModalInstance = new bootstrap.Modal(document.getElementById('prizeCheckModal'));
         historyModalInstance = new bootstrap.Modal(document.getElementById('historyModal'));
         lottoImageModalInstance = new bootstrap.Modal(document.getElementById('lottoImageModal'));
+        quickBuyModalInstance = new bootstrap.Modal(document.getElementById('quickBuyModal'));
 
         document.getElementById('rawNumbersInput').addEventListener('input', updateTextareaCount);
 
