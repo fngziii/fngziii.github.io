@@ -47,7 +47,7 @@
         .stat-card { border-radius: 18px; padding: 12px 10px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.02); position: relative; overflow: hidden; transition: transform 0.2s; }
         .stat-card.sold-card { background-color: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.25); }
         .stat-card.money-card { background-color: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); }
-        .stat-value { font-weight: 800; letter-spacing: 0.5px; }
+        .stat-value { font-weight: 800; letter-spacing: 0.5px; line-height: 1.2; }
 
         /* Ticket Item */
         .ticket-item { background: var(--card-bg); border-radius: 20px; margin-bottom: 14px; padding: 18px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.25s ease; position: relative; overflow: hidden; }
@@ -83,6 +83,7 @@
         .search-input { border: none; background: transparent; width: 100%; outline: none; font-size: 16px; }
 
         .main-menu-btn { border-radius: 14px; font-size: 0.85rem; padding: 9px 6px; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); white-space: nowrap; }
+        @media (max-width: 420px) { .main-menu-btn { font-size: 0.74rem; padding: 9px 4px; gap: 4px; } }
         .filter-btn { border-radius: 30px; padding: 5px 14px; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; border: 2px solid transparent; }
 
         .badge-custom { padding: 6px 12px; font-size: 0.78rem; font-weight: 600; border-radius: 30px; }
@@ -139,29 +140,29 @@
 
     <div class="sticky-header">
         <!-- Header Card -->
-        <div class="d-flex align-items-start justify-content-between mb-2 p-3 shop-header-card">
-            <div class="d-flex align-items-center min-w-0 flex-grow-1">
+        <div class="shop-header-card p-3 mb-2">
+            <div class="d-flex align-items-center">
                 <div class="shop-icon me-3">
                     <i class="fas fa-store"></i>
                 </div>
-                <div class="min-w-0">
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <h5 class="fw-bold m-0 text-dark" id="shopTitle">ร้านหวย (0 คู่)</h5>
+                <div class="flex-grow-1 min-w-0">
+                    <div class="d-flex align-items-center justify-content-between gap-2 min-w-0">
+                        <h5 class="fw-bold m-0 text-dark text-truncate min-w-0" id="shopTitle" style="font-size: clamp(1.05rem, 4.2vw, 1.25rem);">ร้านหวย (0 คู่)</h5>
+                        <a href="00-99/" class="mode-switch-btn" onclick="return goToModePage('00-99/', event)" title="สลับไปหน้าระบบเลข 00-99">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>00-99</span>
+                        </a>
                     </div>
-                    <div class="mt-1 d-flex align-items-center gap-2 flex-wrap">
-                        <span class="period-badge" onclick="promptEditPeriod()" title="คลิกเพื่อเปลี่ยนชื่องวด">
+                    <div class="mt-1 d-flex align-items-center gap-2 flex-nowrap">
+                        <span class="period-badge text-truncate" onclick="promptEditPeriod()" title="คลิกเพื่อเปลี่ยนชื่องวด">
                             <i class="fas fa-calendar-alt"></i> <span id="periodLabel">งวดปัจจุบัน</span> <i class="fas fa-pen" style="font-size: 0.65rem;"></i>
                         </span>
-                        <span id="cloudStatusBadge" class="sync-badge sync-connecting">
+                        <span id="cloudStatusBadge" class="sync-badge sync-connecting flex-shrink-0">
                             <span class="dot-pulse"></span> <span id="cloudStatusText">กำลังซิงค์...</span>
                         </span>
                     </div>
                 </div>
             </div>
-            <a href="00-99/" class="mode-switch-btn ms-2" onclick="return goToModePage('00-99/', event)" title="สลับไปหน้าระบบเลข 00-99">
-                <i class="fas fa-exchange-alt"></i>
-                <span>00-99</span>
-            </a>
         </div>
 
         <!-- Menu Buttons (Row 1 & Row 2) -->
