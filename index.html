@@ -100,6 +100,30 @@
         .quick-tile.selected .quick-tile-full { color: rgba(255,255,255,0.85); }
         .quick-tile-last2 { font-size: 1.35rem; font-weight: 800; line-height: 1.15; color: #1e293b; }
         .quick-tile.selected .quick-tile-last2 { color: #ffffff; }
+
+        /* ปุ่มสลับโหมดมุมขวาบน */
+        .mode-switch-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 11px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            color: #4338ca;
+            border: 1px solid #c7d2fe;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(67, 56, 202, 0.08);
+            transition: all 0.15s ease;
+        }
+        .mode-switch-btn:hover {
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            color: #ffffff;
+            border-color: #4338ca;
+        }
     </style>
 </head>
 
@@ -108,12 +132,12 @@
 
     <div class="sticky-header">
         <!-- Header Card -->
-        <div class="d-flex align-items-center justify-content-between mb-2 p-3 shop-header-card">
-            <div class="d-flex align-items-center">
+        <div class="d-flex align-items-start justify-content-between mb-2 p-3 shop-header-card">
+            <div class="d-flex align-items-center min-w-0 flex-grow-1">
                 <div class="shop-icon me-3">
                     <i class="fas fa-store"></i>
                 </div>
-                <div>
+                <div class="min-w-0">
                     <div class="d-flex align-items-center gap-2 flex-wrap">
                         <h5 class="fw-bold m-0 text-dark" id="shopTitle">ร้านหวย (0 คู่)</h5>
                     </div>
@@ -127,6 +151,10 @@
                     </div>
                 </div>
             </div>
+            <a href="00-99/" class="mode-switch-btn ms-2" onclick="return goToModePage('00-99/', event)" title="สลับไปหน้าระบบเลข 00-99">
+                <i class="fas fa-exchange-alt"></i>
+                <span>00-99</span>
+            </a>
         </div>
 
         <!-- Menu Buttons (Row 1 & Row 2) -->
@@ -143,7 +171,7 @@
             </div>
             <div class="col-4">
                 <button class="btn btn-dark w-100 main-menu-btn shadow-sm" onclick="showSummary()">
-                    <i class="fas fa-chart-pie text-white"></i> ยอดรวม
+                    <i class="fas fa-chart-pie text-white"></i> ยอดรวม/เหลือ
                 </button>
             </div>
             <div class="col-4">
@@ -174,12 +202,18 @@
                 <div class="stat-card sold-card">
                     <div class="text-primary fw-bold mb-1" style="font-size: 0.82rem;"><i class="fas fa-shopping-cart"></i> ขายแล้ว (ชุดคู่)</div>
                     <div class="text-primary fs-4 stat-value" id="soldCount">0 / 0</div>
+                    <div class="text-primary opacity-75 fw-semibold" style="font-size: 0.75rem;">
+                        เหลือ <span id="remainCount">0</span> คู่
+                    </div>
                 </div>
             </div>
             <div class="col-6">
                 <div class="stat-card money-card">
                     <div class="text-success fw-bold mb-1" style="font-size: 0.82rem;"><i class="fas fa-wallet"></i> รับเงินแล้ว</div>
                     <div class="text-success fs-4 stat-value" id="moneyCount">฿ 0</div>
+                    <div class="fw-semibold" style="font-size: 0.75rem; color: #b45309;">
+                        รอโอน <span id="pendingMoneyCount">฿ 0</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1216,13 +1250,14 @@
             }
 
             const listContainer = document.getElementById("lottoList");
-            let sold = 0, money = 0, totalWinners = 0;
+            let sold = 0, money = 0, pendingMoney = 0, totalWinners = 0;
             let htmlContent = '';
 
             tickets.forEach((t, i) => {
                 if (t.customer) {
                     sold++;
                     if (t.isPaid) money += PRICE_PER_PAIR;
+                    else pendingMoney += PRICE_PER_PAIR;
                 }
 
                 const numStr = String(t.number || "");
@@ -1322,7 +1357,9 @@
             }
 
             document.getElementById("soldCount").innerText = `${sold} / ${tickets.length}`;
+            document.getElementById("remainCount").innerText = tickets.length - sold;
             document.getElementById("moneyCount").innerText = `฿ ${money.toLocaleString()}`;
+            document.getElementById("pendingMoneyCount").innerText = `฿ ${pendingMoney.toLocaleString()}`;
 
             const quickModalEl = document.getElementById("quickBuyModal");
             if (quickModalEl && quickModalEl.classList.contains("show")) {
@@ -2372,6 +2409,21 @@
         link.click();
         document.body.removeChild(link);
         showToast("ดาวน์โหลดรูปใบหวยเรียบร้อยแล้ว!");
+    }
+
+    function goToModePage(targetPath, event) {
+        if (event) event.preventDefault();
+        if (window.location.protocol === 'file:') {
+            const path = window.location.pathname || '';
+            if (path.toLowerCase().includes('lotto-web')) {
+                window.location.href = targetPath + 'index.html';
+            } else {
+                window.location.href = 'https://lotto-manage-system.netlify.app/' + targetPath;
+            }
+            return false;
+        }
+        window.location.href = targetPath;
+        return false;
     }
 
     function init() {
